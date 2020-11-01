@@ -1,6 +1,11 @@
 # AAA4J-RADIUS
 
-Java RADIUS library for building RADIUS clients and RADIUS servers.
+![GitHub](https://img.shields.io/github/license/aaa4j/aaa4j-radius)
+[![Maven Central](https://img.shields.io/maven-central/v/org.aaa4j.radius/aaa4j-radius)](https://search.maven.org/search?q=org.aaa4j.radius)
+[![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/aaa4j/aaa4j-radius/Build/master)](https://github.com/aaa4j/aaa4j-radius/actions?query=workflow%3ABuild+branch%3Amaster)
+[![GitHub Repo stars](https://img.shields.io/github/stars/aaa4j/aaa4j-radius)](https://github.com/aaa4j/aaa4j-radius)
+
+Java library for building RADIUS clients and RADIUS servers.
 
 ## Features
 
@@ -16,7 +21,17 @@ Java RADIUS library for building RADIUS clients and RADIUS servers.
 
 ### Client
 
-RADIUS client example:
+Add `aaa4j-radius-client` dependency from [Maven Central](https://search.maven.org/artifact/org.aaa4j.radius/aaa4j-radius-client/0.1.0/jar):
+
+```xml
+<dependency>
+    <groupId>org.aaa4j.radius</groupId>
+    <artifactId>aaa4j-radius-client</artifactId>
+    <version>0.1.0</version>
+</dependency>
+```
+
+Build a `RadiusClient` using `UdpRadiusClient.newBuilder()` and send a request packet using `send()`:
 
 ```java
 package org.aaa4j.radius.examples;
@@ -72,7 +87,17 @@ public class Main {
 
 ### Server
 
-RADIUS server example:
+Add `aaa4j-radius-server` dependency  from [Maven Central](https://search.maven.org/artifact/org.aaa4j.radius/aaa4j-radius-server/0.1.0/jar):
+
+```xml
+<dependency>
+    <groupId>org.aaa4j.radius</groupId>
+    <artifactId>aaa4j-radius-server</artifactId>
+    <version>0.1.0</version>
+</dependency>
+```
+
+Implement `RadiusServer.Handler` to handle RADIUS clients and packets, build a `RadiusServer` using `UdpRadiusServer.newBuilder()`, and start the server using `start()`:
 
 ```java
 package org.aaa4j.radius.examples;
