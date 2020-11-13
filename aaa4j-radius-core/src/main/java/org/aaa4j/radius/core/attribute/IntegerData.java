@@ -17,7 +17,7 @@
 package org.aaa4j.radius.core.attribute;
 
 /**
- * "integer" attribute data type. Integer data contains a 32-bit unsigned integer but is represented as a signed Java
+ * "integer" attribute data type. "integer" data is a 32-bit unsigned integer but is represented as a signed Java
  * <code>int</code>.
  */
 public final class IntegerData extends Data {
