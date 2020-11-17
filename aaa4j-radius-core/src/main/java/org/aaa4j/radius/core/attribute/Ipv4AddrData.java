@@ -23,7 +23,7 @@ import java.util.Objects;
 /**
  * "ipv4addr" attribute data type. The ipv4addr data is mapped to a {@link Inet4Address}.
  */
-public final class Ipv4Data extends Data {
+public final class Ipv4AddrData extends Data {
 
     private final Inet4Address value;
 
@@ -32,7 +32,7 @@ public final class Ipv4Data extends Data {
      *
      * @param value the Inet4Address object
      */
-    public Ipv4Data(Inet4Address value) {
+    public Ipv4AddrData(Inet4Address value) {
         this.value = Objects.requireNonNull(value);
     }
 
@@ -53,7 +53,7 @@ public final class Ipv4Data extends Data {
     /**
      * A codec for "ipv4addr" data.
      */
-    public static final class Codec implements DataCodec<Ipv4Data> {
+    public static final class Codec implements DataCodec<Ipv4AddrData> {
 
         /**
          * An instance of {@link Codec}.
@@ -61,13 +61,13 @@ public final class Ipv4Data extends Data {
         public static final Codec INSTANCE = new Codec();
 
         @Override
-        public Ipv4Data decode(CodecContext codecContext, byte[] bytes) {
+        public Ipv4AddrData decode(CodecContext codecContext, byte[] bytes) {
             if (bytes.length != 4) {
                 return null;
             }
 
             try {
-                return new Ipv4Data((Inet4Address) Inet4Address.getByAddress(bytes));
+                return new Ipv4AddrData((Inet4Address) Inet4Address.getByAddress(bytes));
             }
             catch (UnknownHostException e) {
                 // Thrown if bytes is an invalid length, which is already handled
@@ -76,7 +76,7 @@ public final class Ipv4Data extends Data {
         }
 
         @Override
-        public byte[] encode(CodecContext codecContext, Ipv4Data data) {
+        public byte[] encode(CodecContext codecContext, Ipv4AddrData data) {
             return data.value.getAddress();
         }
 

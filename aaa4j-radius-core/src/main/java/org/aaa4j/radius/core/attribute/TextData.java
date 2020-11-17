@@ -54,7 +54,7 @@ public class TextData extends Data {
     public static class Codec implements DataCodec<TextData> {
 
         /**
-         * An instance of {@link Ipv4Data.Codec}.
+         * An instance of {@link Ipv4AddrData.Codec}.
          */
         public static final Codec INSTANCE = new Codec();
 

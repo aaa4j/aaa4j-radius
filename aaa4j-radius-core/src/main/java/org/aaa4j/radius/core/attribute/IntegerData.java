@@ -53,7 +53,7 @@ public final class IntegerData extends Data {
     public static final class Codec implements DataCodec<IntegerData> {
 
         /**
-         * An instance of {@link Ipv4Data.Codec}.
+         * An instance of {@link Ipv4AddrData.Codec}.
          */
         public static final Codec INSTANCE = new Codec();
 
