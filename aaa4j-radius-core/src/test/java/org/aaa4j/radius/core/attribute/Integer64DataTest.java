@@ -42,7 +42,6 @@ class Integer64DataTest {
     void testDecode() {
         {
             byte[] encoded = fromHex("018b7e72f75abe81");
-
             Integer64Data integer64Data = Integer64Data.Codec.INSTANCE.decode(null, encoded);
 
             assertNotNull(integer64Data);
@@ -50,7 +49,6 @@ class Integer64DataTest {
         }
         {
             byte[] encoded = fromHex("ffffffffffffffd6");
-
             Integer64Data integer64Data = Integer64Data.Codec.INSTANCE.decode(null, encoded);
 
             assertNotNull(integer64Data);
@@ -74,25 +72,22 @@ class Integer64DataTest {
     }
 
     @Test
-    @DisplayName("invalid integer64 data is decoded into null")
+    @DisplayName("Invalid integer64 data is decoded into null")
     void testDecodeInvalidLength() {
         {
             byte[] encoded = fromHex("");
-
             Integer64Data integer64Data = Integer64Data.Codec.INSTANCE.decode(null, encoded);
 
             assertNull(integer64Data);
         }
         {
             byte[] encoded = fromHex("8b7e72f75abe81");
-
             Integer64Data integer64Data = Integer64Data.Codec.INSTANCE.decode(null, encoded);
 
             assertNull(integer64Data);
         }
         {
             byte[] encoded = fromHex("00018b7e72f75abe81");
-
             Integer64Data integer64Data = Integer64Data.Codec.INSTANCE.decode(null, encoded);
 
             assertNull(integer64Data);

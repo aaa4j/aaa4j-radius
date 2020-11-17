@@ -19,8 +19,6 @@ package org.aaa4j.radius.core.attribute;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
-
 import static org.aaa4j.radius.core.Utils.fromHex;
 import static org.aaa4j.radius.core.Utils.toHex;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,66 +26,57 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@DisplayName("TimeData")
-class TimeDataTest {
+@DisplayName("VsaData")
+class VsaDataTest {
 
     @Test
     @DisplayName("Constructor validates arguments")
     void testConstructor() {
         assertThrows(NullPointerException.class, () -> {
-            new TimeData(null);
+            new VsaData(32473, null);
         });
     }
 
     @Test
     @DisplayName("Getters return the correct values")
     void testGetters() {
-        TimeData timeData = new TimeData(Instant.ofEpochSecond(1605300122L));
+        VsaData vsaData = new VsaData(32473, fromHex("3a9f4fde4bb9"));
 
-        assertEquals(4, timeData.length());
-        assertEquals(Instant.ofEpochSecond(1605300122L), timeData.getValue());
+        assertEquals(10, vsaData.length());
+        assertEquals(32473, vsaData.getVendorId());
+        assertEquals("3a9f4fde4bb9", toHex(vsaData.getVsaData()));
     }
 
     @Test
-    @DisplayName("time data is decoded successfully")
+    @DisplayName("vsa data is decoded successfully")
     void testDecode() {
-        byte[] encoded = fromHex("5faeef9a");
+        byte[] encoded = fromHex("00007ed93a9f4fde4bb9");
 
-        TimeData timeData = TimeData.Codec.INSTANCE.decode(null, encoded);
+        VsaData vsaData = VsaData.Codec.INSTANCE.decode(null, encoded);
 
-        assertNotNull(timeData);
-        assertEquals(Instant.ofEpochSecond(1605300122L), timeData.getValue());
+        assertNotNull(vsaData);
+        assertEquals(32473, vsaData.getVendorId());
+        assertEquals("3a9f4fde4bb9", toHex(vsaData.getVsaData()));
     }
 
     @Test
-    @DisplayName("time data is encoded successfully")
+    @DisplayName("vsa data is encoded successfully")
     void testEncode() {
-        TimeData timeData = new TimeData(Instant.ofEpochSecond(1605300122L));
-        byte[] encoded = TimeData.Codec.INSTANCE.encode(null, timeData);
+        VsaData vsaData = new VsaData(32473, fromHex("3a9f4fde4bb9"));
+        byte[] encoded = VsaData.Codec.INSTANCE.encode(null, vsaData);
 
-        assertEquals("5faeef9a", toHex(encoded));
+        assertEquals("00007ed93a9f4fde4bb9", toHex(encoded));
     }
 
     @Test
-    @DisplayName("Invalid time data is decoded into null")
+    @DisplayName("Invalid vsa data is decoded into null")
     void testDecodeInvalid() {
         {
-            byte[] encoded = fromHex("");
-            TimeData timeData = TimeData.Codec.INSTANCE.decode(null, encoded);
+            // Too few bytes
+            byte[] encoded = fromHex("3a9f4f");
+            VsaData vsaData = VsaData.Codec.INSTANCE.decode(null, encoded);
 
-            assertNull(timeData);
-        }
-        {
-            byte[] encoded = fromHex("5faeef9a00");
-            TimeData timeData = TimeData.Codec.INSTANCE.decode(null, encoded);
-
-            assertNull(timeData);
-        }
-        {
-            byte[] encoded = fromHex("5faeef");
-            TimeData timeData = TimeData.Codec.INSTANCE.decode(null, encoded);
-
-            assertNull(timeData);
+            assertNull(vsaData);
         }
     }
 
