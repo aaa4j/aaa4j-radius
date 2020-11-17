@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020 The AAA4J-RADIUS Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.aaa4j.radius.core.attribute;
 
 import org.junit.jupiter.api.DisplayName;
@@ -15,18 +31,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class TimeDataTest {
 
     @Test
-    @DisplayName("length method returns the correct length")
-    void testLength() {
+    @DisplayName("Getters return the correct values")
+    void testGetters() {
         TimeData timeData = new TimeData(Instant.ofEpochSecond(1605300122L));
 
         assertEquals(4, timeData.length());
-    }
-
-    @Test
-    @DisplayName("getValue method returns the correct value")
-    void testGetValue() {
-        TimeData timeData = new TimeData(Instant.ofEpochSecond(1605300122L));
-
         assertEquals(Instant.ofEpochSecond(1605300122L), timeData.getValue());
     }
 
