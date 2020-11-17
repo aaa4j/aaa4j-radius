@@ -20,7 +20,7 @@ import org.aaa4j.radius.core.attribute.AttributeType;
 import org.aaa4j.radius.core.attribute.ConcatAttribute;
 import org.aaa4j.radius.core.attribute.ConcatData;
 import org.aaa4j.radius.core.attribute.IntegerData;
-import org.aaa4j.radius.core.attribute.Ipv4Data;
+import org.aaa4j.radius.core.attribute.Ipv4AddrData;
 import org.aaa4j.radius.core.attribute.StandardAttribute;
 import org.aaa4j.radius.core.attribute.StringData;
 import org.aaa4j.radius.core.attribute.TextData;
@@ -114,9 +114,9 @@ public final class StandardDictionary implements Dictionary {
                         NasIpAddress.TYPE,
                         NasIpAddress.NAME,
                         NasIpAddress.class,
-                        Ipv4Data.class,
+                        Ipv4AddrData.class,
                         new StandardAttribute.Codec<>(
-                                Ipv4Data.Codec.INSTANCE,
+                                Ipv4AddrData.Codec.INSTANCE,
                                 (type, data) -> new NasIpAddress(data))));
 
         attributeDefinitionsMap.put(NasPort.TYPE,

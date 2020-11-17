@@ -17,19 +17,19 @@
 package org.aaa4j.radius.core.attribute.attributes;
 
 import org.aaa4j.radius.core.attribute.AttributeType;
-import org.aaa4j.radius.core.attribute.Ipv4Data;
+import org.aaa4j.radius.core.attribute.Ipv4AddrData;
 import org.aaa4j.radius.core.attribute.StandardAttribute;
 
 /**
  * NAS-IP-Address (4) attribute.
  */
-public final class NasIpAddress extends StandardAttribute<Ipv4Data> {
+public final class NasIpAddress extends StandardAttribute<Ipv4AddrData> {
 
     public static final AttributeType TYPE = new AttributeType(4);
 
     public static final String NAME = "NAS-IP-Address";
 
-    public NasIpAddress(Ipv4Data data) {
+    public NasIpAddress(Ipv4AddrData data) {
         super(TYPE.head(), data);
     }
 
