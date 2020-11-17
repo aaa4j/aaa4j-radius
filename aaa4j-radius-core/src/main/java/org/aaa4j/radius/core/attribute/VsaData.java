@@ -17,6 +17,7 @@
 package org.aaa4j.radius.core.attribute;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * "vsa" attribute data type. vsa data encapsulates vendor-specific attributes.
@@ -35,7 +36,7 @@ public class VsaData extends ContainerData {
      */
     public VsaData(int vendorId, byte[] vsaData) {
         this.vendorId = vendorId;
-        this.vsaData = vsaData;
+        this.vsaData = Objects.requireNonNull(vsaData);
     }
 
     @Override

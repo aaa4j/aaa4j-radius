@@ -16,6 +16,8 @@
 
 package org.aaa4j.radius.core.attribute;
 
+import java.util.Objects;
+
 /**
  * "string" attribute data type. The string (of octets) data is mapped to a byte array. Not to be confused with
  * {@link TextData}.
@@ -30,7 +32,7 @@ public class StringData extends Data {
      * @param value the byte array
      */
     public StringData(byte[] value) {
-        this.value = value;
+        this.value = Objects.requireNonNull(value);
     }
 
     @Override

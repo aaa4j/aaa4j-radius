@@ -17,6 +17,7 @@
 package org.aaa4j.radius.core.attribute;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /**
  * "text" attribute data type. The text data is mapped to a {@link String}.
@@ -31,7 +32,7 @@ public class TextData extends Data {
      * @param value the string
      */
     public TextData(String value) {
-        this.value = value;
+        this.value = Objects.requireNonNull(value);
     }
 
     @Override

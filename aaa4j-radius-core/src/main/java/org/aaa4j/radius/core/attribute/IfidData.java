@@ -17,6 +17,7 @@
 package org.aaa4j.radius.core.attribute;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * "ifid" attribute data type. The "ifid" data type is mapped to a byte array.
@@ -31,6 +32,8 @@ public class IfidData extends Data {
      * @param value the byte array of the interface identifier
      */
     public IfidData(byte[] value) {
+        Objects.requireNonNull(value);
+
         if (value.length != 8) {
             throw new IllegalArgumentException("value length must be 8");
         }

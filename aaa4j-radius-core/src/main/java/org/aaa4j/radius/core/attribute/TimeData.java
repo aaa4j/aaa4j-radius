@@ -17,6 +17,7 @@
 package org.aaa4j.radius.core.attribute;
 
 import java.time.Instant;
+import java.util.Objects;
 
 /**
  * "time" attribute data type. "time" data is mapped to an {@link Instant}.
@@ -31,7 +32,7 @@ public final class TimeData extends Data {
      * @param value the instant
      */
     public TimeData(Instant value) {
-        this.value = value;
+        this.value = Objects.requireNonNull(value);
     }
 
     @Override
