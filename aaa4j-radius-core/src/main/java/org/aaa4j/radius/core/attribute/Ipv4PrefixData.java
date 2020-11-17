@@ -28,31 +28,67 @@ public final class Ipv4PrefixData extends Data {
 
     private final int prefixLength;
 
-    private final Inet4Address address;
+    private final byte[] prefixBytes;
+
+    private final Inet4Address prefixAddress;
 
     /**
-     * Constructs ipv4prefix data from a given prefix length and address ({@link Inet4Address} object). The address
-     * returned by {@link #getAddress()} is masked accordingly to the prefix length.
+     * Constructs ipv4prefix data from a given prefix length and prefix bytes. The prefix bytes must contain zero bits
+     * outside of the prefix length.
      *
      * @param prefixLength the prefix length (int in range [0, 32])
-     * @param address the Inet4Address object
+     * @param prefixBytes the prefix byte array
      */
-    public Ipv4PrefixData(int prefixLength, Inet4Address address) {
+    public Ipv4PrefixData(int prefixLength, byte[] prefixBytes) {
         if (prefixLength > 32 || prefixLength < 0) {
             throw new IllegalArgumentException("Prefix length must be in range [0, 32]");
         }
 
-        Objects.requireNonNull(address);
+        Objects.requireNonNull(prefixBytes);
+
+        if (prefixBytes.length != 4) {
+            throw new IllegalArgumentException("Prefix bytes must have length 4");
+        }
+
+        byte[] maskedPrefixBytes = mask(prefixLength, prefixBytes);
+
+        boolean allZero = true;
+
+        for (int i = 0; i < prefixBytes.length; i++) {
+            if (maskedPrefixBytes[i] != prefixBytes[i]) {
+                throw new IllegalArgumentException(
+                        "The prefix bytes must not contain non-zero bits outside of the prefix length");
+            }
+
+            if (maskedPrefixBytes[i] != 0x00) {
+                allZero = false;
+            }
+        }
+
+        if (allZero && prefixLength != 32) {
+            throw new IllegalArgumentException("Prefix length must be 32 when all prefix bits are zero");
+        }
 
         this.prefixLength = prefixLength;
+        this.prefixBytes = prefixBytes;
 
         try {
-            this.address = (Inet4Address) Inet4Address.getByAddress(mask(prefixLength, address.getAddress()));
+            this.prefixAddress = (Inet4Address) Inet4Address.getByAddress(maskedPrefixBytes);
         }
         catch (UnknownHostException e) {
             // Thrown if bytes is an invalid length, which shouldn't happen
             throw new AssertionError(e);
         }
+    }
+
+    /**
+     * Constructs ipv4prefix data from a given prefix length and address ({@link Inet4Address} object).
+     *
+     * @param prefixLength the prefix length (int in range [0, 32])
+     * @param address the Inet4Address object
+     */
+    public Ipv4PrefixData(int prefixLength, Inet4Address address) {
+        this(prefixLength, address.getAddress());
     }
 
     @Override
@@ -70,12 +106,21 @@ public final class Ipv4PrefixData extends Data {
     }
 
     /**
-     * Gets the address. The address will be masked accordingly to the prefix length.
+     * Gets the prefix bytes.
      *
-     * @return the address
+     * @return the prefix byte array
      */
-    public Inet4Address getAddress() {
-        return address;
+    public byte[] getPrefixBytes() {
+        return Arrays.copyOf(prefixBytes, prefixBytes.length);
+    }
+
+    /**
+     * Gets the prefix address.
+     *
+     * @return the prefix address
+     */
+    public Inet4Address getPrefixAddress() {
+        return prefixAddress;
     }
 
     /**
@@ -94,16 +139,41 @@ public final class Ipv4PrefixData extends Data {
                 return null;
             }
 
+            if (bytes[0] != 0x00) {
+                // First byte is reserved and must be 0x00
+                return null;
+            }
+
             int prefixLength = bytes[1] & 0xff;
 
             if (prefixLength > 32) {
                 return null;
             }
 
-            byte[] addressBytes = mask(prefixLength, Arrays.copyOfRange(bytes, 2, bytes.length));
+            byte[] prefixBytes = Arrays.copyOfRange(bytes, 2, bytes.length);
+
+            byte[] maskedPrefixBytes = mask(prefixLength, prefixBytes);
+
+            boolean allZero = true;
+
+            for (int i = 0; i < prefixBytes.length; i++) {
+                if (maskedPrefixBytes[i] != prefixBytes[i]) {
+                    // The raw address bytes must not contain non-zero bits outside of the prefix length
+                    return null;
+                }
+
+                if (maskedPrefixBytes[i] != 0x00) {
+                    allZero = false;
+                }
+            }
+
+            if (allZero && prefixLength != 32) {
+                // Prefix length must be 32 when all prefix bits are zero
+                return null;
+            }
 
             try {
-                return new Ipv4PrefixData(prefixLength, (Inet4Address) Inet4Address.getByAddress(addressBytes));
+                return new Ipv4PrefixData(prefixLength, (Inet4Address) Inet4Address.getByAddress(prefixBytes));
             }
             catch (UnknownHostException e) {
                 // Thrown if bytes is an invalid length, which shouldn't happen
@@ -117,7 +187,7 @@ public final class Ipv4PrefixData extends Data {
 
             bytes[1] = (byte) data.prefixLength;
 
-            System.arraycopy(data.address.getAddress(), 0, bytes, 2, 4);
+            System.arraycopy(data.prefixBytes, 0, bytes, 2, 4);
 
             return bytes;
         }
