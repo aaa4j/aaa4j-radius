@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020 The AAA4J-RADIUS Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.aaa4j.radius.core.attribute;
 
 import org.junit.jupiter.api.DisplayName;
@@ -61,59 +77,25 @@ class Ipv4PrefixDataTest {
     }
 
     @Test
-    @DisplayName("length method returns the correct length")
-    void testLength() throws UnknownHostException {
+    @DisplayName("Getters return the correct values")
+    void testGetters() throws UnknownHostException {
         Ipv4PrefixData ipv4PrefixData = new Ipv4PrefixData(24, (Inet4Address) Inet4Address.getByName("192.168.10.0"));
 
         assertEquals(6, ipv4PrefixData.length());
-    }
-
-    @Test
-    @DisplayName("getPrefixLength method returns the correct value")
-    void testGetPrefixLength() throws UnknownHostException {
-        Ipv4PrefixData ipv4PrefixData = new Ipv4PrefixData(24, (Inet4Address) Inet4Address.getByName("192.168.10.0"));
-
         assertEquals(24, ipv4PrefixData.getPrefixLength());
-    }
-
-    @Test
-    @DisplayName("getAddress method returns the correct value")
-    void testGetAddress() throws UnknownHostException {
-        {
-            Ipv4PrefixData ipv4PrefixData = new Ipv4PrefixData(24,
-                    (Inet4Address) Inet4Address.getByName("192.168.10.0"));
-
-            assertEquals(Inet4Address.getByName("192.168.10.0"), ipv4PrefixData.getPrefixAddress());
-        }
-        {
-            Ipv4PrefixData ipv4PrefixData = new Ipv4PrefixData(24,
-                    (Inet4Address) Inet4Address.getByName("192.168.10.255"));
-
-            assertEquals(Inet4Address.getByName("192.168.10.0"), ipv4PrefixData.getPrefixAddress());
-        }
+        assertEquals(Inet4Address.getByName("192.168.10.0"), ipv4PrefixData.getPrefixAddress());
     }
 
     @Test
     @DisplayName("ipv4prefix data is decoded successfully")
     void testDecode() throws UnknownHostException {
-        {
-            byte[] encoded = fromHex("0018c0a80a00");
+        byte[] encoded = fromHex("0018c0a80a00");
 
-            Ipv4PrefixData ipv4PrefixData = Ipv4PrefixData.Codec.INSTANCE.decode(null, encoded);
+        Ipv4PrefixData ipv4PrefixData = Ipv4PrefixData.Codec.INSTANCE.decode(null, encoded);
 
-            assertNotNull(ipv4PrefixData);
-            assertEquals(24, ipv4PrefixData.getPrefixLength());
-            assertEquals(Inet4Address.getByName("192.168.10.0"), ipv4PrefixData.getPrefixAddress());
-        }
-        {
-            byte[] encoded = fromHex("0018c0a80aff");
-
-            Ipv4PrefixData ipv4PrefixData = Ipv4PrefixData.Codec.INSTANCE.decode(null, encoded);
-
-            assertNotNull(ipv4PrefixData);
-            assertEquals(24, ipv4PrefixData.getPrefixLength());
-            assertEquals(Inet4Address.getByName("192.168.10.0"), ipv4PrefixData.getPrefixAddress());
-        }
+        assertNotNull(ipv4PrefixData);
+        assertEquals(24, ipv4PrefixData.getPrefixLength());
+        assertEquals(Inet4Address.getByName("192.168.10.0"), ipv4PrefixData.getPrefixAddress());
     }
 
     @Test
