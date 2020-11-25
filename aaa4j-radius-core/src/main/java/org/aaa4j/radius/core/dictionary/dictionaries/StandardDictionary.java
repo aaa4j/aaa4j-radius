@@ -19,6 +19,8 @@ package org.aaa4j.radius.core.dictionary.dictionaries;
 import org.aaa4j.radius.core.attribute.AttributeType;
 import org.aaa4j.radius.core.attribute.ConcatAttribute;
 import org.aaa4j.radius.core.attribute.ConcatData;
+import org.aaa4j.radius.core.attribute.ExtendedAttribute;
+import org.aaa4j.radius.core.attribute.ExtendedData;
 import org.aaa4j.radius.core.attribute.IntegerData;
 import org.aaa4j.radius.core.attribute.Ipv4AddrData;
 import org.aaa4j.radius.core.attribute.StandardAttribute;
@@ -27,7 +29,12 @@ import org.aaa4j.radius.core.attribute.TextData;
 import org.aaa4j.radius.core.attribute.UserPasswordDataCodec;
 import org.aaa4j.radius.core.attribute.VsaData;
 import org.aaa4j.radius.core.attribute.attributes.EapMessage;
+import org.aaa4j.radius.core.attribute.attributes.ExtendedAttribute1;
+import org.aaa4j.radius.core.attribute.attributes.ExtendedAttribute2;
+import org.aaa4j.radius.core.attribute.attributes.ExtendedAttribute3;
+import org.aaa4j.radius.core.attribute.attributes.ExtendedAttribute4;
 import org.aaa4j.radius.core.attribute.attributes.FilterId;
+import org.aaa4j.radius.core.attribute.attributes.FragStatus;
 import org.aaa4j.radius.core.attribute.attributes.MessageAuthenticator;
 import org.aaa4j.radius.core.attribute.attributes.NasIdentifier;
 import org.aaa4j.radius.core.attribute.attributes.NasIpAddress;
@@ -196,6 +203,51 @@ public final class StandardDictionary implements Dictionary {
                         StringData.class,
                         new StandardAttribute.Codec<>(
                                 StringData.Codec.INSTANCE, (type, data) -> new MessageAuthenticator(data))));
+
+        attributeDefinitionsMap.put(ExtendedAttribute1.TYPE,
+                new AttributeDefinition(
+                        ExtendedAttribute1.TYPE,
+                        ExtendedAttribute1.NAME,
+                        ExtendedAttribute1.class,
+                        ExtendedData.class,
+                        new StandardAttribute.Codec<>(
+                                ExtendedData.Codec.INSTANCE, (type, data) -> new ExtendedAttribute1(data))));
+
+        attributeDefinitionsMap.put(FragStatus.TYPE,
+                new AttributeDefinition(
+                        FragStatus.TYPE,
+                        FragStatus.NAME,
+                        FragStatus.class,
+                        IntegerData.class,
+                        new ExtendedAttribute.Codec<>(
+                                IntegerData.Codec.INSTANCE, (type, extendedType, data) -> new FragStatus(data))));
+
+        attributeDefinitionsMap.put(ExtendedAttribute2.TYPE,
+                new AttributeDefinition(
+                        ExtendedAttribute2.TYPE,
+                        ExtendedAttribute2.NAME,
+                        ExtendedAttribute2.class,
+                        ExtendedData.class,
+                        new StandardAttribute.Codec<>(
+                                ExtendedData.Codec.INSTANCE, (type, data) -> new ExtendedAttribute2(data))));
+
+        attributeDefinitionsMap.put(ExtendedAttribute3.TYPE,
+                new AttributeDefinition(
+                        ExtendedAttribute3.TYPE,
+                        ExtendedAttribute3.NAME,
+                        ExtendedAttribute3.class,
+                        ExtendedData.class,
+                        new StandardAttribute.Codec<>(
+                                ExtendedData.Codec.INSTANCE, (type, data) -> new ExtendedAttribute3(data))));
+
+        attributeDefinitionsMap.put(ExtendedAttribute4.TYPE,
+                new AttributeDefinition(
+                        ExtendedAttribute4.TYPE,
+                        ExtendedAttribute4.NAME,
+                        ExtendedAttribute4.class,
+                        ExtendedData.class,
+                        new StandardAttribute.Codec<>(
+                                ExtendedData.Codec.INSTANCE, (type, data) -> new ExtendedAttribute4(data))));
     }
 
     @Override
