@@ -79,6 +79,20 @@ public final class AttributeType {
     }
 
     /**
+     * Returns the type at the given position.
+     *
+     * @param position integer in range [0, length of type - 1]
+     * @return the type at the given position
+     */
+    public int at(int position) {
+        if (position < 0 || position >= types.length) {
+            throw new IllegalArgumentException(String.format("Position must be in range [0, %d]", (types.length - 1)));
+        }
+
+        return types[position];
+    }
+
+    /**
      * Returns the number of components in this attribute type.
      * 
      * @return the number of components in this attribute type

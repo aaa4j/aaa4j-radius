@@ -1,0 +1,36 @@
+/*
+ * Copyright 2020 The AAA4J Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.aaa4j.radius.core.attribute.attributes;
+
+import org.aaa4j.radius.core.attribute.AttributeType;
+import org.aaa4j.radius.core.attribute.ExtendedData;
+import org.aaa4j.radius.core.attribute.StandardAttribute;
+
+/**
+ * Extended-Attribute-3 (243) attribute.
+ */
+public final class ExtendedAttribute3 extends StandardAttribute<ExtendedData> {
+
+    public static final AttributeType TYPE = new AttributeType(243);
+
+    public static final String NAME = "Extended-Attribute-3";
+
+    public ExtendedAttribute3(ExtendedData data) {
+        super(TYPE.head(), data);
+    }
+
+}
