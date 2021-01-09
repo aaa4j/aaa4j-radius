@@ -50,6 +50,11 @@ public class ExtendedAttribute<D extends Data> extends Attribute<D> {
         this.extendedType = extendedType;
     }
 
+    /**
+     * Gets the extended attribute type.
+     *
+     * @return the extended attribute type (int in range [0, 255])
+     */
     public int getExtendedType() {
         return extendedType;
     }

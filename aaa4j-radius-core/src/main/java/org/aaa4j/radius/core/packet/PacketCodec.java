@@ -210,7 +210,7 @@ public final class PacketCodec {
 
         bytes[0] = (byte) (response.getCode() & 0xff);
         bytes[1] = (byte) (requestId & 0xff);
-        bytes[2] = (byte) ((byte) (packetLength & 0xff00) >>> 8);
+        bytes[2] = (byte) ((packetLength & 0xff00) >>> 8);
         bytes[3] = (byte) (packetLength & 0xff);
 
         int position = 20;

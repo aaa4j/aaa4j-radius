@@ -72,7 +72,7 @@ class LongExtendedDataTest {
             assertNotNull(longExtendedData);
             assertEquals(9, longExtendedData.length());
             assertEquals(10, longExtendedData.getExtendedType());
-            assertArrayEquals(new int[]{10}, longExtendedData.getContainedType());
+            assertArrayEquals(new int[] { 10 }, longExtendedData.getContainedType());
             assertEquals("a8f000874daa9b", toHex(longExtendedData.getExtData()));
             assertTrue(longExtendedData.hasMore());
             assertTrue(longExtendedData.isTruncated());
@@ -85,7 +85,7 @@ class LongExtendedDataTest {
             assertNotNull(longExtendedData);
             assertEquals(9, longExtendedData.length());
             assertEquals(11, longExtendedData.getExtendedType());
-            assertArrayEquals(new int[]{11}, longExtendedData.getContainedType());
+            assertArrayEquals(new int[] { 11 }, longExtendedData.getContainedType());
             assertEquals("9c0e122fe2120c", toHex(longExtendedData.getExtData()));
             assertFalse(longExtendedData.hasMore());
             assertFalse(longExtendedData.isTruncated());
@@ -105,7 +105,7 @@ class LongExtendedDataTest {
             assertNotNull(longExtendedData);
             assertEquals(255, longExtendedData.length());
             assertEquals(13, longExtendedData.getExtendedType());
-            assertArrayEquals(new int[]{13}, longExtendedData.getContainedType());
+            assertArrayEquals(new int[] { 13 }, longExtendedData.getContainedType());
 
             byte[] expectedExtData = fromHex("582dd2b7e9da2332731851d42ee54e7cea185f168f7d2fffc47361e2869ba653" +
                     "10e2db3631c6e815561cc2967e4252d84d5d1226afb79c71ac523832ee09d50a" +
