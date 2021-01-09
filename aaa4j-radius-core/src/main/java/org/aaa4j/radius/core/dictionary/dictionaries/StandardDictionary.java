@@ -23,6 +23,8 @@ import org.aaa4j.radius.core.attribute.ExtendedAttribute;
 import org.aaa4j.radius.core.attribute.ExtendedData;
 import org.aaa4j.radius.core.attribute.IntegerData;
 import org.aaa4j.radius.core.attribute.Ipv4AddrData;
+import org.aaa4j.radius.core.attribute.LongExtendedAttribute;
+import org.aaa4j.radius.core.attribute.LongExtendedData;
 import org.aaa4j.radius.core.attribute.StandardAttribute;
 import org.aaa4j.radius.core.attribute.StringData;
 import org.aaa4j.radius.core.attribute.TextData;
@@ -33,6 +35,8 @@ import org.aaa4j.radius.core.attribute.attributes.ExtendedAttribute1;
 import org.aaa4j.radius.core.attribute.attributes.ExtendedAttribute2;
 import org.aaa4j.radius.core.attribute.attributes.ExtendedAttribute3;
 import org.aaa4j.radius.core.attribute.attributes.ExtendedAttribute4;
+import org.aaa4j.radius.core.attribute.attributes.ExtendedAttribute5;
+import org.aaa4j.radius.core.attribute.attributes.ExtendedAttribute6;
 import org.aaa4j.radius.core.attribute.attributes.FilterId;
 import org.aaa4j.radius.core.attribute.attributes.FragStatus;
 import org.aaa4j.radius.core.attribute.attributes.MessageAuthenticator;
@@ -40,6 +44,7 @@ import org.aaa4j.radius.core.attribute.attributes.NasIdentifier;
 import org.aaa4j.radius.core.attribute.attributes.NasIpAddress;
 import org.aaa4j.radius.core.attribute.attributes.NasPort;
 import org.aaa4j.radius.core.attribute.attributes.ProxyState;
+import org.aaa4j.radius.core.attribute.attributes.SamlAssertion;
 import org.aaa4j.radius.core.attribute.attributes.State;
 import org.aaa4j.radius.core.attribute.attributes.UserName;
 import org.aaa4j.radius.core.attribute.attributes.UserPassword;
@@ -248,6 +253,33 @@ public final class StandardDictionary implements Dictionary {
                         ExtendedData.class,
                         new StandardAttribute.Codec<>(
                                 ExtendedData.Codec.INSTANCE, (type, data) -> new ExtendedAttribute4(data))));
+
+        attributeDefinitionsMap.put(ExtendedAttribute5.TYPE,
+                new AttributeDefinition(
+                        ExtendedAttribute5.TYPE,
+                        ExtendedAttribute5.NAME,
+                        ExtendedAttribute5.class,
+                        LongExtendedData.class,
+                        new StandardAttribute.Codec<>(
+                                LongExtendedData.Codec.INSTANCE, (type, data) -> new ExtendedAttribute5(data))));
+
+        attributeDefinitionsMap.put(SamlAssertion.TYPE,
+                new AttributeDefinition(
+                        SamlAssertion.TYPE,
+                        SamlAssertion.NAME,
+                        SamlAssertion.class,
+                        TextData.class,
+                        new LongExtendedAttribute.Codec<>(
+                                TextData.Codec.INSTANCE, (type, extendedType, data) -> new SamlAssertion(data))));
+
+        attributeDefinitionsMap.put(ExtendedAttribute6.TYPE,
+                new AttributeDefinition(
+                        ExtendedAttribute6.TYPE,
+                        ExtendedAttribute6.NAME,
+                        ExtendedAttribute6.class,
+                        LongExtendedData.class,
+                        new StandardAttribute.Codec<>(
+                                LongExtendedData.Codec.INSTANCE, (type, data) -> new ExtendedAttribute6(data))));
     }
 
     @Override
