@@ -17,10 +17,10 @@
 package org.aaa4j.radius.core.attribute;
 
 /**
- * "integer" attribute data type. "integer" data is a 32-bit unsigned integer but is represented as a signed Java
- * <code>int</code>.
+ * "enum" attribute data type. "enum" data is a 32-bit unsigned integer but is represented as a signed Java
+ * <code>int</code>. EnumData is identical to {@link IntegerData} but is used to represent well-known enumerated values.
  */
-public final class IntegerData extends Data {
+public final class EnumData extends Data {
 
     private final int value;
 
@@ -29,7 +29,7 @@ public final class IntegerData extends Data {
      *
      * @param value the integer
      */
-    public IntegerData(int value) {
+    public EnumData(int value) {
         this.value = value;
     }
 
@@ -48,9 +48,9 @@ public final class IntegerData extends Data {
     }
 
     /**
-     * A codec for "integer" data.
+     * A codec for "enum" data.
      */
-    public static final class Codec implements DataCodec<IntegerData> {
+    public static final class Codec implements DataCodec<EnumData> {
 
         /**
          * An instance of {@link Codec}.
@@ -58,7 +58,7 @@ public final class IntegerData extends Data {
         public static final Codec INSTANCE = new Codec();
 
         @Override
-        public IntegerData decode(CodecContext codecContext, byte[] bytes) {
+        public EnumData decode(CodecContext codecContext, byte[] bytes) {
             if (bytes.length != 4) {
                 return null;
             }
@@ -68,11 +68,11 @@ public final class IntegerData extends Data {
                     | (bytes[2] & 0xff) << 8
                     | bytes[3] & 0xff;
 
-            return new IntegerData(value);
+            return new EnumData(value);
         }
 
         @Override
-        public byte[] encode(CodecContext codecContext, IntegerData data) {
+        public byte[] encode(CodecContext codecContext, EnumData data) {
             byte[] bytes = new byte[4];
 
             bytes[0] = (byte) ((data.value & 0xff000000) >>> 24);
