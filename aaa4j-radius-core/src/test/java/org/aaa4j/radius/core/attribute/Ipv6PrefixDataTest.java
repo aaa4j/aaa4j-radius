@@ -130,7 +130,7 @@ class Ipv6PrefixDataTest {
         {
             byte[] encoded = fromHex("002020010db8000000000000000000000000");
 
-            Ipv6PrefixData ipv6PrefixData = Ipv6PrefixData.Codec.INSTANCE.decode(null, encoded);
+            Ipv6PrefixData ipv6PrefixData = Ipv6PrefixData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNotNull(ipv6PrefixData);
             assertEquals(32, ipv6PrefixData.getPrefixLength());
@@ -140,7 +140,7 @@ class Ipv6PrefixDataTest {
         {
             byte[] encoded = fromHex("002020010db8");
 
-            Ipv6PrefixData ipv6PrefixData = Ipv6PrefixData.Codec.INSTANCE.decode(null, encoded);
+            Ipv6PrefixData ipv6PrefixData = Ipv6PrefixData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNotNull(ipv6PrefixData);
             assertEquals(32, ipv6PrefixData.getPrefixLength());
@@ -150,7 +150,7 @@ class Ipv6PrefixDataTest {
         {
             byte[] encoded = fromHex("004020010db8ffffffff0000000000000000");
 
-            Ipv6PrefixData ipv6PrefixData = Ipv6PrefixData.Codec.INSTANCE.decode(null, encoded);
+            Ipv6PrefixData ipv6PrefixData = Ipv6PrefixData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNotNull(ipv6PrefixData);
             assertEquals(64, ipv6PrefixData.getPrefixLength());
@@ -160,7 +160,7 @@ class Ipv6PrefixDataTest {
         {
             byte[] encoded = fromHex("008020010db8000000000000000000000001");
 
-            Ipv6PrefixData ipv6PrefixData = Ipv6PrefixData.Codec.INSTANCE.decode(null, encoded);
+            Ipv6PrefixData ipv6PrefixData = Ipv6PrefixData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNotNull(ipv6PrefixData);
             assertEquals(128, ipv6PrefixData.getPrefixLength());
@@ -170,7 +170,7 @@ class Ipv6PrefixDataTest {
         {
             byte[] encoded = fromHex("0000");
 
-            Ipv6PrefixData ipv6PrefixData = Ipv6PrefixData.Codec.INSTANCE.decode(null, encoded);
+            Ipv6PrefixData ipv6PrefixData = Ipv6PrefixData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNotNull(ipv6PrefixData);
             assertEquals(0, ipv6PrefixData.getPrefixLength());
@@ -184,31 +184,31 @@ class Ipv6PrefixDataTest {
     void testEncode() {
         {
             Ipv6PrefixData ipv6PrefixData = new Ipv6PrefixData(32, fromHex("20010db8000000000000000000000000"));
-            byte[] encoded = Ipv6PrefixData.Codec.INSTANCE.encode(null, ipv6PrefixData);
+            byte[] encoded = Ipv6PrefixData.Codec.INSTANCE.encode(null, null, ipv6PrefixData);
 
             assertEquals("002020010db8000000000000000000000000", toHex(encoded));
         }
         {
             Ipv6PrefixData ipv6PrefixData = new Ipv6PrefixData(32, fromHex("20010db8"));
-            byte[] encoded = Ipv6PrefixData.Codec.INSTANCE.encode(null, ipv6PrefixData);
+            byte[] encoded = Ipv6PrefixData.Codec.INSTANCE.encode(null, null, ipv6PrefixData);
 
             assertEquals("002020010db8", toHex(encoded));
         }
         {
             Ipv6PrefixData ipv6PrefixData = new Ipv6PrefixData(64, fromHex("20010db8ffffffff0000000000000000"));
-            byte[] encoded = Ipv6PrefixData.Codec.INSTANCE.encode(null, ipv6PrefixData);
+            byte[] encoded = Ipv6PrefixData.Codec.INSTANCE.encode(null, null, ipv6PrefixData);
 
             assertEquals("004020010db8ffffffff0000000000000000", toHex(encoded));
         }
         {
             Ipv6PrefixData ipv6PrefixData = new Ipv6PrefixData(128, fromHex("20010db8000000000000000000000001"));
-            byte[] encoded = Ipv6PrefixData.Codec.INSTANCE.encode(null, ipv6PrefixData);
+            byte[] encoded = Ipv6PrefixData.Codec.INSTANCE.encode(null, null, ipv6PrefixData);
 
             assertEquals("008020010db8000000000000000000000001", toHex(encoded));
         }
         {
             Ipv6PrefixData ipv6PrefixData = new Ipv6PrefixData(0, fromHex(""));
-            byte[] encoded = Ipv6PrefixData.Codec.INSTANCE.encode(null, ipv6PrefixData);
+            byte[] encoded = Ipv6PrefixData.Codec.INSTANCE.encode(null, null, ipv6PrefixData);
 
             assertEquals("0000", toHex(encoded));
         }
@@ -220,28 +220,28 @@ class Ipv6PrefixDataTest {
         {
             // Reserved byte is not 0x00
             byte[] encoded = fromHex("ff2020010db8");
-            Ipv6PrefixData ipv6PrefixData = Ipv6PrefixData.Codec.INSTANCE.decode(null, encoded);
+            Ipv6PrefixData ipv6PrefixData = Ipv6PrefixData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(ipv6PrefixData);
         }
         {
             // Prefix length 129 is larger than 128
             byte[] encoded = fromHex("008120010db8");
-            Ipv6PrefixData ipv6PrefixData = Ipv6PrefixData.Codec.INSTANCE.decode(null, encoded);
+            Ipv6PrefixData ipv6PrefixData = Ipv6PrefixData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(ipv6PrefixData);
         }
         {
             // Not enough prefix bytes for 128-bit prefix
             byte[] encoded = fromHex("008020010db80000000000000000000000");
-            Ipv6PrefixData ipv6PrefixData = Ipv6PrefixData.Codec.INSTANCE.decode(null, encoded);
+            Ipv6PrefixData ipv6PrefixData = Ipv6PrefixData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(ipv6PrefixData);
         }
         {
             // Bits outside of the prefix are not 0
             byte[] encoded = fromHex("002020010db8000000000000000000000001");
-            Ipv6PrefixData ipv6PrefixData = Ipv6PrefixData.Codec.INSTANCE.decode(null, encoded);
+            Ipv6PrefixData ipv6PrefixData = Ipv6PrefixData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(ipv6PrefixData);
         }

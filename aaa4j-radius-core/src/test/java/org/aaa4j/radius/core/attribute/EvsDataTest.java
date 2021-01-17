@@ -63,7 +63,7 @@ class EvsDataTest {
     void testDecode() {
         byte[] encoded = fromHex("00007ed90ae1273a01729a");
 
-        EvsData evsData = EvsData.Codec.INSTANCE.decode(null, encoded);
+        EvsData evsData = EvsData.Codec.INSTANCE.decode(null, null, encoded);
 
         assertNotNull(evsData);
         assertEquals(32473, evsData.getVendorId());
@@ -75,7 +75,7 @@ class EvsDataTest {
     @DisplayName("evs data is encoded successfully")
     void testEncode() {
         EvsData evsData = new EvsData(32473, 10, fromHex("e1273a01729a"));
-        byte[] encoded = EvsData.Codec.INSTANCE.encode(null, evsData);
+        byte[] encoded = EvsData.Codec.INSTANCE.encode(null, null, evsData);
 
         assertEquals("00007ed90ae1273a01729a", toHex(encoded));
     }
@@ -86,7 +86,7 @@ class EvsDataTest {
         {
             // Too few bytes
             byte[] encoded = fromHex("00007ed9");
-            EvsData evsData = EvsData.Codec.INSTANCE.decode(null, encoded);
+            EvsData evsData = EvsData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(evsData);
         }

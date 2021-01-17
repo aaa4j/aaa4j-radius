@@ -67,7 +67,7 @@ public class StandardAttribute<D extends Data> extends Attribute<D> {
         public int decode(CodecContext codecContext, Deque<Attribute<?>> attributeStack) {
             RawAttribute rawAttribute = (RawAttribute) attributeStack.removeFirst();
 
-            D data = dataCodec.decode(codecContext, rawAttribute.getData().getValue());
+            D data = dataCodec.decode(codecContext, rawAttribute.getType(), rawAttribute.getData().getValue());
 
             if (data == null) {
                 attributeStack.addFirst(rawAttribute);
@@ -88,7 +88,7 @@ public class StandardAttribute<D extends Data> extends Attribute<D> {
             @SuppressWarnings("unchecked")
             StandardAttribute<D> standardAttribute = (StandardAttribute<D>) attributeStack.removeFirst();
 
-            byte[] bytes = dataCodec.encode(codecContext, standardAttribute.getData());
+            byte[] bytes = dataCodec.encode(codecContext, standardAttribute.getType(), standardAttribute.getData());
 
             RawAttribute rawAttribute = new RawAttribute(standardAttribute.getType().head(), bytes);
             attributeStack.addFirst(rawAttribute);

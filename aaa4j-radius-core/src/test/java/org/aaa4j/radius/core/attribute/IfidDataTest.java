@@ -55,7 +55,7 @@ class IfidDataTest {
     void testDecode() {
         byte[] encoded = fromHex("02aaccfffec51fda");
 
-        IfidData ifidData = IfidData.Codec.INSTANCE.decode(null, encoded);
+        IfidData ifidData = IfidData.Codec.INSTANCE.decode(null, null, encoded);
 
         assertNotNull(ifidData);
         assertEquals("02aaccfffec51fda", toHex(ifidData.getValue()));
@@ -65,7 +65,7 @@ class IfidDataTest {
     @DisplayName("ifid data is encoded successfully")
     void testEncode() {
         IfidData ifidData = new IfidData(fromHex("02aaccfffec51fda"));
-        byte[] encoded = IfidData.Codec.INSTANCE.encode(null, ifidData);
+        byte[] encoded = IfidData.Codec.INSTANCE.encode(null, null, ifidData);
 
         assertEquals("02aaccfffec51fda", toHex(encoded));
     }
@@ -75,19 +75,19 @@ class IfidDataTest {
     void testDecodeInvalid() {
         {
             byte[] encoded = fromHex("");
-            IfidData ifidData = IfidData.Codec.INSTANCE.decode(null, encoded);
+            IfidData ifidData = IfidData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(ifidData);
         }
         {
             byte[] encoded = fromHex("02aaccfffec51fda00");
-            IfidData ifidData = IfidData.Codec.INSTANCE.decode(null, encoded);
+            IfidData ifidData = IfidData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(ifidData);
         }
         {
             byte[] encoded = fromHex("02aaccfffec51f");
-            IfidData ifidData = IfidData.Codec.INSTANCE.decode(null, encoded);
+            IfidData ifidData = IfidData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(ifidData);
         }

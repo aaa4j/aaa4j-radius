@@ -134,7 +134,7 @@ public final class Ipv4PrefixData extends Data {
         public static final Codec INSTANCE = new Codec();
 
         @Override
-        public Ipv4PrefixData decode(CodecContext codecContext, byte[] bytes) {
+        public Ipv4PrefixData decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
             if (bytes.length != 6) {
                 return null;
             }
@@ -182,12 +182,14 @@ public final class Ipv4PrefixData extends Data {
         }
 
         @Override
-        public byte[] encode(CodecContext codecContext, Ipv4PrefixData data) {
+        public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
+            Ipv4PrefixData ipv4PrefixData = (Ipv4PrefixData) data;
+
             byte[] bytes = new byte[6];
 
-            bytes[1] = (byte) data.prefixLength;
+            bytes[1] = (byte) ipv4PrefixData.prefixLength;
 
-            System.arraycopy(data.prefixBytes, 0, bytes, 2, 4);
+            System.arraycopy(ipv4PrefixData.prefixBytes, 0, bytes, 2, 4);
 
             return bytes;
         }

@@ -54,7 +54,7 @@ class Ipv4AddrDataTest {
     void testDecode() throws UnknownHostException {
         byte[] encoded = fromHex("c0a80a00");
 
-        Ipv4AddrData ipv4AddrData = Ipv4AddrData.Codec.INSTANCE.decode(null, encoded);
+        Ipv4AddrData ipv4AddrData = Ipv4AddrData.Codec.INSTANCE.decode(null, null, encoded);
 
         assertNotNull(ipv4AddrData);
         assertEquals(Inet4Address.getByName("192.168.10.0"), ipv4AddrData.getValue());
@@ -64,7 +64,7 @@ class Ipv4AddrDataTest {
     @DisplayName("ipv4addr data is encoded successfully")
     void testEncode() throws UnknownHostException {
         Ipv4AddrData ipv4AddrData = new Ipv4AddrData((Inet4Address) Inet4Address.getByName("192.168.10.0"));
-        byte[] encoded = Ipv4AddrData.Codec.INSTANCE.encode(null, ipv4AddrData);
+        byte[] encoded = Ipv4AddrData.Codec.INSTANCE.encode(null, null, ipv4AddrData);
 
         assertEquals("c0a80a00", toHex(encoded));
     }
@@ -75,14 +75,14 @@ class Ipv4AddrDataTest {
         {
             // Not few bytes
             byte[] encoded = fromHex("");
-            Ipv4AddrData ipv4AddrData = Ipv4AddrData.Codec.INSTANCE.decode(null, encoded);
+            Ipv4AddrData ipv4AddrData = Ipv4AddrData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(ipv4AddrData);
         }
         {
             // Too many bytes
             byte[] encoded = fromHex("c0a80a0000");
-            Ipv4AddrData ipv4AddrData = Ipv4AddrData.Codec.INSTANCE.decode(null, encoded);
+            Ipv4AddrData ipv4AddrData = Ipv4AddrData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(ipv4AddrData);
         }

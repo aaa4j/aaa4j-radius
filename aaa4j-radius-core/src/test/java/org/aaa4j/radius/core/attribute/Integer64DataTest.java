@@ -42,14 +42,14 @@ class Integer64DataTest {
     void testDecode() {
         {
             byte[] encoded = fromHex("018b7e72f75abe81");
-            Integer64Data integer64Data = Integer64Data.Codec.INSTANCE.decode(null, encoded);
+            Integer64Data integer64Data = Integer64Data.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNotNull(integer64Data);
             assertEquals(111_321_648_042_000_001L, integer64Data.getValue());
         }
         {
             byte[] encoded = fromHex("ffffffffffffffd6");
-            Integer64Data integer64Data = Integer64Data.Codec.INSTANCE.decode(null, encoded);
+            Integer64Data integer64Data = Integer64Data.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNotNull(integer64Data);
             assertEquals(-42L, integer64Data.getValue());
@@ -60,12 +60,13 @@ class Integer64DataTest {
     @DisplayName("integer64 data is encoded successfully")
     void testEncode() {
         {
-            byte[] encoded = Integer64Data.Codec.INSTANCE.encode(null, new Integer64Data(111_321_648_042_000_001L));
+            byte[] encoded = Integer64Data.Codec.INSTANCE.encode(null, null,
+                    new Integer64Data(111_321_648_042_000_001L));
 
             assertEquals("018b7e72f75abe81", toHex(encoded));
         }
         {
-            byte[] encoded = Integer64Data.Codec.INSTANCE.encode(null, new Integer64Data(-42L));
+            byte[] encoded = Integer64Data.Codec.INSTANCE.encode(null, null, new Integer64Data(-42L));
 
             assertEquals("ffffffffffffffd6", toHex(encoded));
         }
@@ -76,19 +77,19 @@ class Integer64DataTest {
     void testDecodeInvalidLength() {
         {
             byte[] encoded = fromHex("");
-            Integer64Data integer64Data = Integer64Data.Codec.INSTANCE.decode(null, encoded);
+            Integer64Data integer64Data = Integer64Data.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(integer64Data);
         }
         {
             byte[] encoded = fromHex("8b7e72f75abe81");
-            Integer64Data integer64Data = Integer64Data.Codec.INSTANCE.decode(null, encoded);
+            Integer64Data integer64Data = Integer64Data.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(integer64Data);
         }
         {
             byte[] encoded = fromHex("00018b7e72f75abe81");
-            Integer64Data integer64Data = Integer64Data.Codec.INSTANCE.decode(null, encoded);
+            Integer64Data integer64Data = Integer64Data.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(integer64Data);
         }

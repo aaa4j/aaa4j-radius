@@ -43,4 +43,13 @@ public interface Dictionary {
      */
     AttributeDefinition getAttributeDefinition(AttributeType type);
 
+    /**
+     * Gets a TLV definition for a given attribute identifier.
+     *
+     * @param type an attribute identifier
+     *
+     * @return a TLV definition or null if there's no definition for the attribute type
+     */
+    TlvDefinition getTlvDefinition(AttributeType type);
+
 }

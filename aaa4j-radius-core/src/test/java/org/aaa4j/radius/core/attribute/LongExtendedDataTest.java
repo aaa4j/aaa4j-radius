@@ -67,7 +67,7 @@ class LongExtendedDataTest {
         {
             byte[] encoded = fromHex("0ac0a8f000874daa9b");
 
-            LongExtendedData longExtendedData = LongExtendedData.Codec.INSTANCE.decode(null, encoded);
+            LongExtendedData longExtendedData = LongExtendedData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNotNull(longExtendedData);
             assertEquals(9, longExtendedData.length());
@@ -80,7 +80,7 @@ class LongExtendedDataTest {
         {
             byte[] encoded = fromHex("0b009c0e122fe2120c");
 
-            LongExtendedData longExtendedData = LongExtendedData.Codec.INSTANCE.decode(null, encoded);
+            LongExtendedData longExtendedData = LongExtendedData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNotNull(longExtendedData);
             assertEquals(9, longExtendedData.length());
@@ -100,7 +100,7 @@ class LongExtendedDataTest {
                     "4c17e7e6c8bf2bb3fbdab2b7a89c664cfbd980c0ea0669914516bd90a63817be" +
                     "90ee0dcfce12d8d4831e470b621ecf3a15b3423383d6cc7c791c96de7a943a");
 
-            LongExtendedData longExtendedData = LongExtendedData.Codec.INSTANCE.decode(null, encoded);
+            LongExtendedData longExtendedData = LongExtendedData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNotNull(longExtendedData);
             assertEquals(255, longExtendedData.length());
@@ -127,13 +127,13 @@ class LongExtendedDataTest {
     void testEncode() {
         {
             LongExtendedData longExtendedData = new LongExtendedData(10, fromHex("a8f000874daa9b"), true, true);
-            byte[] encoded = LongExtendedData.Codec.INSTANCE.encode(null, longExtendedData);
+            byte[] encoded = LongExtendedData.Codec.INSTANCE.encode(null, null, longExtendedData);
 
             assertEquals("0ac0a8f000874daa9b", toHex(encoded));
         }
         {
             LongExtendedData longExtendedData = new LongExtendedData(11, fromHex("9c0e122fe2120c"), false, false);
-            byte[] encoded = LongExtendedData.Codec.INSTANCE.encode(null, longExtendedData);
+            byte[] encoded = LongExtendedData.Codec.INSTANCE.encode(null, null, longExtendedData);
 
             assertEquals("0b009c0e122fe2120c", toHex(encoded));
         }
@@ -148,7 +148,7 @@ class LongExtendedDataTest {
                     "0dcfce12d8d4831e470b621ecf3a15b3423383d6cc7c791c96de7a943a");
 
             LongExtendedData longExtendedData = new LongExtendedData(13, extData, true, false);
-            byte[] encoded = LongExtendedData.Codec.INSTANCE.encode(null, longExtendedData);
+            byte[] encoded = LongExtendedData.Codec.INSTANCE.encode(null, null, longExtendedData);
 
             String expected = "0d80582dd2b7e9da2332731851d42ee54e7cea185f168f7d2fffc47361e2869b" +
                     "a65310e2db3631c6e815561cc2967e4252d84d5d1226afb79c71ac523832ee09" +
@@ -168,7 +168,7 @@ class LongExtendedDataTest {
     void testDecodeInvalid() {
         // Too few bytes
         byte[] encoded = fromHex("");
-        LongExtendedData longExtendedData = LongExtendedData.Codec.INSTANCE.decode(null, encoded);
+        LongExtendedData longExtendedData = LongExtendedData.Codec.INSTANCE.decode(null, null, encoded);
 
         assertNull(longExtendedData);
     }

@@ -66,7 +66,7 @@ public class IfidData extends Data {
         public static final Codec INSTANCE = new Codec();
 
         @Override
-        public IfidData decode(CodecContext codecContext, byte[] bytes) {
+        public IfidData decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
             if (bytes.length != 8) {
                 return null;
             }
@@ -75,8 +75,10 @@ public class IfidData extends Data {
         }
 
         @Override
-        public byte[] encode(CodecContext codecContext, IfidData data) {
-            return data.value;
+        public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
+            IfidData ifidData = (IfidData) data;
+
+            return ifidData.value;
         }
 
     }

@@ -39,7 +39,7 @@ public class UserPasswordDataCodec<D extends Data> implements DataCodec<D> {
     }
 
     @Override
-    public D decode(CodecContext codecContext, byte[] hiddenPassword) {
+    public D decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] hiddenPassword) {
         MessageDigest md5 = getMd5Instance();
 
         byte[] paddedPassword = new byte[hiddenPassword.length];
@@ -75,12 +75,12 @@ public class UserPasswordDataCodec<D extends Data> implements DataCodec<D> {
 
         byte[] password = Arrays.copyOfRange(paddedPassword, 0, passwordLength);
 
-        return dataCodec.decode(codecContext, password);
+        return dataCodec.decode(codecContext, parentAttributeType, password);
     }
 
     @Override
-    public byte[] encode(CodecContext codecContext, D data) {
-        byte[] password = dataCodec.encode(codecContext, data);
+    public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
+        byte[] password = dataCodec.encode(codecContext, parentAttributeType, data);
 
         MessageDigest md5 = getMd5Instance();
 

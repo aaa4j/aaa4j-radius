@@ -78,7 +78,7 @@ public class VsaData extends ContainerData {
         public static final Codec INSTANCE = new Codec();
 
         @Override
-        public VsaData decode(CodecContext codecContext, byte[] bytes) {
+        public VsaData decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
             if (bytes.length < 4) {
                 return null;
             }
@@ -94,15 +94,17 @@ public class VsaData extends ContainerData {
         }
 
         @Override
-        public byte[] encode(CodecContext codecContext, VsaData data) {
-            byte[] bytes = new byte[4 + data.vsaData.length];
+        public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
+            VsaData vsaData = (VsaData) data;
 
-            bytes[0] = (byte) ((data.vendorId & 0xff000000) >>> 24);
-            bytes[1] = (byte) ((data.vendorId & 0x00ff0000) >>> 16);
-            bytes[2] = (byte) ((data.vendorId & 0x0000ff00) >>> 8);
-            bytes[3] = (byte) (data.vendorId & 0x000000ff);
+            byte[] bytes = new byte[4 + vsaData.vsaData.length];
 
-            System.arraycopy(data.vsaData, 0, bytes, 4, data.vsaData.length);
+            bytes[0] = (byte) ((vsaData.vendorId & 0xff000000) >>> 24);
+            bytes[1] = (byte) ((vsaData.vendorId & 0x00ff0000) >>> 16);
+            bytes[2] = (byte) ((vsaData.vendorId & 0x0000ff00) >>> 8);
+            bytes[3] = (byte) (vsaData.vendorId & 0x000000ff);
+
+            System.arraycopy(vsaData.vsaData, 0, bytes, 4, vsaData.vsaData.length);
 
             return bytes;
         }

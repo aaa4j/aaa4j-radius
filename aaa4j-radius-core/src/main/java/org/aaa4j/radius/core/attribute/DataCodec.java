@@ -31,7 +31,7 @@ public interface DataCodec<D extends Data> {
      * 
      * @return the decoded data or null if the given bytes can not be decoded
      */
-    D decode(CodecContext codecContext, byte[] bytes);
+    D decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes);
 
     /**
      * Encodes a data type into bytes.
@@ -41,6 +41,6 @@ public interface DataCodec<D extends Data> {
      * 
      * @return byte array of the encoded data
      */
-    byte[] encode(CodecContext codecContext, D data);
+    byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data);
 
 }

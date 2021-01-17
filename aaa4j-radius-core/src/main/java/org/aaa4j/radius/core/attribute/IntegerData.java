@@ -58,7 +58,7 @@ public final class IntegerData extends Data {
         public static final Codec INSTANCE = new Codec();
 
         @Override
-        public IntegerData decode(CodecContext codecContext, byte[] bytes) {
+        public IntegerData decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
             if (bytes.length != 4) {
                 return null;
             }
@@ -72,13 +72,15 @@ public final class IntegerData extends Data {
         }
 
         @Override
-        public byte[] encode(CodecContext codecContext, IntegerData data) {
+        public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
+            IntegerData integerData = (IntegerData) data;
+
             byte[] bytes = new byte[4];
 
-            bytes[0] = (byte) ((data.value & 0xff000000) >>> 24);
-            bytes[1] = (byte) ((data.value & 0x00ff0000) >>> 16);
-            bytes[2] = (byte) ((data.value & 0x0000ff00) >>> 8);
-            bytes[3] = (byte) (data.value & 0x000000ff);
+            bytes[0] = (byte) ((integerData.value & 0xff000000) >>> 24);
+            bytes[1] = (byte) ((integerData.value & 0x00ff0000) >>> 16);
+            bytes[2] = (byte) ((integerData.value & 0x0000ff00) >>> 8);
+            bytes[3] = (byte) (integerData.value & 0x000000ff);
 
             return bytes;
         }

@@ -60,13 +60,15 @@ public class StringData extends Data {
         public static final Codec INSTANCE = new Codec();
 
         @Override
-        public StringData decode(CodecContext codecContext, byte[] bytes) {
+        public StringData decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
             return new StringData(bytes);
         }
 
         @Override
-        public byte[] encode(CodecContext codecContext, StringData data) {
-            return data.value;
+        public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
+            StringData stringData = (StringData) data;
+
+            return stringData.value;
         }
 
     }

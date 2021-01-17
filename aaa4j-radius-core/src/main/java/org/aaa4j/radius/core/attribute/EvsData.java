@@ -95,7 +95,7 @@ public final class EvsData extends ContainerData {
         public static final Codec INSTANCE = new Codec();
 
         @Override
-        public EvsData decode(CodecContext codecContext, byte[] bytes) {
+        public EvsData decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
             if (bytes.length < 5) {
                 return null;
             }
@@ -113,16 +113,18 @@ public final class EvsData extends ContainerData {
         }
 
         @Override
-        public byte[] encode(CodecContext codecContext, EvsData data) {
-            byte[] bytes = new byte[5 + data.evsData.length];
+        public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
+            EvsData evsData = (EvsData) data;
 
-            bytes[0] = (byte) ((data.vendorId & 0xff000000) >>> 24);
-            bytes[1] = (byte) ((data.vendorId & 0x00ff0000) >>> 16);
-            bytes[2] = (byte) ((data.vendorId & 0x0000ff00) >>> 8);
-            bytes[3] = (byte) (data.vendorId & 0x000000ff);
-            bytes[4] = (byte) data.vendorType;
+            byte[] bytes = new byte[5 + evsData.evsData.length];
 
-            System.arraycopy(data.evsData, 0, bytes, 5, data.evsData.length);
+            bytes[0] = (byte) ((evsData.vendorId & 0xff000000) >>> 24);
+            bytes[1] = (byte) ((evsData.vendorId & 0x00ff0000) >>> 16);
+            bytes[2] = (byte) ((evsData.vendorId & 0x0000ff00) >>> 8);
+            bytes[3] = (byte) (evsData.vendorId & 0x000000ff);
+            bytes[4] = (byte) evsData.vendorType;
+
+            System.arraycopy(evsData.evsData, 0, bytes, 5, evsData.evsData.length);
 
             return bytes;
         }

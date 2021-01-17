@@ -62,7 +62,7 @@ class ExtendedDataTest {
     void testDecode() {
         byte[] encoded = fromHex("030280de81");
 
-        ExtendedData extendedData = ExtendedData.Codec.INSTANCE.decode(null, encoded);
+        ExtendedData extendedData = ExtendedData.Codec.INSTANCE.decode(null, null, encoded);
 
         assertNotNull(extendedData);
         assertEquals(5, extendedData.length());
@@ -75,7 +75,7 @@ class ExtendedDataTest {
     @DisplayName("extended data is encoded successfully")
     void testEncode() {
         ExtendedData extendedData = new ExtendedData(3, fromHex("0280de81"));
-        byte[] encoded = ExtendedData.Codec.INSTANCE.encode(null, extendedData);
+        byte[] encoded = ExtendedData.Codec.INSTANCE.encode(null, null, extendedData);
 
         assertEquals("030280de81", toHex(encoded));
     }
@@ -85,7 +85,7 @@ class ExtendedDataTest {
     void testDecodeInvalid() {
         // Too few bytes
         byte[] encoded = fromHex("");
-        ExtendedData extendedData = ExtendedData.Codec.INSTANCE.decode(null, encoded);
+        ExtendedData extendedData = ExtendedData.Codec.INSTANCE.decode(null, null, encoded);
 
         assertNull(extendedData);
     }

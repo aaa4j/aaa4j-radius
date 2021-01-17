@@ -142,7 +142,7 @@ public class LongExtendedAttribute<D extends Data> extends Attribute<D> {
                 position += extDataFragment.length;
             }
 
-            D data = dataCodec.decode(codecContext, extData);
+            D data = dataCodec.decode(codecContext, new AttributeType(type, extendedType), extData);
 
             if (data == null) {
                 // We couldn't decode the long-extended fragments so place the fragment attributes back on the stack
@@ -167,7 +167,8 @@ public class LongExtendedAttribute<D extends Data> extends Attribute<D> {
             @SuppressWarnings("unchecked")
             LongExtendedAttribute<D> longExtendedAttribute = (LongExtendedAttribute<D>) attributeStack.removeFirst();
 
-            byte[] extData = dataCodec.encode(codecContext, longExtendedAttribute.getData());
+            byte[] extData = dataCodec.encode(codecContext, longExtendedAttribute.getType(),
+                    longExtendedAttribute.getData());
 
             List<Attribute<LongExtendedData>> fragments = new ArrayList<>();
 
