@@ -21,6 +21,7 @@ import org.aaa4j.radius.core.attribute.RawAttribute;
 import org.aaa4j.radius.core.dictionary.AttributeDefinition;
 import org.aaa4j.radius.core.dictionary.Dictionary;
 import org.aaa4j.radius.core.dictionary.PacketDefinition;
+import org.aaa4j.radius.core.dictionary.TlvDefinition;
 import org.aaa4j.radius.core.util.RandomProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,6 +73,11 @@ class PacketCodecTest {
 
         @Override
         public AttributeDefinition getAttributeDefinition(AttributeType type) {
+            return null;
+        }
+
+        @Override
+        public TlvDefinition getTlvDefinition(AttributeType type) {
             return null;
         }
 

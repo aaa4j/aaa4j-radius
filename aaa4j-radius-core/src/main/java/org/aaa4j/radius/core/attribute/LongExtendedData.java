@@ -111,7 +111,7 @@ public class LongExtendedData extends ContainerData {
         public static final Codec INSTANCE = new Codec();
 
         @Override
-        public LongExtendedData decode(CodecContext codecContext, byte[] bytes) {
+        public LongExtendedData decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
             if (bytes.length < 2) {
                 return null;
             }
@@ -125,12 +125,14 @@ public class LongExtendedData extends ContainerData {
         }
 
         @Override
-        public byte[] encode(CodecContext codecContext, LongExtendedData data) {
-            byte[] bytes = new byte[data.extData.length + 2];
+        public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
+            LongExtendedData longExtendedData = (LongExtendedData) data;
 
-            bytes[0] = (byte) data.extendedType;
-            bytes[1] = (byte) ((data.more ? 0x80 : 0x00) | (data.truncation ? 0x40 : 0x00));
-            System.arraycopy(data.extData, 0, bytes, 2, data.extData.length);
+            byte[] bytes = new byte[longExtendedData.extData.length + 2];
+
+            bytes[0] = (byte) longExtendedData.extendedType;
+            bytes[1] = (byte) ((longExtendedData.more ? 0x80 : 0x00) | (longExtendedData.truncation ? 0x40 : 0x00));
+            System.arraycopy(longExtendedData.extData, 0, bytes, 2, longExtendedData.extData.length);
 
             return bytes;
         }

@@ -54,7 +54,7 @@ class Ipv6AddrDataTest {
     void testDecode() throws UnknownHostException {
         byte[] encoded = fromHex("20010db800000000000000000000002a");
 
-        Ipv6AddrData ipv6AddrData = Ipv6AddrData.Codec.INSTANCE.decode(null, encoded);
+        Ipv6AddrData ipv6AddrData = Ipv6AddrData.Codec.INSTANCE.decode(null, null, encoded);
 
         assertNotNull(ipv6AddrData);
         assertEquals(Inet6Address.getByName("2001:db8::2a"), ipv6AddrData.getValue());
@@ -64,7 +64,7 @@ class Ipv6AddrDataTest {
     @DisplayName("ipv6addr data is encoded successfully")
     void testEncode() throws UnknownHostException {
         Ipv6AddrData ipv6AddrData = new Ipv6AddrData((Inet6Address) Inet6Address.getByName("2001:db8::2a"));
-        byte[] encoded = Ipv6AddrData.Codec.INSTANCE.encode(null, ipv6AddrData);
+        byte[] encoded = Ipv6AddrData.Codec.INSTANCE.encode(null, null, ipv6AddrData);
 
         assertEquals("20010db800000000000000000000002a", toHex(encoded));
     }
@@ -74,19 +74,19 @@ class Ipv6AddrDataTest {
     void testDecodeInvalidLength() {
         {
             byte[] encoded = fromHex("7f000001");
-            Ipv6AddrData ipv6AddrData = Ipv6AddrData.Codec.INSTANCE.decode(null, encoded);
+            Ipv6AddrData ipv6AddrData = Ipv6AddrData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(ipv6AddrData);
         }
         {
             byte[] encoded = fromHex("20010db800000000000000000000002a00");
-            Ipv6AddrData ipv6AddrData = Ipv6AddrData.Codec.INSTANCE.decode(null, encoded);
+            Ipv6AddrData ipv6AddrData = Ipv6AddrData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(ipv6AddrData);
         }
         {
             byte[] encoded = fromHex("20010db80000000000000000000000");
-            Ipv6AddrData ipv6AddrData = Ipv6AddrData.Codec.INSTANCE.decode(null, encoded);
+            Ipv6AddrData ipv6AddrData = Ipv6AddrData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(ipv6AddrData);
         }

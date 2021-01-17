@@ -91,7 +91,7 @@ class Ipv4PrefixDataTest {
     void testDecode() throws UnknownHostException {
         byte[] encoded = fromHex("0018c0a80a00");
 
-        Ipv4PrefixData ipv4PrefixData = Ipv4PrefixData.Codec.INSTANCE.decode(null, encoded);
+        Ipv4PrefixData ipv4PrefixData = Ipv4PrefixData.Codec.INSTANCE.decode(null, null, encoded);
 
         assertNotNull(ipv4PrefixData);
         assertEquals(24, ipv4PrefixData.getPrefixLength());
@@ -102,7 +102,7 @@ class Ipv4PrefixDataTest {
     @DisplayName("ipv4prefix data is encoded successfully")
     void testEncode() throws UnknownHostException {
         Ipv4PrefixData ipv4PrefixData = new Ipv4PrefixData(24, (Inet4Address) Inet4Address.getByName("192.168.10.0"));
-        byte[] encoded = Ipv4PrefixData.Codec.INSTANCE.encode(null, ipv4PrefixData);
+        byte[] encoded = Ipv4PrefixData.Codec.INSTANCE.encode(null, null, ipv4PrefixData);
 
         assertEquals("0018c0a80a00", toHex(encoded));
     }
@@ -113,35 +113,35 @@ class Ipv4PrefixDataTest {
         {
             // Reserved byte is not 0x00
             byte[] encoded = fromHex("ff18c0a80a00");
-            Ipv4PrefixData ipv4PrefixData = Ipv4PrefixData.Codec.INSTANCE.decode(null, encoded);
+            Ipv4PrefixData ipv4PrefixData = Ipv4PrefixData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(ipv4PrefixData);
         }
         {
             // Too few bytes
             byte[] encoded = fromHex("0018c0a80a");
-            Ipv4PrefixData ipv4PrefixData = Ipv4PrefixData.Codec.INSTANCE.decode(null, encoded);
+            Ipv4PrefixData ipv4PrefixData = Ipv4PrefixData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(ipv4PrefixData);
         }
         {
             // Prefix length outside of range
             byte[] encoded = fromHex("0051c0a80a00");
-            Ipv4PrefixData ipv4PrefixData = Ipv4PrefixData.Codec.INSTANCE.decode(null, encoded);
+            Ipv4PrefixData ipv4PrefixData = Ipv4PrefixData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(ipv4PrefixData);
         }
         {
             // Too many bytes
             byte[] encoded = fromHex("0018c0a80a0000");
-            Ipv4PrefixData ipv4PrefixData = Ipv4PrefixData.Codec.INSTANCE.decode(null, encoded);
+            Ipv4PrefixData ipv4PrefixData = Ipv4PrefixData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(ipv4PrefixData);
         }
         {
             // Prefix length is not 32 when all prefix bytes are 0x00
             byte[] encoded = fromHex("000100000000");
-            Ipv4PrefixData ipv4PrefixData = Ipv4PrefixData.Codec.INSTANCE.decode(null, encoded);
+            Ipv4PrefixData ipv4PrefixData = Ipv4PrefixData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(ipv4PrefixData);
         }

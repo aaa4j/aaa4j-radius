@@ -60,7 +60,7 @@ public final class TimeData extends Data {
         public static final Codec INSTANCE = new Codec();
 
         @Override
-        public TimeData decode(CodecContext codecContext, byte[] bytes) {
+        public TimeData decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
             if (bytes.length != 4) {
                 return null;
             }
@@ -74,10 +74,12 @@ public final class TimeData extends Data {
         }
 
         @Override
-        public byte[] encode(CodecContext codecContext, TimeData data) {
+        public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
+            TimeData timeData = (TimeData) data;
+
             byte[] bytes = new byte[4];
 
-            long value = data.value.getEpochSecond();
+            long value = timeData.value.getEpochSecond();
 
             bytes[0] = (byte) ((value & 0xff000000) >>> 24);
             bytes[1] = (byte) ((value & 0x00ff0000) >>> 16);

@@ -117,7 +117,7 @@ public final class PacketCodec {
      */
     public byte[] encodeRequest(Packet request, byte[] secret, byte[] requestAuthenticator)
             throws PacketCodecException {
-        CodecContext codecContext = new CodecContext(secret, requestAuthenticator, randomProvider);
+        CodecContext codecContext = new CodecContext(dictionary, secret, requestAuthenticator, randomProvider);
 
         List<RawAttribute> rawAttributes = encodeAttributes(codecContext, request.getAttributes());
 
@@ -194,7 +194,7 @@ public final class PacketCodec {
      */
     public byte[] encodeResponse(Packet response, byte[] secret, int requestId, byte[] requestAuthenticator)
             throws PacketCodecException {
-        CodecContext codecContext = new CodecContext(secret, requestAuthenticator, randomProvider);
+        CodecContext codecContext = new CodecContext(dictionary, secret, requestAuthenticator, randomProvider);
 
         List<RawAttribute> rawAttributes = encodeAttributes(codecContext, response.getAttributes());
 
@@ -291,7 +291,7 @@ public final class PacketCodec {
         byte[] authenticatorBytes = new byte[16];
         System.arraycopy(bytes, 4, authenticatorBytes, 0, 16);
 
-        CodecContext codecContext = new CodecContext(secret, authenticatorBytes, randomProvider);
+        CodecContext codecContext = new CodecContext(dictionary, secret, authenticatorBytes, randomProvider);
 
         List<RawAttribute> rawAttributes = new ArrayList<>();
 
@@ -407,7 +407,7 @@ public final class PacketCodec {
             throw new PacketCodecException("Invalid response packet authenticator");
         }
 
-        CodecContext codecContext = new CodecContext(secret, requestAuthenticator, randomProvider);
+        CodecContext codecContext = new CodecContext(dictionary, secret, requestAuthenticator, randomProvider);
 
         List<RawAttribute> rawAttributes = new ArrayList<>();
 

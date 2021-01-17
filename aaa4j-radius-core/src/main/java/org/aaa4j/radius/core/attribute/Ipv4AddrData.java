@@ -61,7 +61,7 @@ public final class Ipv4AddrData extends Data {
         public static final Codec INSTANCE = new Codec();
 
         @Override
-        public Ipv4AddrData decode(CodecContext codecContext, byte[] bytes) {
+        public Ipv4AddrData decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
             if (bytes.length != 4) {
                 return null;
             }
@@ -76,8 +76,10 @@ public final class Ipv4AddrData extends Data {
         }
 
         @Override
-        public byte[] encode(CodecContext codecContext, Ipv4AddrData data) {
-            return data.value.getAddress();
+        public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
+            Ipv4AddrData ipv4AddrData = (Ipv4AddrData) data;
+
+            return ipv4AddrData.value.getAddress();
         }
 
     }

@@ -16,6 +16,7 @@
 
 package org.aaa4j.radius.core.attribute;
 
+import org.aaa4j.radius.core.dictionary.Dictionary;
 import org.aaa4j.radius.core.util.RandomProvider;
 
 import java.util.Objects;
@@ -26,6 +27,8 @@ import java.util.Objects;
  */
 public final class CodecContext {
 
+    private final Dictionary dictionary;
+
     private final byte[] secret;
 
     private final byte[] requestAuthenticator;
@@ -35,14 +38,26 @@ public final class CodecContext {
     /**
      * Constructs a codec context given the provided data.
      *
+     * @param dictionary the dictionary used in encoding and decoding
      * @param secret the RADIUS shared secret bytes to use
      * @param requestAuthenticator the request authenticator bytes
      * @param randomProvider the random provider to use for random number generation
      */
-    public CodecContext(byte[] secret, byte[] requestAuthenticator, RandomProvider randomProvider) {
+    public CodecContext(Dictionary dictionary, byte[] secret, byte[] requestAuthenticator,
+            RandomProvider randomProvider) {
+        this.dictionary = Objects.requireNonNull(dictionary);
         this.secret = Objects.requireNonNull(secret);
         this.requestAuthenticator = Objects.requireNonNull(requestAuthenticator);
         this.randomProvider = Objects.requireNonNull(randomProvider);
+    }
+
+    /**
+     * Returns the dictionary used in encoding and decoding.
+     *
+     * @return dictionary used in encoding and decoding
+     */
+    public Dictionary getDictionary() {
+        return dictionary;
     }
 
     /**

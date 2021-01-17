@@ -58,7 +58,7 @@ public final class Integer64Data extends Data {
         public static final Codec INSTANCE = new Codec();
 
         @Override
-        public Integer64Data decode(CodecContext codecContext, byte[] bytes) {
+        public Integer64Data decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
             if (bytes.length != 8) {
                 return null;
             }
@@ -76,17 +76,19 @@ public final class Integer64Data extends Data {
         }
 
         @Override
-        public byte[] encode(CodecContext codecContext, Integer64Data data) {
+        public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
+            Integer64Data integer64Data = (Integer64Data) data;
+
             byte[] bytes = new byte[8];
 
-            bytes[0] = (byte) ((data.value & 0xff00000000000000L) >>> 56);
-            bytes[1] = (byte) ((data.value & 0x00ff000000000000L) >>> 48);
-            bytes[2] = (byte) ((data.value & 0x0000ff0000000000L) >>> 40);
-            bytes[3] = (byte) ((data.value & 0x000000ff00000000L) >>> 32);
-            bytes[4] = (byte) ((data.value & 0x00000000ff000000L) >>> 24);
-            bytes[5] = (byte) ((data.value & 0x0000000000ff0000L) >>> 16);
-            bytes[6] = (byte) ((data.value & 0x000000000000ff00L) >>> 8);
-            bytes[7] = (byte) (data.value & 0x00000000000000ffL);
+            bytes[0] = (byte) ((integer64Data.value & 0xff00000000000000L) >>> 56);
+            bytes[1] = (byte) ((integer64Data.value & 0x00ff000000000000L) >>> 48);
+            bytes[2] = (byte) ((integer64Data.value & 0x0000ff0000000000L) >>> 40);
+            bytes[3] = (byte) ((integer64Data.value & 0x000000ff00000000L) >>> 32);
+            bytes[4] = (byte) ((integer64Data.value & 0x00000000ff000000L) >>> 24);
+            bytes[5] = (byte) ((integer64Data.value & 0x0000000000ff0000L) >>> 16);
+            bytes[6] = (byte) ((integer64Data.value & 0x000000000000ff00L) >>> 8);
+            bytes[7] = (byte) (integer64Data.value & 0x00000000000000ffL);
 
             return bytes;
         }

@@ -92,7 +92,7 @@ public class ExtendedAttribute<D extends Data> extends Attribute<D> {
             int extendedType = attribute.getData().getExtendedType();
             byte[] extData = attribute.getData().getExtData();
 
-            D data = dataCodec.decode(codecContext, extData);
+            D data = dataCodec.decode(codecContext, new AttributeType(attribute.getType(), extendedType), extData);
 
             if (data == null) {
                 attributeStack.addFirst(attribute);
@@ -114,7 +114,7 @@ public class ExtendedAttribute<D extends Data> extends Attribute<D> {
             ExtendedAttribute<D> extendedAttribute = (ExtendedAttribute<D>) attributeStack.removeFirst();
 
             int extendedType = extendedAttribute.extendedType;
-            byte[] extData = dataCodec.encode(codecContext, extendedAttribute.getData());
+            byte[] extData = dataCodec.encode(codecContext, extendedAttribute.getType(), extendedAttribute.getData());
 
             ExtendedData extendedData = new ExtendedData(extendedType, extData);
 

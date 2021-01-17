@@ -43,7 +43,7 @@ class EnumDataTest {
         {
             byte[] encoded = fromHex("0280de81");
 
-            EnumData enumData = EnumData.Codec.INSTANCE.decode(null, encoded);
+            EnumData enumData = EnumData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNotNull(enumData);
             assertEquals(42_000_001, enumData.getValue());
@@ -51,7 +51,7 @@ class EnumDataTest {
         {
             byte[] encoded = fromHex("ffffffd6");
 
-            EnumData enumData = EnumData.Codec.INSTANCE.decode(null, encoded);
+            EnumData enumData = EnumData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNotNull(enumData);
             assertEquals(-42L, enumData.getValue());
@@ -62,12 +62,12 @@ class EnumDataTest {
     @DisplayName("enum data is encoded successfully")
     void testEncode() {
         {
-            byte[] encoded = EnumData.Codec.INSTANCE.encode(null, new EnumData(42_000_001));
+            byte[] encoded = EnumData.Codec.INSTANCE.encode(null, null, new EnumData(42_000_001));
 
             assertEquals("0280de81", toHex(encoded));
         }
         {
-            byte[] encoded = EnumData.Codec.INSTANCE.encode(null, new EnumData(-42));
+            byte[] encoded = EnumData.Codec.INSTANCE.encode(null, null, new EnumData(-42));
 
             assertEquals("ffffffd6", toHex(encoded));
         }
@@ -79,21 +79,21 @@ class EnumDataTest {
         {
             // Too few bytes
             byte[] encoded = fromHex("");
-            EnumData enumData = EnumData.Codec.INSTANCE.decode(null, encoded);
+            EnumData enumData = EnumData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(enumData);
         }
         {
             // Too few bytes
             byte[] encoded = fromHex("00ac");
-            EnumData enumData = EnumData.Codec.INSTANCE.decode(null, encoded);
+            EnumData enumData = EnumData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(enumData);
         }
         {
             // Too many bytes
             byte[] encoded = fromHex("ff0280de81");
-            EnumData enumData = EnumData.Codec.INSTANCE.decode(null, encoded);
+            EnumData enumData = EnumData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(enumData);
         }

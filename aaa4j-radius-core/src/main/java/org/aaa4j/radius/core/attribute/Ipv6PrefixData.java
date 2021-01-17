@@ -151,7 +151,7 @@ public final class Ipv6PrefixData extends Data {
         public static final Codec INSTANCE = new Codec();
 
         @Override
-        public Ipv6PrefixData decode(CodecContext codecContext, byte[] bytes) {
+        public Ipv6PrefixData decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
             if (bytes.length > 18 || bytes.length < 2) {
                 return null;
             }
@@ -187,12 +187,14 @@ public final class Ipv6PrefixData extends Data {
         }
 
         @Override
-        public byte[] encode(CodecContext codecContext, Ipv6PrefixData data) {
-            byte[] bytes = new byte[2 + data.prefixBytes.length];
+        public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
+            Ipv6PrefixData ipv6PrefixData = (Ipv6PrefixData) data;
 
-            bytes[1] = (byte) data.prefixLength;
+            byte[] bytes = new byte[2 + ipv6PrefixData.prefixBytes.length];
 
-            System.arraycopy(data.prefixBytes, 0, bytes, 2, data.prefixBytes.length);
+            bytes[1] = (byte) ipv6PrefixData.prefixLength;
+
+            System.arraycopy(ipv6PrefixData.prefixBytes, 0, bytes, 2, ipv6PrefixData.prefixBytes.length);
 
             return bytes;
         }

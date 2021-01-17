@@ -59,7 +59,7 @@ class TextDataTest {
         {
             byte[] encoded = fromHex("48656c6c6f2c20576f726c6421");
 
-            TextData textData = TextData.Codec.INSTANCE.decode(null, encoded);
+            TextData textData = TextData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNotNull(textData);
             assertEquals("Hello, World!", textData.getValue());
@@ -67,7 +67,7 @@ class TextDataTest {
         {
             byte[] encoded = fromHex("e4bda0e5a5bdefbc8ce4b896e7958c");
 
-            TextData textData = TextData.Codec.INSTANCE.decode(null, encoded);
+            TextData textData = TextData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNotNull(textData);
             assertEquals("你好，世界", textData.getValue());
@@ -79,13 +79,13 @@ class TextDataTest {
     void testEncode() {
         {
             TextData textData = new TextData("Hello, World!");
-            byte[] encoded = TextData.Codec.INSTANCE.encode(null, textData);
+            byte[] encoded = TextData.Codec.INSTANCE.encode(null, null, textData);
 
             assertEquals("48656c6c6f2c20576f726c6421", toHex(encoded));
         }
         {
             TextData textData = new TextData("你好，世界");
-            byte[] encoded = TextData.Codec.INSTANCE.encode(null, textData);
+            byte[] encoded = TextData.Codec.INSTANCE.encode(null, null, textData);
 
             assertEquals("e4bda0e5a5bdefbc8ce4b896e7958c", toHex(encoded));
         }

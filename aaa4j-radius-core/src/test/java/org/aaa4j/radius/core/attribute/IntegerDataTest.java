@@ -43,7 +43,7 @@ class IntegerDataTest {
         {
             byte[] encoded = fromHex("0280de81");
 
-            IntegerData integerData = IntegerData.Codec.INSTANCE.decode(null, encoded);
+            IntegerData integerData = IntegerData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNotNull(integerData);
             assertEquals(42_000_001, integerData.getValue());
@@ -51,7 +51,7 @@ class IntegerDataTest {
         {
             byte[] encoded = fromHex("ffffffd6");
 
-            IntegerData integerData = IntegerData.Codec.INSTANCE.decode(null, encoded);
+            IntegerData integerData = IntegerData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNotNull(integerData);
             assertEquals(-42L, integerData.getValue());
@@ -62,12 +62,12 @@ class IntegerDataTest {
     @DisplayName("integer data is encoded successfully")
     void testEncode() {
         {
-            byte[] encoded = IntegerData.Codec.INSTANCE.encode(null, new IntegerData(42_000_001));
+            byte[] encoded = IntegerData.Codec.INSTANCE.encode(null, null, new IntegerData(42_000_001));
 
             assertEquals("0280de81", toHex(encoded));
         }
         {
-            byte[] encoded = IntegerData.Codec.INSTANCE.encode(null, new IntegerData(-42));
+            byte[] encoded = IntegerData.Codec.INSTANCE.encode(null, null, new IntegerData(-42));
 
             assertEquals("ffffffd6", toHex(encoded));
         }
@@ -79,21 +79,21 @@ class IntegerDataTest {
         {
             // Too few bytes
             byte[] encoded = fromHex("");
-            IntegerData integerData = IntegerData.Codec.INSTANCE.decode(null, encoded);
+            IntegerData integerData = IntegerData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(integerData);
         }
         {
             // Too few bytes
             byte[] encoded = fromHex("00ac");
-            IntegerData integerData = IntegerData.Codec.INSTANCE.decode(null, encoded);
+            IntegerData integerData = IntegerData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(integerData);
         }
         {
             // Too many bytes
             byte[] encoded = fromHex("ff0280de81");
-            IntegerData integerData = IntegerData.Codec.INSTANCE.decode(null, encoded);
+            IntegerData integerData = IntegerData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(integerData);
         }

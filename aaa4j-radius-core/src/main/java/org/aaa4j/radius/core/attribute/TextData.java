@@ -60,13 +60,15 @@ public class TextData extends Data {
         public static final Codec INSTANCE = new Codec();
 
         @Override
-        public TextData decode(CodecContext codecContext, byte[] bytes) {
+        public TextData decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
             return new TextData(new String(bytes, StandardCharsets.UTF_8));
         }
 
         @Override
-        public byte[] encode(CodecContext codecContext, TextData data) {
-            return data.value.getBytes(StandardCharsets.UTF_8);
+        public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
+            TextData textData = (TextData) data;
+
+            return textData.value.getBytes(StandardCharsets.UTF_8);
         }
 
     }

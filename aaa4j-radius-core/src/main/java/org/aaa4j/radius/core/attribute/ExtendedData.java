@@ -85,7 +85,7 @@ public class ExtendedData extends ContainerData {
         public static final Codec INSTANCE = new Codec();
 
         @Override
-        public ExtendedData decode(CodecContext codecContext, byte[] bytes) {
+        public ExtendedData decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
             if (bytes.length == 0) {
                 return null;
             }
@@ -99,11 +99,13 @@ public class ExtendedData extends ContainerData {
         }
 
         @Override
-        public byte[] encode(CodecContext codecContext, ExtendedData data) {
-            byte[] bytes = new byte[data.extData.length + 1];
+        public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
+            ExtendedData extendedData = (ExtendedData) data;
 
-            bytes[0] = (byte) data.extendedType;
-            System.arraycopy(data.extData, 0, bytes, 1, data.extData.length);
+            byte[] bytes = new byte[extendedData.extData.length + 1];
+
+            bytes[0] = (byte) extendedData.extendedType;
+            System.arraycopy(extendedData.extData, 0, bytes, 1, extendedData.extData.length);
 
             return bytes;
         }

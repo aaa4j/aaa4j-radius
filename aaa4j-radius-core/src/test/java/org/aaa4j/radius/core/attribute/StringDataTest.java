@@ -50,7 +50,7 @@ class StringDataTest {
     void testDecode() {
         byte[] encoded = fromHex("8af9bc");
 
-        StringData stringData = StringData.Codec.INSTANCE.decode(null, encoded);
+        StringData stringData = StringData.Codec.INSTANCE.decode(null, null, encoded);
 
         assertNotNull(stringData);
         assertEquals("8af9bc", toHex(stringData.getValue()));
@@ -60,7 +60,7 @@ class StringDataTest {
     @DisplayName("string data is encoded successfully")
     void testEncode() {
         StringData stringData = new StringData(fromHex("8af9bc"));
-        byte[] encoded = StringData.Codec.INSTANCE.encode(null, stringData);
+        byte[] encoded = StringData.Codec.INSTANCE.encode(null, null, stringData);
 
         assertEquals("8af9bc", toHex(encoded));
     }

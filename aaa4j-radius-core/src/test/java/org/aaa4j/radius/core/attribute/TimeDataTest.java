@@ -53,7 +53,7 @@ class TimeDataTest {
     void testDecode() {
         byte[] encoded = fromHex("5faeef9a");
 
-        TimeData timeData = TimeData.Codec.INSTANCE.decode(null, encoded);
+        TimeData timeData = TimeData.Codec.INSTANCE.decode(null, null, encoded);
 
         assertNotNull(timeData);
         assertEquals(Instant.ofEpochSecond(1605300122L), timeData.getValue());
@@ -63,7 +63,7 @@ class TimeDataTest {
     @DisplayName("time data is encoded successfully")
     void testEncode() {
         TimeData timeData = new TimeData(Instant.ofEpochSecond(1605300122L));
-        byte[] encoded = TimeData.Codec.INSTANCE.encode(null, timeData);
+        byte[] encoded = TimeData.Codec.INSTANCE.encode(null, null, timeData);
 
         assertEquals("5faeef9a", toHex(encoded));
     }
@@ -73,19 +73,19 @@ class TimeDataTest {
     void testDecodeInvalid() {
         {
             byte[] encoded = fromHex("");
-            TimeData timeData = TimeData.Codec.INSTANCE.decode(null, encoded);
+            TimeData timeData = TimeData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(timeData);
         }
         {
             byte[] encoded = fromHex("5faeef9a00");
-            TimeData timeData = TimeData.Codec.INSTANCE.decode(null, encoded);
+            TimeData timeData = TimeData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(timeData);
         }
         {
             byte[] encoded = fromHex("5faeef");
-            TimeData timeData = TimeData.Codec.INSTANCE.decode(null, encoded);
+            TimeData timeData = TimeData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(timeData);
         }
