@@ -1,0 +1,17 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: cb3ed783b2a0ac69201ba7966f03160e3d8567a2 $
+#
+#       For Meraki.
+#
+
+VENDOR		Meraki				29671
+BEGIN-VENDOR	Meraki
+
+ATTRIBUTE	Device-Name				1	string
+ATTRIBUTE	Network-Name				2	string
+ATTRIBUTE	Ap-Name					3	string
+ATTRIBUTE	Ap-Tags					4	string
+
+END-VENDOR      Meraki

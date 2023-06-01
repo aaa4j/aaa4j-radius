@@ -1,0 +1,40 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: e2872ae3c527df90a24ac99de21cd80b04561b98 $
+##############################################################################
+#
+#	ChilliSpot (and CoovaChilli) captive portal
+#	http://www.chillispot.org
+#	http://coova.org/wiki/index.php/CoovaChilli
+#
+#	$Id: e2872ae3c527df90a24ac99de21cd80b04561b98 $
+#
+##############################################################################
+
+VENDOR		ChilliSpot			14559
+
+BEGIN-VENDOR	ChilliSpot
+
+ATTRIBUTE	Max-Input-Octets			1	integer
+ATTRIBUTE	Max-Output-Octets			2	integer
+ATTRIBUTE	Max-Total-Octets			3	integer
+ATTRIBUTE	Bandwidth-Max-Up			4	integer
+ATTRIBUTE	Bandwidth-Max-Down			5	integer
+ATTRIBUTE	Config					6	string
+ATTRIBUTE	Lang					7	string
+ATTRIBUTE	Version					8	string
+ATTRIBUTE	OriginalURL				9	string
+
+# Configuration management parameters (ChilliSpot Only)
+ATTRIBUTE	UAM-Allowed				100	string
+ATTRIBUTE	MAC-Allowed				101	string
+ATTRIBUTE	Interval				102	integer
+END-VENDOR	ChilliSpot
+
+# Inline with RFC 2882 use of VSE-Authorize-Only for remote config
+# Note that 14559 = 0x38df is used as prefix for the VSE.
+# This is recognized as the best (but bad) way of doing VSEs.
+# (ChilliSpot Only - CoovaChilli uses Service-Type = Administrative-User)
+VALUE	Service-Type			ChilliSpot-Authorize-Only 0x38df0001
+

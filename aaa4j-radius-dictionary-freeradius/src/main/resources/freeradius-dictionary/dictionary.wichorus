@@ -1,0 +1,27 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 0d2232422d524b8e97072cc3d01ba6a32d608196 $
+#
+#	Dictionary for WiChorus Inc. VSA's.
+# 	http://www.wichorus.com/
+#
+# Version: 	$Id: 0d2232422d524b8e97072cc3d01ba6a32d608196 $
+#
+
+VENDOR		Wichorus			27030
+
+BEGIN-VENDOR	Wichorus
+
+ATTRIBUTE	Policy-Name				1	string
+ATTRIBUTE	User-Privilege				2	string
+
+#
+#  Some versions of the Wichorus equipment use the following attribute.
+#  instead of User-Privilege.  This is considered to be
+#  bad practice.
+#
+
+#ATTRIBUTE	Host-IP			2	ipaddr
+
+END-VENDOR 	Wichorus

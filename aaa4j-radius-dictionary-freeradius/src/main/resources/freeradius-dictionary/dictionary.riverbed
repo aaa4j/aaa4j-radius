@@ -1,0 +1,21 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 594fbfe54ed57ffd46c5313408f3eb4b215ad508 $
+##############################################################################
+#
+#	Riverbed VSAs
+#
+#	https://support.riverbed.com/bin/support/static/doc/steelhead/8.5.2/html/sh_8.5.2_dg/wwhelp/wwhimpl/common/html/wwhelp.htm#href=radius_tacacs.22.04.html&single=true
+#
+#	$Id: 594fbfe54ed57ffd46c5313408f3eb4b215ad508 $
+#
+##############################################################################
+
+VENDOR		Riverbed			17163
+
+BEGIN-VENDOR	Riverbed
+
+ATTRIBUTE	Local-User				1	string
+
+END-VENDOR    Riverbed

@@ -169,6 +169,7 @@
     <modules>
         <module>aaa4j-radius-client</module>
         <module>aaa4j-radius-core</module>
+        <module>aaa4j-radius-dictionary-freeradius</module>
         <module>aaa4j-radius-server</module>
     </modules>
 </project>

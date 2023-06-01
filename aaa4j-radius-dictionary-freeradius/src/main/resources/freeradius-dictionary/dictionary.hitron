@@ -1,0 +1,17 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: f1f9af38112460a7673781e6901b14c2176f8b45 $
+##############################################################################
+#
+#	$Id: f1f9af38112460a7673781e6901b14c2176f8b45 $
+#
+##############################################################################
+
+VENDOR		Hitron				8595
+
+BEGIN-VENDOR	Hitron
+
+ATTRIBUTE	Id					1	string
+
+END-VENDOR      Hitron

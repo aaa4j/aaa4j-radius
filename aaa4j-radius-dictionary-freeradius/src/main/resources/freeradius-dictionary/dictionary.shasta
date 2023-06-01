@@ -1,0 +1,27 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 11fe3447da36502530c217983712bbb8da0e7fa5 $
+#
+# dictionary.shasta
+#
+#           Nortel Shasta VSAs
+#           Andre Gustavo de C. Albuquerque <gustavoa@nortelnetworks.com>
+#
+
+VENDOR		Shasta				3199
+
+#
+# Standard attribute
+#
+BEGIN-VENDOR	Shasta
+
+ATTRIBUTE	User-Privilege				1	integer
+ATTRIBUTE	Service-Profile				2	string
+ATTRIBUTE	VPN-Name				3	string
+
+VALUE	User-Privilege			User			1
+VALUE	User-Privilege			Super-User		2
+VALUE	User-Privilege			SSuper-User		3
+
+END-VENDOR	Shasta

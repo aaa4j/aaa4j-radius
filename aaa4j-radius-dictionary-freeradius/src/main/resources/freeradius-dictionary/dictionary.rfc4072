@@ -1,0 +1,12 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: f3ba96892f2b13cd4fe8b73d9e55a5899a831b3c $
+#
+#	Attributes and values defined in RFC 4072
+#	http://www.ietf.org/rfc/rfc4072.txt
+#
+#	$Id: f3ba96892f2b13cd4fe8b73d9e55a5899a831b3c $
+#
+
+ATTRIBUTE	EAP-Key-Name				102	octets

@@ -1,0 +1,25 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: d18e9a0249b0ca7a2a8f13a16e27c142661cfa9b $
+#
+##############################################################################
+#
+#  If the WiMAX format isn't crazy enough, why not have other vendors
+#  do the same thing?
+#
+VENDOR		Telrad				5323    format=1,1,c
+
+BEGIN-VENDOR	Telrad
+
+ATTRIBUTE	TSDF-Table				1	tlv
+ATTRIBUTE	Item-Identity				.1	byte
+ATTRIBUTE	Reference-VPWS-PDN-Name			.2	octets
+ATTRIBUTE	TSDF-Parameters				.3	tlv
+
+ATTRIBUTE	C-VLAN-ID				.3.1	integer
+ATTRIBUTE	C-VLAN-ID-Retag				.3.2	integer
+ATTRIBUTE	S-VLAN-ID				.3.3	integer
+ATTRIBUTE	Reference-QOS-Profile-Name		.3.4	string
+
+END-VENDOR      Telrad

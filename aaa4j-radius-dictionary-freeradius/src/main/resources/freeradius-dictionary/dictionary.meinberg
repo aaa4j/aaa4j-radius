@@ -1,0 +1,19 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: c46e382978fc896646a047a27a27017daf6abe50 $
+##############################################################################
+#
+#	Meinberg
+#
+#	$Id: c46e382978fc896646a047a27a27017daf6abe50 $
+#
+##############################################################################
+
+VENDOR		Meinberg			5597
+
+BEGIN-VENDOR	Meinberg
+
+ATTRIBUTE	Management-Privilege-Level		1	integer
+
+END-VENDOR     Meinberg

@@ -1,0 +1,29 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 88bbb301db8864fee71a7bbbdb449165341b4bc3 $
+#
+# dictionary.eltex
+#
+
+VENDOR		Eltex				35265
+
+BEGIN-VENDOR	Eltex
+
+ATTRIBUTE	AVPair					1	string
+
+ATTRIBUTE	Disconnect-Code-Local			11	integer
+
+VALUE	Disconnect-Code-Local		User-Answer		1
+VALUE	Disconnect-Code-Local		Incomplete-Number	2
+VALUE	Disconnect-Code-Local		Unassigned-Number	3
+VALUE	Disconnect-Code-Local		Unsuccessful-Other-Cause 4
+VALUE	Disconnect-Code-Local		User-Busy		5
+VALUE	Disconnect-Code-Local		Out-of-Order		6
+VALUE	Disconnect-Code-Local		No-Answer		7
+VALUE	Disconnect-Code-Local		Unavailable-Trunk	8
+VALUE	Disconnect-Code-Local		Access-Denied		9
+VALUE	Disconnect-Code-Local		Unavailable-Voice-Channel 10
+VALUE	Disconnect-Code-Local		RADIUS-Server-Unavailable 11
+
+END-VENDOR	Eltex

@@ -21,7 +21,7 @@ import org.aaa4j.radius.core.attribute.LongExtendedAttribute;
 import org.aaa4j.radius.core.attribute.TextData;
 
 /**
- * Frag-Status (245.1) attribute.
+ * SAML-Assertion (245.1) attribute.
  */
 public final class SamlAssertion extends LongExtendedAttribute<TextData> {
 

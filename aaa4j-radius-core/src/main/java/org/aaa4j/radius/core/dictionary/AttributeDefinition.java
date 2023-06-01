@@ -25,8 +25,11 @@ import java.util.Objects;
 
 /**
  * An attribute (see {@link Attribute}) dictionary (see {@link Dictionary}) definition.
+ *
+ * @param <A> the concrete attribute type parameter
+ * @param <D> the concrete data type parameter
  */
-public final class AttributeDefinition {
+public final class AttributeDefinition <A extends Attribute<D>, D extends Data> {
 
     private final AttributeType type;
 
@@ -38,6 +41,8 @@ public final class AttributeDefinition {
 
     private final AttributeCodec attributeCodec;
 
+    private final AttributeFactory<D> attributeFactory;
+
     /**
      * Constructs an attribute definition from the given definition parameters.
      *
@@ -46,16 +51,17 @@ public final class AttributeDefinition {
      * @param attributeClass the attribute class
      * @param dataClass the attribute data class
      * @param attributeCodec the attribute codec used to encode and decode the attribute
-     * @param <A> the concrete attribute type parameter
-     * @param <D> the concrete data type parameter
+     * @param attributeFactory the attribute factor to create instances of this attribute
      */
-    public <A extends Attribute<D>, D extends Data> AttributeDefinition(AttributeType type, String name,
-            Class<A> attributeClass, Class<D> dataClass, AttributeCodec attributeCodec) {
+    public AttributeDefinition(AttributeType type, String name,
+            Class<A> attributeClass, Class<D> dataClass, AttributeCodec attributeCodec,
+            AttributeFactory<D> attributeFactory) {
         this.type = Objects.requireNonNull(type);
         this.name = Objects.requireNonNull(name);
         this.attributeClass = Objects.requireNonNull(attributeClass);
         this.dataClass = Objects.requireNonNull(dataClass);
         this.attributeCodec = Objects.requireNonNull(attributeCodec);
+        this.attributeFactory = Objects.requireNonNull(attributeFactory);
     }
 
     /**
@@ -101,6 +107,15 @@ public final class AttributeDefinition {
      */
     public AttributeCodec getAttributeCodec() {
         return attributeCodec;
+    }
+
+    /**
+     * Gets the attribute factory for building the attribute from values.
+     *
+     * @return the attribute factory
+     */
+    public AttributeFactory<D> getAttributeFactory() {
+        return attributeFactory;
     }
 
 }

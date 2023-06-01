@@ -1,0 +1,29 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: e37f3bfa605bf0912363f9fcd68f1867344ffb94 $
+##############################################################################
+#
+#	Arista VSAs
+#	https://eos.arista.com/common-aaa-requirements/
+#
+##############################################################################
+
+VENDOR		Arista				30065
+BEGIN-VENDOR	Arista
+
+ATTRIBUTE	AVPair					1	string
+ATTRIBUTE	User-Priv-Level				2	integer
+ATTRIBUTE	User-Role				3	string
+ATTRIBUTE	CVP-Role				4	string
+ATTRIBUTE	Command					5	string
+ATTRIBUTE	WebAuth					6	integer
+ATTRIBUTE	BlockMac				7	string
+ATTRIBUTE	UnblockMac				8	string
+ATTRIBUTE	PortFlap				9	integer
+ATTRIBUTE	Captive-Portal				10	string
+
+VALUE	WebAuth				start			1
+VALUE	WebAuth				complete		2
+
+END-VENDOR   Arista
