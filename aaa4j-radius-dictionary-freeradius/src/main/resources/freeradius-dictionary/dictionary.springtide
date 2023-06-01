@@ -1,0 +1,34 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 61d769432bacb0b526ef5089b4eb212f09b7d1b0 $
+##############################################################################
+#
+#	SpringTide VSAs
+#
+#	$Id: 61d769432bacb0b526ef5089b4eb212f09b7d1b0 $
+#
+##############################################################################
+
+VENDOR		SpringTide			3551
+
+BEGIN-VENDOR	SpringTide
+
+ATTRIBUTE	Acct-VC-Connection-Id			1	string
+ATTRIBUTE	Service-Name				2	string
+ATTRIBUTE	Service-Domain				3	integer
+ATTRIBUTE	Policy-Name				4	string
+ATTRIBUTE	Primary-DNS-Server			5	ipaddr
+ATTRIBUTE	Secondary-DNS-Server			6	ipaddr
+ATTRIBUTE	Primary-NBNS-Server			7	ipaddr
+ATTRIBUTE	Secondary-NBNS-Server			8	ipaddr
+ATTRIBUTE	Physical-Port				9	integer
+ATTRIBUTE	Physical-Slot				10	integer
+ATTRIBUTE	Virtual-Path-ID				11	integer
+ATTRIBUTE	Virtual-Circuit-ID			12	integer
+ATTRIBUTE	Realm-Name				13	string
+ATTRIBUTE	IPSec-Pfs-Group				14	integer
+ATTRIBUTE	IPSec-Client-Firewall			15	integer
+ATTRIBUTE	IPSec-Client-Subnet			16	string
+
+END-VENDOR	SpringTide

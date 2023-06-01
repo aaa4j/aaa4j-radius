@@ -33,39 +33,41 @@ class VsaDataTest {
     @DisplayName("Constructor validates arguments")
     void testConstructor() {
         assertThrows(NullPointerException.class, () -> {
-            new VsaData(32473, null);
+            new VsaData(32473, 58, null);
         });
     }
 
     @Test
     @DisplayName("Getters return the correct values")
     void testGetters() {
-        VsaData vsaData = new VsaData(32473, fromHex("3a9f4fde4bb9"));
+        VsaData vsaData = new VsaData(32473, 58, fromHex("9f4fde4bb9"));
 
-        assertEquals(10, vsaData.length());
+        assertEquals(11, vsaData.length());
         assertEquals(32473, vsaData.getVendorId());
-        assertEquals("3a9f4fde4bb9", toHex(vsaData.getVsaData()));
+        assertEquals(58, vsaData.getVendorType());
+        assertEquals("9f4fde4bb9", toHex(vsaData.getVsaData()));
     }
 
     @Test
     @DisplayName("vsa data is decoded successfully")
     void testDecode() {
-        byte[] encoded = fromHex("00007ed93a9f4fde4bb9");
+        byte[] encoded = fromHex("00007ed93a079f4fde4bb9");
 
         VsaData vsaData = VsaData.Codec.INSTANCE.decode(null, null, encoded);
 
         assertNotNull(vsaData);
         assertEquals(32473, vsaData.getVendorId());
-        assertEquals("3a9f4fde4bb9", toHex(vsaData.getVsaData()));
+        assertEquals(58, vsaData.getVendorType());
+        assertEquals("9f4fde4bb9", toHex(vsaData.getVsaData()));
     }
 
     @Test
     @DisplayName("vsa data is encoded successfully")
     void testEncode() {
-        VsaData vsaData = new VsaData(32473, fromHex("3a9f4fde4bb9"));
+        VsaData vsaData = new VsaData(32473, 58, fromHex("9f4fde4bb9"));
         byte[] encoded = VsaData.Codec.INSTANCE.encode(null, null, vsaData);
 
-        assertEquals("00007ed93a9f4fde4bb9", toHex(encoded));
+        assertEquals("00007ed93a079f4fde4bb9", toHex(encoded));
     }
 
     @Test

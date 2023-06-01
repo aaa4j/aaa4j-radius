@@ -41,7 +41,27 @@ public interface Dictionary {
      * 
      * @return the attribute definition or null if there's no definition for the attribute type
      */
-    AttributeDefinition getAttributeDefinition(AttributeType type);
+    AttributeDefinition<?, ?> getAttributeDefinition(AttributeType type);
+
+    /**
+     * Gets an attribute definition for a given attribute name. The name is case-insensitive.
+     *
+     * @param name an attribute name
+     *
+     * @return the attribute definition or null if there's no definition for the attribute name
+     */
+    AttributeDefinition<?, ?> getAttributeDefinition(String name);
+
+    /**
+     * Gets the numeric value for from the given type and human-friendly attribute value name. The numeric values can
+     * then be used to construct {@link org.aaa4j.radius.core.attribute.EnumData} objects.
+     *
+     * @param type an attribute identifier for which the
+     * @param name the name to convert to a numeric value
+     *
+     * @return the integer value or null if there's no numeric value found for the given type and name
+     */
+    Integer getNumericAttributeValue(AttributeType type, String name);
 
     /**
      * Gets a TLV definition for a given attribute identifier.

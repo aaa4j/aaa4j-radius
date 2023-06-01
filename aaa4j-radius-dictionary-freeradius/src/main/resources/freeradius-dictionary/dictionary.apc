@@ -1,0 +1,42 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 9e027d51a177679d9b2ebf66f1a9dc49c04a2379 $
+##############################################################################
+#
+#	APC (now Schneider Electric)
+#
+#	https://www.apc.com/us/en/faqs/FA156083/
+#	https://www.apc.com/us/en/faqs/content/?id=FA232648
+#
+#	$Id: 9e027d51a177679d9b2ebf66f1a9dc49c04a2379 $
+#
+##############################################################################
+
+VENDOR		APC				318
+
+BEGIN-VENDOR	APC
+
+ATTRIBUTE	Service-Type				1	integer
+ATTRIBUTE	Outlets					2	string
+ATTRIBUTE	Perms					3	string
+ATTRIBUTE	Username				4	string
+ATTRIBUTE	Contact					5	string
+ATTRIBUTE	ACCPX-Doors				6	string
+ATTRIBUTE	ACCPX-Status				7	string
+ATTRIBUTE	ACCPX-Access1				8	string
+ATTRIBUTE	ACCPX-Access2				9	string
+ATTRIBUTE	ACCPX-Access3				10	string
+ATTRIBUTE	ACCPX-Access4				11	string
+ATTRIBUTE	ACCPX-Access5				12	string
+ATTRIBUTE	ACCPX-Access6				13	string
+ATTRIBUTE	ACCPX-Access7				14	string
+
+VALUE	Service-Type			Admin			1
+VALUE	Service-Type			Device			2
+VALUE	Service-Type			ReadOnly		3
+VALUE	Service-Type			Outlet			4
+VALUE	Service-Type			Card			5
+VALUE	Service-Type			NetworkOnly		6
+
+END-VENDOR APC

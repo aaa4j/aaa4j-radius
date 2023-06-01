@@ -1,0 +1,13 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 52285713f68e234f4b7968de82cba0f81d4c50e0 $
+#
+
+VENDOR		RuggedCom			15004
+
+BEGIN-VENDOR	RuggedCom
+
+ATTRIBUTE	Privilege-level				2	string
+
+END-VENDOR RuggedCom

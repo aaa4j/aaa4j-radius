@@ -77,6 +77,16 @@ class PacketCodecTest {
         }
 
         @Override
+        public AttributeDefinition getAttributeDefinition(String name) {
+            return null;
+        }
+
+        @Override
+        public Integer getNumericAttributeValue(AttributeType type, String name) {
+            return null;
+        }
+
+        @Override
         public TlvDefinition getTlvDefinition(AttributeType type) {
             return null;
         }

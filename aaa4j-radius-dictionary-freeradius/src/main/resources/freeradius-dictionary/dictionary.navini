@@ -1,0 +1,23 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 0cbaee48b5ed59ea4ab89b33d1616b9c6528d538 $
+#
+# dictionary.navini
+#
+#               By
+#               "Paul Shields" <pshields@navini.com>
+#
+# Version:      $Id: 0cbaee48b5ed59ea4ab89b33d1616b9c6528d538 $
+#
+
+VENDOR		Navini				6504
+
+#
+#       Standard attribute
+#
+BEGIN-VENDOR	Navini
+
+ATTRIBUTE	AVPair					1	string
+
+END-VENDOR	Navini

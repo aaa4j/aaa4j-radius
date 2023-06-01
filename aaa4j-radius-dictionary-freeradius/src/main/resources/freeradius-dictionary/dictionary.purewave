@@ -1,0 +1,54 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 2e6241c40ed8ba5caf0363a5d707cc01af5f3636 $
+#
+#	Purewave Networks Base Station
+#
+#	$Id: 2e6241c40ed8ba5caf0363a5d707cc01af5f3636 $
+#
+VENDOR		Purewave			21074
+
+BEGIN-VENDOR	Purewave
+
+ATTRIBUTE	Client-Profile				1	integer
+
+ATTRIBUTE	CS-Type					2	integer
+ATTRIBUTE	Max-Downlink-Rate			3	integer
+ATTRIBUTE	Max-Uplink-Rate				4	integer
+
+# the following two attributes are needed when cs-Type is IPV4_CS
+#
+ATTRIBUTE	IP-Address				5	ipaddr
+ATTRIBUTE	IP-Netmask				6	ipaddr
+
+#
+# Attribute 	Service-Enable (optional parameter)
+# Purpose	Enable or Disable service
+# Range		0-1
+# Default value	1
+#
+ATTRIBUTE	Service-Enable				7	integer
+
+VALUE	CS-Type				ETHERNET_CS		1
+VALUE	CS-Type				IPV4_CS			0
+
+VALUE	Max-Downlink-Rate		QPSK_1/2		3
+VALUE	Max-Downlink-Rate		QPSK_3/4		4
+VALUE	Max-Downlink-Rate		QAM16_1/2		5
+VALUE	Max-Downlink-Rate		QAM16_3/4		6
+VALUE	Max-Downlink-Rate		QAM64_1/2		7
+VALUE	Max-Downlink-Rate		QAM64_2/3		8
+VALUE	Max-Downlink-Rate		QAM64_3/4		9
+VALUE	Max-Downlink-Rate		QAM64_5/6		10
+
+VALUE	Max-Uplink-Rate			QPSK_1/2		3
+VALUE	Max-Uplink-Rate			QPSK_3/4		4
+VALUE	Max-Uplink-Rate			QAM16_1/2		5
+VALUE	Max-Uplink-Rate			QAM16_3/4		6
+VALUE	Max-Uplink-Rate			QAM64_1/2		7
+VALUE	Max-Uplink-Rate			QAM64_2/3		8
+VALUE	Max-Uplink-Rate			QAM64_3/4		9
+VALUE	Max-Uplink-Rate			QAM64_5/6		10
+
+END-VENDOR	Purewave

@@ -29,8 +29,8 @@ public final class EapMessage extends ConcatAttribute {
 
     public static final String NAME = "EAP-Message";
 
-    public EapMessage(ConcatData concatData) {
-        super(TYPE.head(), concatData);
+    public EapMessage(ConcatData data) {
+        super(TYPE.head(), data);
     }
 
 }

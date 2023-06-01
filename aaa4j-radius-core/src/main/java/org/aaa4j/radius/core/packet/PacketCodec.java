@@ -498,7 +498,7 @@ public final class PacketCodec {
                 continue;
             }
 
-            AttributeDefinition attributeDefinition = dictionary.getAttributeDefinition(nextAttribute.getType());
+            AttributeDefinition<?, ?> attributeDefinition = dictionary.getAttributeDefinition(nextAttribute.getType());
 
             if (attributeDefinition == null) {
                 throw new PacketCodecException("Unable to encode attribute with identifier " + nextAttribute.getType());
@@ -518,7 +518,7 @@ public final class PacketCodec {
             RawAttribute rawAttribute = (RawAttribute) attributeStack.peekFirst();
             AttributeType nextType = rawAttribute.getType();
 
-            AttributeDefinition attributeDefinition = dictionary.getAttributeDefinition(nextType);
+            AttributeDefinition<?, ?> attributeDefinition = dictionary.getAttributeDefinition(nextType);
 
             if (attributeDefinition != null) {
                 attributeDefinition.getAttributeCodec().decode(codecContext, attributeStack);
@@ -543,7 +543,7 @@ public final class PacketCodec {
                 ContainerData containerData = (ContainerData) nextAttribute.getData();
                 AttributeType nextType = nextAttribute.getType().with(containerData.getContainedType());
 
-                AttributeDefinition attributeDefinition = dictionary.getAttributeDefinition(nextType);
+                AttributeDefinition<?, ?> attributeDefinition = dictionary.getAttributeDefinition(nextType);
 
                 int numComplete = attributeDefinition.getAttributeCodec().decode(codecContext, attributeStack);
 

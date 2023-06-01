@@ -1,0 +1,43 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
+#	The FreeRADIUS Extended-Vendor-Specific-5 dictionary.
+#
+# Version:	$Id: 162b3077815676d9ad213e29dae91969a10b6592 $
+#
+
+BEGIN-VENDOR	FreeRADIUS	parent=.Extended-Attribute-5.Extended-Vendor-Specific-5
+
+#
+#  The next two attributes are for sending EAPoL keys to a RADIUS server.
+#
+#  See:
+#
+#  https://w1.fi/cgit/hostap/commit/?id=b94371af8402f60218716552e571ca72cff4e3c0
+#
+ATTRIBUTE	802_1X-Anonce			1	octets[32]
+ATTRIBUTE	802_1X-EAPoL-Key-Msg		2	octets
+
+#
+#  @todo - add support for "octets length=uint16" to the dictionaries and to RADIUS.
+#
+#  In general it's not allowed.  The RADIUS encoder/decoder doesn't support it,
+#  though dhcpv4/dhcpv6 does.
+#
+#  We should really just have dict_validate allow more things, and then move more
+#  of the sanity checks to the various protocol callbacks.
+#
+#ATTRIBUTE	802_1X-EAPoL-Key-Msg		2	struct
+#MEMBER		Type				uint8	# 3 for Key
+#MEMBER		Key-Information			uint16
+#MEMBER		Key-Length			uint16
+#MEMBER		Replay-Counter			octets[8]
+#MEMBER		WPA-Key-Nonce			octets[32]
+#MEMBER		Key-IV				octets[16]
+#MEMBER		WPA-Key-RSA			octets[8]
+#MEMBER		WPA-Key-Identifier		octets[8]
+#MEMBER		WPA-Key-MIC			octets[16]
+#MEMBER		WPA-Key-Data			octets length=uint16
+
+END-VENDOR	FreeRADIUS

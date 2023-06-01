@@ -1,0 +1,114 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: b3e17ce9fb7b57139858350ad385e7e40d4ff748 $
+##############################################################################
+#
+#	HP ProCurve VSA's
+#
+#	$Id: b3e17ce9fb7b57139858350ad385e7e40d4ff748 $
+#
+##############################################################################
+
+VENDOR		HP				11
+
+#
+# Attributes supported by HP ProCurve wired networking devices
+#
+BEGIN-VENDOR	HP
+
+# Management authorization
+ATTRIBUTE	Privilege-Level				1	integer
+ATTRIBUTE	Command-String				2	string
+ATTRIBUTE	Command-Exception			3	integer
+
+VALUE	Command-Exception		Permit-List		0
+VALUE	Command-Exception		Deny-List		1
+
+ATTRIBUTE	Management-Protocol			26	integer
+
+VALUE	Management-Protocol		HTTP			5
+VALUE	Management-Protocol		HTTPS			6
+
+# Dynamic port-access attributes
+ATTRIBUTE	Port-Client-Limit-Dot1x			10	integer
+ATTRIBUTE	Port-Client-Limit-MA			11	integer
+ATTRIBUTE	Port-Client-Limit-WA			12	integer
+ATTRIBUTE	Port-Auth-Mode-Dot1x			13	integer
+
+VALUE	Port-Auth-Mode-Dot1x		Port-Based		1
+VALUE	Port-Auth-Mode-Dot1x		User-Based		2
+
+ATTRIBUTE	Port-MA-Port-Mode			14	integer
+
+VALUE	Port-MA-Port-Mode		User-Based		0
+VALUE	Port-MA-Port-Mode		Port-Based		1
+
+ATTRIBUTE	Port-Bounce-Host			23	integer
+ATTRIBUTE	Captive-Portal-URL			24	string
+ATTRIBUTE	User-Role				25	string
+ATTRIBUTE	CPPM-Role				27	string
+ATTRIBUTE	CPPM-Secondary-Role			28	string
+
+# Client QoS attributes
+ATTRIBUTE	Port-Priority-Regeneration-Table	40	string
+
+# Access control
+ATTRIBUTE	Cos					40	string
+#ATTRIBUTE	Rate-Limit				46	integer
+
+ATTRIBUTE	Bandwidth-Max-Ingress			46	integer
+ATTRIBUTE	Bandwidth-Max-Egress			48	integer
+
+ATTRIBUTE	Ip-Filter-Raw				61	string
+
+# Client ACL attributes
+ATTRIBUTE	Nas-Filter-Rule				61	string
+ATTRIBUTE	Access-Profile				62	string
+ATTRIBUTE	Nas-Rules-IPv6				63	integer
+
+# VLAN assignment attributes
+ATTRIBUTE	Egress-VLANID				64	integer
+ATTRIBUTE	Egress-VLAN-Name			65	string
+
+# Bonjour Profile
+ATTRIBUTE	Bonjour-Inbound-Profile			66	string
+ATTRIBUTE	Bonjour-Outbound-Profile		67	string
+
+# AAA for REST
+ATTRIBUTE	URI-String				80	string
+ATTRIBUTE	URI-Json-String				81	string
+ATTRIBUTE	URI-Access				82	string
+ATTRIBUTE	URI-Exception				83	integer
+
+ATTRIBUTE	VC-groups				192	string
+
+# See http://wiki.freeradius.org/vendor/HP#Capability-advertisements
+ATTRIBUTE	Capability-Advert			255	octets
+
+# Management-Protocol
+
+#
+#  Conflicting attributes are commented out.
+#
+#ATTRIBUTE	Management-Role			26	integer
+
+# Management-Role
+#VALUE	Management-Role		SuperUser		1
+#VALUE	Management-Role		Monitor			2
+#VALUE	Management-Role		HelpDeskManager		16
+#VALUE	Management-Role		NetworkAdministrator	17
+#VALUE	Management-Role		SystemAdministrator	18
+#VALUE	Management-Role		WebUserAdminstrator	19
+
+END-VENDOR	HP
+
+#
+#	Poaching on the standard space is wrong.
+#
+#	Privilege attributes for GbE2c, HP 1:10Gb, and HP 10Gb
+#	Ethernet Blade Switches
+#
+VALUE	Service-Type			Oper			252
+VALUE	Service-Type			User			255
+

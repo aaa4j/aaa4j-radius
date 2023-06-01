@@ -1,0 +1,10 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: b32e2e555719037647032cead4b81dfca1eb4748 $
+#
+
+VENDOR		Force10				6027
+BEGIN-VENDOR	Force10
+ATTRIBUTE	AVPair					1	string
+END-VENDOR	Force10

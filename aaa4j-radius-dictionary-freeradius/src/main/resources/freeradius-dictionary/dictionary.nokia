@@ -1,0 +1,41 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 908d3f61a6bf8d0f1399cab48a2fab7aedab73af $
+######################################################################
+#
+#	Nokia dictionary
+#	$Id: 908d3f61a6bf8d0f1399cab48a2fab7aedab73af $
+#
+######################################################################
+
+VENDOR		Nokia				94
+
+BEGIN-VENDOR	Nokia
+
+ATTRIBUTE	AVPair					1	string
+ATTRIBUTE	User-Profile				2	string
+ATTRIBUTE	Service-Name				3	octets	# magic format
+ATTRIBUTE	Service-Id				4	octets	# magic format
+ATTRIBUTE	Service-Username			5	octets	# magic format
+ATTRIBUTE	Service-Password			6	octets	# magic format
+ATTRIBUTE	Service-Primary-Indicator		7	octets
+ATTRIBUTE	Service-Charging-Type			8	octets # magic format
+ATTRIBUTE	Service-Encrypted-Password		9	octets # magic format
+ATTRIBUTE	Session-Access-Method			10	octets
+ATTRIBUTE	Session-Charging-Type			11	octets
+ATTRIBUTE	OCS-ID1					12	integer
+ATTRIBUTE	OCS-ID2					13	integer
+ATTRIBUTE	TREC-Index				14	integer
+ATTRIBUTE	Requested-APN				15	string
+END-VENDOR	Nokia
+
+#
+#	The format of some Nokia attributes is binary coded decimal
+#	(BCD) with the last four bits all set to 1 if there are an odd
+#	number of digits,
+#
+#	e.g 123 is encoded as hexadecimal bytes 21 F3
+#
+#	This is an incredibly stupid way of encoding the data.
+#

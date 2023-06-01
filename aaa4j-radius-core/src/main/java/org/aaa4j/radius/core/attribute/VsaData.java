@@ -26,27 +26,39 @@ public class VsaData extends ContainerData {
 
     private final int vendorId;
 
+    private final int vendorType;
+
     private final byte[] vsaData;
 
     /**
      * Constructs vsa data from a given vendor identifier and vendor data.
      *
      * @param vendorId the vendor identifier
+     * @param vendorType the vendor type
      * @param vsaData the vendor data
      */
-    public VsaData(int vendorId, byte[] vsaData) {
+    public VsaData(int vendorId, int vendorType, byte[] vsaData) {
+        if (vendorId < 0 || vendorId > 16777215) {
+            throw new IllegalArgumentException("Vendor identifier must be in range [0, 16777215]");
+        }
+
+        if (vendorType < 0 || vendorType > 255) {
+            throw new IllegalArgumentException("Vendor type must be in range [0, 255]");
+        }
+
         this.vendorId = vendorId;
+        this.vendorType = vendorType;
         this.vsaData = Objects.requireNonNull(vsaData);
     }
 
     @Override
     public int length() {
-        return 4 + vsaData.length;
+        return 6 + vsaData.length;
     }
 
     @Override
     public int[] getContainedType() {
-        return new int[] { vendorId };
+        return new int[] { vendorId, vendorType };
     }
 
     /**
@@ -56,6 +68,15 @@ public class VsaData extends ContainerData {
      */
     public int getVendorId() {
         return vendorId;
+    }
+
+    /**
+     * Gets the vendor type.
+     *
+     * @return the vendor type
+     */
+    public int getVendorType() {
+        return vendorType;
     }
 
     /**
@@ -79,7 +100,7 @@ public class VsaData extends ContainerData {
 
         @Override
         public VsaData decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
-            if (bytes.length < 4) {
+            if (bytes.length < 6) {
                 return null;
             }
 
@@ -88,23 +109,33 @@ public class VsaData extends ContainerData {
                     | (bytes[2] & 0xff) << 8
                     | bytes[3] & 0xff;
 
-            byte[] vsaData = Arrays.copyOfRange(bytes, 4, bytes.length);
+            int vendorType = bytes[4] & 0xff;
+            int vsaDataLength = bytes[5] & 0xff;
 
-            return new VsaData(vendorId, vsaData);
+            if (vsaDataLength + 4 != bytes.length) {
+                return null;
+            }
+
+            byte[] vsaData = Arrays.copyOfRange(bytes, 6, bytes.length);
+
+            return new VsaData(vendorId, vendorType, vsaData);
         }
 
         @Override
         public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
             VsaData vsaData = (VsaData) data;
 
-            byte[] bytes = new byte[4 + vsaData.vsaData.length];
+            byte[] bytes = new byte[6 + vsaData.vsaData.length];
 
             bytes[0] = (byte) ((vsaData.vendorId & 0xff000000) >>> 24);
             bytes[1] = (byte) ((vsaData.vendorId & 0x00ff0000) >>> 16);
             bytes[2] = (byte) ((vsaData.vendorId & 0x0000ff00) >>> 8);
             bytes[3] = (byte) (vsaData.vendorId & 0x000000ff);
 
-            System.arraycopy(vsaData.vsaData, 0, bytes, 4, vsaData.vsaData.length);
+            bytes[4] = (byte) (vsaData.vendorType & 0xff);
+            bytes[5] = (byte) ((2 + vsaData.vsaData.length) & 0xff);
+
+            System.arraycopy(vsaData.vsaData, 0, bytes, 6, vsaData.vsaData.length);
 
             return bytes;
         }

@@ -1,0 +1,11 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 5248a5523c324e756f89deb0927b81156a2f105c $
+#
+#	Attributes and values defined in RFC 4849.
+#	http://www.ietf.org/rfc/rfc4849.txt
+#
+#	$Id: 5248a5523c324e756f89deb0927b81156a2f105c $
+#
+ATTRIBUTE	NAS-Filter-Rule				92	string

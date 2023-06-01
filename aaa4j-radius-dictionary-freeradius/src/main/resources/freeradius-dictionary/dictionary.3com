@@ -1,0 +1,57 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 8351af61f82b556c7b31455c616f0eb99223a01e $
+#
+#	3com SuperStack Firewall dictionary
+#	Bought from Sonicwall, apparently, from Enterprise number 8741.
+# HP bought 3Com in 2009
+# http://h20628.www2.hp.com/km-ext/kmcsdirect/emr_na-c02584082-1.pdf
+# (page 557)
+#		$Id: 8351af61f82b556c7b31455c616f0eb99223a01e $
+#
+
+VENDOR		3com				43
+
+#
+#	These attributes contain the access-level value.
+#
+BEGIN-VENDOR	3com
+
+ATTRIBUTE	User-Access-Level			1	integer
+
+#	Read-only access to basic network tools (ping, etc)
+VALUE	User-Access-Level		Visitor			0
+
+#	Read-only access to manageable (not security) parameters
+VALUE	User-Access-Level		Monitor			1
+
+# 	Read-write access to manageable (not security) parameters
+VALUE	User-Access-Level		Manager			2
+
+#	Read-write access to all manageable parameters
+VALUE	User-Access-Level		Administrator		3
+
+ATTRIBUTE	VLAN-Name				2	string
+ATTRIBUTE	Mobility-Profile			3	string
+ATTRIBUTE	Encryption-Type				4	string
+ATTRIBUTE	Time-Of-Day				5	string
+ATTRIBUTE	SSID					6	string
+
+#	String formatted as: YY/MM/DD-HH:MM
+#	NOT as a "date" attribute!
+ATTRIBUTE	End-Date				7	string
+
+#	Commented out, because the 3Com documentation
+#	gives it the same number as End-Date, above.
+#ATTRIBUTE	Start-Date				7	string
+
+#	URL where the user is redirected after WebAAA
+ATTRIBUTE	URL					8	string
+
+ATTRIBUTE	Connect_Id				26	integer
+ATTRIBUTE	NAS-Startup-Timestamp			59	date
+ATTRIBUTE	Ip-Host-Addr				60	string
+ATTRIBUTE	Product-ID				255	string
+
+END-VENDOR	3com

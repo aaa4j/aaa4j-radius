@@ -1,0 +1,19 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 1dbbbb736babd0e477399f197c889984c4ac82fc $
+#
+
+VENDOR		Adtran				664
+
+BEGIN-VENDOR	Adtran
+
+# Managed WiFi attributes
+
+ATTRIBUTE	AP-Name					100	string
+ATTRIBUTE	AP-IP					101	ipaddr
+ATTRIBUTE	AP-Template				102	string
+ATTRIBUTE	SSID					103	string
+ATTRIBUTE	Role					104	string
+
+END-VENDOR Adtran

@@ -1,0 +1,53 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 13ff855bbe6e2c705da9d393004e475b50751f59 $
+#
+# dictionary.infonet
+#
+#		Accounting VSAs by
+#		"Bernard Lhoas from Infonet" <Bernard_Lhoas@infonet.com>
+#
+# Version:	@(#)dictionary.infonet  1.00
+#
+
+VENDOR		infonet				4453
+
+#
+#	Standard attribute
+#
+# I would like to change the attribute number of Account-Number
+# but we are already using it in production and changing could get
+# messy. Same with Type.  -Clark
+BEGIN-VENDOR	infonet
+
+ATTRIBUTE	Proxy					238	string
+ATTRIBUTE	Config					239	string
+ATTRIBUTE	MCS-Country				240	string
+ATTRIBUTE	MCS-Region				241	string
+ATTRIBUTE	MCS-Off-Peak				242	string
+ATTRIBUTE	MCS-Overflow				243	string
+ATTRIBUTE	MCS-Port				244	string
+ATTRIBUTE	MCS-Port-Count				245	string
+ATTRIBUTE	Account-Number				247	string
+ATTRIBUTE	Type					248	string
+
+#
+#       Specific Attributes
+#
+# Note: Only Attributes < 256 will go on the wire. They are known as
+#       "wire attributes".
+#       Attributes > 256 don't get sent to a NAS and don't get forwarded
+#       to a proxy site. This includes accounting packets as well as
+#       auth packets.
+#
+ATTRIBUTE	Pool-Request				252	string
+ATTRIBUTE	Surcharge-Type				254	integer
+ATTRIBUTE	NAS-Location				255	string
+ATTRIBUTE	Random-IP-Pool				246	string
+#
+ATTRIBUTE	Realm-Type				249	string
+ATTRIBUTE	LoginHost-Dest				250	string
+ATTRIBUTE	Tunnel-Decision-IP			251	string
+
+END-VENDOR	infonet

@@ -1,0 +1,45 @@
+# -*- text -*-
+# Copyright (C) 2022 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 9d1ee7486f8bd6b3134f56f7eb2a440d7d0d6d30 $
+##############################################################################
+#
+#	UTStarcom Issanni DSL router.
+#
+#	$Id: 9d1ee7486f8bd6b3134f56f7eb2a440d7d0d6d30 $
+#
+##############################################################################
+
+VENDOR		Issanni				5948
+
+BEGIN-VENDOR	Issanni
+#
+# UTStarcom Issanni DSL router.
+#
+ATTRIBUTE	SoftFlow-Template			1	string
+ATTRIBUTE	NAT-Support				2	string
+ATTRIBUTE	Routing-Context				3	string
+ATTRIBUTE	Tunnel-Name				4	string
+ATTRIBUTE	IP-Pool-Name				5	string
+ATTRIBUTE	PPPoE-URL				6	string
+ATTRIBUTE	PPPoE-MOTM				7	string
+ATTRIBUTE	Service					8	string
+ATTRIBUTE	Pri-DNS					9	ipaddr
+ATTRIBUTE	Sec-DNS					10	ipaddr
+ATTRIBUTE	Pri-NBNS				11	ipaddr
+ATTRIBUTE	Sec-NBNS				12	ipaddr
+ATTRIBUTE	Traffic-Class				13	string
+ATTRIBUTE	Tunnel-Type				14	integer
+
+VALUE	Tunnel-Type			IP-IP			1
+VALUE	Tunnel-Type			ESP			2
+VALUE	Tunnel-Type			L2TP			3
+
+ATTRIBUTE	NAT-Type				15	integer
+ATTRIBUTE	QOS-Class				16	string
+ATTRIBUTE	Interface-Name				17	string
+
+VALUE	NAT-Type			NAT			1
+VALUE	NAT-Type			NAPT			2
+
+END-VENDOR	Issanni
