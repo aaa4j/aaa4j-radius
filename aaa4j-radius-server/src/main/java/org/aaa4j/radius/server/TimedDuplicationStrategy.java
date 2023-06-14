@@ -110,7 +110,7 @@ public final class TimedDuplicationStrategy implements DuplicationStrategy {
     }
 
     @Override
-    public void unhandleRequest(InetSocketAddress clientAddress, Packet requestPacket) {
+    public synchronized void unhandleRequest(InetSocketAddress clientAddress, Packet requestPacket) {
         CacheKey cacheKey = new CacheKey(clientAddress, requestPacket.getReceivedFields().getIdentifier());
 
         if (!cacheMap.containsKey(cacheKey)) {
