@@ -4,7 +4,7 @@
     <groupId>org.aaa4j.radius</groupId>
     <artifactId>aaa4j-radius</artifactId>
     <packaging>pom</packaging>
-    <version>0.2.2-SNAPSHOT</version>
+    <version>0.2.2</version>
     <name>AAA4J-RADIUS</name>
     <description>Java library for building RADIUS clients and RADIUS servers</description>
     <url>https://github.com/aaa4j/aaa4j-radius</url>
@@ -26,7 +26,7 @@
         <connection>scm:git:git://github.com/aaa4j/aaa4j-radius.git</connection>
         <developerConnection>scm:git:ssh://github.com/aaa4j/aaa4j-radius.git</developerConnection>
         <url>https://github.com/aaa4j/aaa4j-radius/tree/master</url>
-      <tag>v0.2.1</tag>
+      <tag>v0.2.2</tag>
   </scm>
     <distributionManagement>
         <snapshotRepository>
