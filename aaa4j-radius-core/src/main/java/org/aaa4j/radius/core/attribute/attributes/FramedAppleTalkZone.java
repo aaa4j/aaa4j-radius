@@ -27,7 +27,7 @@ public final class FramedAppleTalkZone extends StandardAttribute<TextData> {
 
     public static final AttributeType TYPE = new AttributeType(39);
 
-    public static final String NAME = "Framed-AppleTalk-Network";
+    public static final String NAME = "Framed-AppleTalk-Zone";
 
     public FramedAppleTalkZone(TextData data) {
         super(TYPE.head(), data);
