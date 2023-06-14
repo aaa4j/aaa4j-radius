@@ -22,13 +22,17 @@ import org.aaa4j.radius.core.packet.Packet;
 import org.aaa4j.radius.core.packet.PacketCodec;
 import org.aaa4j.radius.core.util.RandomProvider;
 import org.aaa4j.radius.core.util.SecureRandomProvider;
+import org.aaa4j.radius.server.DuplicationStrategy;
+import org.aaa4j.radius.server.DuplicationStrategy.Result;
 import org.aaa4j.radius.server.RadiusServer;
+import org.aaa4j.radius.server.TimedDuplicationStrategy;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.time.Duration;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
@@ -47,9 +51,14 @@ public final class UdpRadiusServer implements RadiusServer {
 
     private static final int MAX_PACKET_SIZE = 4096;
 
+    private static final DuplicationStrategy DEFAULT_DUPLICATION_STRATEGY =
+            new TimedDuplicationStrategy(Duration.ofSeconds(30));
+
     private final InetSocketAddress bindAddress;
 
     private final Handler handler;
+
+    private final DuplicationStrategy duplicationStrategy;
 
     private final Executor executor;
 
@@ -70,6 +79,10 @@ public final class UdpRadiusServer implements RadiusServer {
     private UdpRadiusServer(Builder builder) {
         this.bindAddress = Objects.requireNonNull(builder.bindAddress);
         this.handler = Objects.requireNonNull(builder.handler);
+
+        this.duplicationStrategy = builder.duplicationStrategy == null
+                ? DEFAULT_DUPLICATION_STRATEGY
+                : builder.duplicationStrategy;
 
         this.executor = builder.executor == null
                 ? ForkJoinPool.commonPool()
@@ -196,13 +209,45 @@ public final class UdpRadiusServer implements RadiusServer {
                                         Packet requestPacket = udpRadiusServer.packetCodec.decodeRequest(inBytes,
                                                 secret);
 
-                                        Packet responsePacket = udpRadiusServer.handler
-                                                .handlePacket(clientAddress.getAddress(), requestPacket);
+                                        Packet responsePacket = null;
+
+                                        // Check the duplication cache for a cached response
+                                        Result result = udpRadiusServer.duplicationStrategy.handleRequest(clientAddress,
+                                                requestPacket);
+
+                                        switch (result.getState()) {
+                                            case NEW_REQUEST:
+                                                // The response will be generated since it's a new request
+                                                try {
+                                                    responsePacket = udpRadiusServer.handler
+                                                            .handlePacket(clientAddress.getAddress(), requestPacket);
+
+                                                    if (responsePacket != null) {
+                                                        udpRadiusServer.duplicationStrategy
+                                                                .handleResponse(clientAddress, requestPacket,
+                                                                        responsePacket);
+                                                    }
+                                                }
+                                                catch (Exception e) {
+                                                    udpRadiusServer.duplicationStrategy.unhandleRequest(clientAddress,
+                                                            requestPacket);
+
+                                                    throw e;
+                                                }
+                                                break;
+                                            case IN_PROGRESS_REQUEST:
+                                                // Ignore the request since it's a duplicate of one that's being handled
+                                                break;
+                                            case CACHED_RESPONSE:
+                                                responsePacket = result.getResponsePacket();
+                                                break;
+                                        }
 
                                         if (responsePacket != null) {
-                                            byte[] outBytes = udpRadiusServer.packetCodec.encodeResponse(responsePacket,
-                                                    secret, requestPacket.getReceivedFields().getIdentifier(),
-                                                    requestPacket.getReceivedFields().getAuthenticator());
+                                            byte[] outBytes = udpRadiusServer.packetCodec
+                                                    .encodeResponse(responsePacket, secret,
+                                                            requestPacket.getReceivedFields().getIdentifier(),
+                                                            requestPacket.getReceivedFields().getAuthenticator());
 
                                             datagramChannel.send(ByteBuffer.wrap(outBytes), clientAddress);
                                         }
@@ -251,6 +296,8 @@ public final class UdpRadiusServer implements RadiusServer {
 
         InetSocketAddress bindAddress;
 
+        DuplicationStrategy duplicationStrategy;
+
         Handler handler;
 
         Executor executor;
@@ -281,6 +328,20 @@ public final class UdpRadiusServer implements RadiusServer {
          */
         public Builder handler(Handler handler) {
             this.handler = handler;
+
+            return this;
+        }
+
+        /**
+         * Sets the duplication strategy. Optional. When not set, a default duplication strategy that caches responses
+         * for 30 seconds will be used.
+         *
+         * @param duplicationStrategy the duplication strategy to use
+         *
+         * @return this builder
+         */
+        public Builder duplicationStrategy(DuplicationStrategy duplicationStrategy) {
+            this.duplicationStrategy = duplicationStrategy;
 
             return this;
         }
