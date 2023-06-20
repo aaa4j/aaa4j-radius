@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * A RADIUS server using UDP as the underlying transport layer.
@@ -146,6 +147,8 @@ public final class UdpRadiusServer implements RadiusServer {
 
         private final UdpRadiusServer udpRadiusServer;
 
+        private DatagramChannel datagramChannel;
+
         SelectorManager(UdpRadiusServer udpRadiusServer) {
             super(NAME);
 
@@ -157,7 +160,7 @@ public final class UdpRadiusServer implements RadiusServer {
             try {
                 Selector selector = Selector.open();
 
-                DatagramChannel datagramChannel = DatagramChannel.open();
+                datagramChannel = DatagramChannel.open();
                 datagramChannel.configureBlocking(false);
                 datagramChannel.register(selector, SelectionKey.OP_READ);
 
@@ -197,72 +200,30 @@ public final class UdpRadiusServer implements RadiusServer {
 
                             InetSocketAddress clientAddress = (InetSocketAddress) datagramChannel.receive(inByteBuffer);
 
-                            udpRadiusServer.executor.execute(() -> {
-                                try {
-                                    byte[] secret = udpRadiusServer.handler.handleClient(clientAddress.getAddress());
-
-                                    if (secret != null) {
-                                        inByteBuffer.flip();
-                                        byte[] inBytes = new byte[inByteBuffer.remaining()];
-                                        inByteBuffer.get(inBytes);
-
-                                        Packet requestPacket = udpRadiusServer.packetCodec.decodeRequest(inBytes,
-                                                secret);
-
-                                        Packet responsePacket = null;
-
-                                        // Check the duplication cache for a cached response
-                                        Result result = udpRadiusServer.duplicationStrategy.handleRequest(clientAddress,
-                                                requestPacket);
-
-                                        switch (result.getState()) {
-                                            case NEW_REQUEST:
-                                                // The response will be generated since it's a new request
-                                                try {
-                                                    responsePacket = udpRadiusServer.handler
-                                                            .handlePacket(clientAddress.getAddress(), requestPacket);
-
-                                                    if (responsePacket != null) {
-                                                        udpRadiusServer.duplicationStrategy
-                                                                .handleResponse(clientAddress, requestPacket,
-                                                                        responsePacket);
-                                                    }
-                                                }
-                                                catch (Exception e) {
-                                                    udpRadiusServer.duplicationStrategy.unhandleRequest(clientAddress,
-                                                            requestPacket);
-
-                                                    throw e;
-                                                }
-                                                break;
-                                            case IN_PROGRESS_REQUEST:
-                                                // Ignore the request since it's a duplicate of one that's being handled
-                                                break;
-                                            case CACHED_RESPONSE:
-                                                responsePacket = result.getResponsePacket();
-                                                break;
-                                        }
-
-                                        if (responsePacket != null) {
-                                            byte[] outBytes = udpRadiusServer.packetCodec
-                                                    .encodeResponse(responsePacket, secret,
-                                                            requestPacket.getReceivedFields().getIdentifier(),
-                                                            requestPacket.getReceivedFields().getAuthenticator());
-
-                                            datagramChannel.send(ByteBuffer.wrap(outBytes), clientAddress);
-                                        }
-                                    }
-                                }
-                                catch (Exception exception) {
+                            try {
+                                udpRadiusServer.executor.execute(() -> {
                                     try {
-                                        udpRadiusServer.handler.handleException(exception);
+                                        runHandler(clientAddress, inByteBuffer);
+                                    } catch (Exception exception) {
+                                        try {
+                                            udpRadiusServer.handler.handleException(exception);
+                                        }
+                                        catch (Exception exceptionHandlerException) {
+                                            // Not much we can do if the exception handler itself throws an exception
+                                            exceptionHandlerException.printStackTrace();
+                                        }
                                     }
-                                    catch (Exception exceptionHandlerException) {
-                                        // Not much we can do if the exception handler itself throws an exception
-                                        exceptionHandlerException.printStackTrace();
-                                    }
+                                });
+                            }
+                            catch (RejectedExecutionException rejectedExecutionException) {
+                                try {
+                                    udpRadiusServer.handler.handleException(rejectedExecutionException);
                                 }
-                            });
+                                catch (Exception exceptionHandlerException) {
+                                    // Not much we can do if the exception handler itself throws an exception
+                                    exceptionHandlerException.printStackTrace();
+                                }
+                            }
                         }
                     }
                 }
@@ -284,6 +245,57 @@ public final class UdpRadiusServer implements RadiusServer {
 
                 udpRadiusServer.startCountDownLatch.countDown();
                 udpRadiusServer.stopCountDownLatch.countDown();
+            }
+        }
+
+        private void runHandler(InetSocketAddress clientAddress, ByteBuffer inByteBuffer) throws Exception {
+            byte[] secret = udpRadiusServer.handler.handleClient(clientAddress.getAddress());
+
+            if (secret != null) {
+                inByteBuffer.flip();
+                byte[] inBytes = new byte[inByteBuffer.remaining()];
+                inByteBuffer.get(inBytes);
+
+                Packet requestPacket = udpRadiusServer.packetCodec.decodeRequest(inBytes, secret);
+
+                Packet responsePacket = null;
+
+                // Check the duplication cache for a cached response
+                Result result = udpRadiusServer.duplicationStrategy.handleRequest(clientAddress, requestPacket);
+
+                switch (result.getState()) {
+                    case NEW_REQUEST:
+                        // The response will be generated since it's a new request
+                        try {
+                            responsePacket = udpRadiusServer.handler.handlePacket(clientAddress.getAddress(),
+                                    requestPacket);
+
+                            if (responsePacket != null) {
+                                udpRadiusServer.duplicationStrategy.handleResponse(clientAddress, requestPacket,
+                                        responsePacket);
+                            }
+                        }
+                        catch (Exception e) {
+                            udpRadiusServer.duplicationStrategy.unhandleRequest(clientAddress, requestPacket);
+
+                            throw e;
+                        }
+                        break;
+                    case IN_PROGRESS_REQUEST:
+                        // Ignore the request since it's a duplicate of one that's being handled
+                        break;
+                    case CACHED_RESPONSE:
+                        responsePacket = result.getResponsePacket();
+                        break;
+                }
+
+                if (responsePacket != null) {
+                    byte[] outBytes = udpRadiusServer.packetCodec.encodeResponse(responsePacket, secret,
+                            requestPacket.getReceivedFields().getIdentifier(),
+                            requestPacket.getReceivedFields().getAuthenticator());
+
+                    datagramChannel.send(ByteBuffer.wrap(outBytes), clientAddress);
+                }
             }
         }
 
