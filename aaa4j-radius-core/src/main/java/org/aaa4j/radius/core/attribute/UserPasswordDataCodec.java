@@ -82,9 +82,13 @@ public class UserPasswordDataCodec<D extends Data> implements DataCodec<D> {
     public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
         byte[] password = dataCodec.encode(codecContext, parentAttributeType, data);
 
+        if (password.length > 128) {
+            throw new IllegalArgumentException("Password length must be in range [0, 128]");
+        }
+
         MessageDigest md5 = getMd5Instance();
 
-        byte[] paddedPassword = new byte[Math.min(16, password.length + ((16 - password.length) % 16))];
+        byte[] paddedPassword = new byte[password.length - ((password.length - 1) % 16) + 15];
         System.arraycopy(password, 0, paddedPassword, 0, password.length);
 
         byte[] hiddenPassword = new byte[paddedPassword.length];
