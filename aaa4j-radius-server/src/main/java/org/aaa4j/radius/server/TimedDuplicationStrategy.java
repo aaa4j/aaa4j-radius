@@ -30,6 +30,7 @@ import java.util.Objects;
 
 /**
  * An implementation of {@link DuplicationStrategy} with a configurable time-to-live value for the cached responses.
+ * Caches all requests using the entire request packet bytes.
  */
 public final class TimedDuplicationStrategy implements DuplicationStrategy {
 
@@ -43,7 +44,9 @@ public final class TimedDuplicationStrategy implements DuplicationStrategy {
     }
 
     @Override
-    public synchronized Result handleRequest(InetSocketAddress clientAddress, Packet requestPacket) {
+    public synchronized Result handleRequest(InetSocketAddress clientAddress, Packet requestPacket,
+                                             byte[] requestPacketBytes)
+    {
         long currentEpochMillis = Instant.now().toEpochMilli();
 
         // Remove the expired cache entries
@@ -61,7 +64,7 @@ public final class TimedDuplicationStrategy implements DuplicationStrategy {
             }
         }
 
-        CacheKey cacheKey = new CacheKey(clientAddress, requestPacket.getReceivedFields().getIdentifier());
+        CacheKey cacheKey = new CacheKey(clientAddress, requestPacketBytes);
 
         if (!cacheMap.containsKey(cacheKey)) {
             // It's a new, unseen request; add it to the cache
@@ -71,13 +74,6 @@ public final class TimedDuplicationStrategy implements DuplicationStrategy {
         }
 
         CacheValue cacheValue = cacheMap.get(cacheKey);
-
-        if (!Arrays.equals(cacheValue.requestPacket.getReceivedFields().getAuthenticator(),
-                requestPacket.getReceivedFields().getAuthenticator()))
-        {
-            // If the request authenticator field is different from what we have in the cache then we must clear it
-            cacheMap.replace(cacheKey, new CacheValue(currentEpochMillis, requestPacket));
-        }
 
         if (cacheValue.responsePacket != null) {
             return new Result(State.CACHED_RESPONSE, cacheValue.responsePacket);
@@ -89,9 +85,9 @@ public final class TimedDuplicationStrategy implements DuplicationStrategy {
 
     @Override
     public synchronized void handleResponse(InetSocketAddress clientAddress, Packet requestPacket,
-                                            Packet responsePacket)
+                                            byte[] requestPacketBytes, Packet responsePacket)
     {
-        CacheKey cacheKey = new CacheKey(clientAddress, requestPacket.getReceivedFields().getIdentifier());
+        CacheKey cacheKey = new CacheKey(clientAddress, requestPacketBytes);
 
         if (!cacheMap.containsKey(cacheKey)) {
             return;
@@ -110,8 +106,10 @@ public final class TimedDuplicationStrategy implements DuplicationStrategy {
     }
 
     @Override
-    public synchronized void unhandleRequest(InetSocketAddress clientAddress, Packet requestPacket) {
-        CacheKey cacheKey = new CacheKey(clientAddress, requestPacket.getReceivedFields().getIdentifier());
+    public synchronized void unhandleRequest(InetSocketAddress clientAddress, Packet requestPacket,
+                                             byte[] requestPacketBytes)
+    {
+        CacheKey cacheKey = new CacheKey(clientAddress, requestPacketBytes);
 
         if (!cacheMap.containsKey(cacheKey)) {
             return;
@@ -133,16 +131,16 @@ public final class TimedDuplicationStrategy implements DuplicationStrategy {
 
         private final InetSocketAddress clientAddress;
 
-        private final int identifier;
+        private final byte[] requestBytes;
 
-        private CacheKey(InetSocketAddress clientAddress, int identifier) {
+        private CacheKey(InetSocketAddress clientAddress, byte[] requestBytes) {
             this.clientAddress = clientAddress;
-            this.identifier = identifier;
+            this.requestBytes = requestBytes;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(clientAddress, identifier);
+            return Objects.hash(clientAddress, Arrays.hashCode(requestBytes));
         }
 
         @Override
@@ -157,7 +155,8 @@ public final class TimedDuplicationStrategy implements DuplicationStrategy {
 
             CacheKey cacheKey = (CacheKey) obj;
 
-            return Objects.equals(clientAddress, cacheKey.clientAddress) && identifier == cacheKey.identifier;
+            return Objects.equals(clientAddress, cacheKey.clientAddress)
+                    && Arrays.equals(requestBytes, cacheKey.requestBytes);
         }
 
     }

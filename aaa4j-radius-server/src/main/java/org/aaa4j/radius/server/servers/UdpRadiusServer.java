@@ -261,7 +261,8 @@ public final class UdpRadiusServer implements RadiusServer {
                 Packet responsePacket = null;
 
                 // Check the duplication cache for a cached response
-                Result result = udpRadiusServer.duplicationStrategy.handleRequest(clientAddress, requestPacket);
+                Result result =
+                        udpRadiusServer.duplicationStrategy.handleRequest(clientAddress, requestPacket, inBytes);
 
                 switch (result.getState()) {
                     case NEW_REQUEST:
@@ -272,11 +273,11 @@ public final class UdpRadiusServer implements RadiusServer {
 
                             if (responsePacket != null) {
                                 udpRadiusServer.duplicationStrategy.handleResponse(clientAddress, requestPacket,
-                                        responsePacket);
+                                        inBytes, responsePacket);
                             }
                         }
                         catch (Exception e) {
-                            udpRadiusServer.duplicationStrategy.unhandleRequest(clientAddress, requestPacket);
+                            udpRadiusServer.duplicationStrategy.unhandleRequest(clientAddress, requestPacket, inBytes);
 
                             throw e;
                         }
