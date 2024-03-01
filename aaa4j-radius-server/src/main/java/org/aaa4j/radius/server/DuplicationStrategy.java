@@ -30,27 +30,31 @@ public interface DuplicationStrategy {
      *
      * @param clientAddress the client address
      * @param requestPacket the request packet
+     * @param requestPacketBytes the request packet bytes
      *
      * @return the duplication strategy result
      */
-    Result handleRequest(InetSocketAddress clientAddress, Packet requestPacket);
+    Result handleRequest(InetSocketAddress clientAddress, Packet requestPacket, byte[] requestPacketBytes);
 
     /**
      * Handles a response. The response will be saved to the cache.
      *
      * @param clientAddress the client address
      * @param requestPacket the request packet
+     * @param requestPacketBytes the request packet bytes
      * @param responsePacket the response packet
      */
-    void handleResponse(InetSocketAddress clientAddress, Packet requestPacket, Packet responsePacket);
+    void handleResponse(InetSocketAddress clientAddress, Packet requestPacket, byte[] requestPacketBytes,
+                        Packet responsePacket);
 
     /**
      * Unhandles a request. Removes an in-progress request from the cache.
      *
      * @param clientAddress the client address
      * @param requestPacket the request packet
+     * @param requestPacketBytes the request packet bytes
      */
-    void unhandleRequest(InetSocketAddress clientAddress, Packet requestPacket);
+    void unhandleRequest(InetSocketAddress clientAddress, Packet requestPacket, byte[] requestPacketBytes);
 
     /**
      * A duplication strategy result contains a State and a possible response packet. When {@link #getState()} is
