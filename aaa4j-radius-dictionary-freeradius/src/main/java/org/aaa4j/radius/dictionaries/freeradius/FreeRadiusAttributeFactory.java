@@ -20,7 +20,12 @@ import org.aaa4j.radius.core.attribute.Attribute;
 import org.aaa4j.radius.core.attribute.EnumData;
 import org.aaa4j.radius.core.attribute.Integer64Data;
 import org.aaa4j.radius.core.attribute.IntegerData;
+import org.aaa4j.radius.core.attribute.OptionalTaggedStringData;
+import org.aaa4j.radius.core.attribute.OptionalTaggedTextData;
 import org.aaa4j.radius.core.attribute.StringData;
+import org.aaa4j.radius.core.attribute.TaggedIntegerData;
+import org.aaa4j.radius.core.attribute.TaggedStringData;
+import org.aaa4j.radius.core.attribute.TaggedTextData;
 import org.aaa4j.radius.core.attribute.TextData;
 import org.aaa4j.radius.core.dictionary.AttributeDefinition;
 import org.aaa4j.radius.core.dictionary.AttributeFactory;
@@ -124,6 +129,26 @@ public final class FreeRadiusAttributeFactory {
                 throw new ValueFormatException("Value is not a valid integer value: " + value);
             }
         }
+        else if (attributeDefinition.getDataClass().equals(TaggedIntegerData.class)) {
+            // FreeRADIUS uses "integer" data type for enum attributes
+            Integer numericAttributeValue =
+                    dictionary.getNumericAttributeValue(attributeDefinition.getIdentifier(),
+                            value.toUpperCase(Locale.ROOT));
+
+            try {
+                TaggedIntegerData data = numericAttributeValue != null
+                        ? new TaggedIntegerData(numericAttributeValue, 0)
+                        : new TaggedIntegerData(new BigInteger(value).intValueExact(), 0);
+
+                AttributeFactory<TaggedIntegerData> attributeFactory =
+                        (AttributeFactory<TaggedIntegerData>) attributeDefinition.getAttributeFactory();
+
+                return attributeFactory.build(data);
+            }
+            catch (IllegalArgumentException | ArithmeticException e) {
+                throw new ValueFormatException("Value is not a valid integer value: " + value);
+            }
+        }
         else if (attributeDefinition.getDataClass().equals(StringData.class)) {
             try {
                 Matcher matcher = HEX_PATTERN.matcher(value);
@@ -145,12 +170,80 @@ public final class FreeRadiusAttributeFactory {
                 throw new ValueFormatException("Value is not a valid string value: " + value);
             }
         }
+        else if (attributeDefinition.getDataClass().equals(TaggedStringData.class)) {
+            try {
+                Matcher matcher = HEX_PATTERN.matcher(value);
+
+                if (!matcher.matches() || value.length() % 2 != 0) {
+                    throw new ValueFormatException("Value is not a valid string value: " + value);
+                }
+
+                byte[] bytes = HexFormat.parseHex(matcher.group(1));
+
+                TaggedStringData data = new TaggedStringData(bytes, 0);
+
+                AttributeFactory<TaggedStringData> attributeFactory =
+                        (AttributeFactory<TaggedStringData>) attributeDefinition.getAttributeFactory();
+
+                return attributeFactory.build(data);
+            }
+            catch (IllegalArgumentException e) {
+                throw new ValueFormatException("Value is not a valid string value: " + value);
+            }
+        }
+        else if (attributeDefinition.getDataClass().equals(OptionalTaggedStringData.class)) {
+            try {
+                Matcher matcher = HEX_PATTERN.matcher(value);
+
+                if (!matcher.matches() || value.length() % 2 != 0) {
+                    throw new ValueFormatException("Value is not a valid string value: " + value);
+                }
+
+                byte[] bytes = HexFormat.parseHex(matcher.group(1));
+
+                OptionalTaggedStringData data = new OptionalTaggedStringData(bytes);
+
+                AttributeFactory<OptionalTaggedStringData> attributeFactory =
+                        (AttributeFactory<OptionalTaggedStringData>) attributeDefinition.getAttributeFactory();
+
+                return attributeFactory.build(data);
+            }
+            catch (IllegalArgumentException e) {
+                throw new ValueFormatException("Value is not a valid string value: " + value);
+            }
+        }
         else if (attributeDefinition.getDataClass().equals(TextData.class)) {
             try {
                 TextData data = new TextData(value);
 
                 AttributeFactory<TextData> attributeFactory =
                         (AttributeFactory<TextData>) attributeDefinition.getAttributeFactory();
+
+                return attributeFactory.build(data);
+            }
+            catch (IllegalArgumentException e) {
+                throw new ValueFormatException("Value is not a valid text value: " + value);
+            }
+        }
+        else if (attributeDefinition.getDataClass().equals(TaggedTextData.class)) {
+            try {
+                TaggedTextData data = new TaggedTextData(value, 0);
+
+                AttributeFactory<TaggedTextData> attributeFactory =
+                        (AttributeFactory<TaggedTextData>) attributeDefinition.getAttributeFactory();
+
+                return attributeFactory.build(data);
+            }
+            catch (IllegalArgumentException e) {
+                throw new ValueFormatException("Value is not a valid text value: " + value);
+            }
+        }
+        else if (attributeDefinition.getDataClass().equals(OptionalTaggedTextData.class)) {
+            try {
+                OptionalTaggedTextData data = new OptionalTaggedTextData(value);
+
+                AttributeFactory<OptionalTaggedTextData> attributeFactory =
+                        (AttributeFactory<OptionalTaggedTextData>) attributeDefinition.getAttributeFactory();
 
                 return attributeFactory.build(data);
             }

@@ -59,14 +59,44 @@ public class StringData extends Data {
          */
         public static final Codec INSTANCE = new Codec();
 
+        private final DataFilter dataFilter;
+
+        /**
+         * Constructs a {@link Codec}.
+         */
+        public Codec() {
+            this.dataFilter = null;
+        }
+
+        /**
+         * Constructs a {@link Codec} with the provided {@link DataFilter}.
+         *
+         * @param dataFilter the data filter
+         */
+        public Codec(DataFilter dataFilter) {
+            this.dataFilter = dataFilter;
+        }
+
         @Override
         public StringData decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
+            if (dataFilter != null) {
+                bytes = dataFilter.decode(codecContext, bytes);
+
+                if (bytes == null) {
+                    return null;
+                }
+            }
+
             return new StringData(bytes);
         }
 
         @Override
         public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
             StringData stringData = (StringData) data;
+
+            if (dataFilter != null) {
+                return dataFilter.encode(codecContext, stringData.value);
+            }
 
             return stringData.value;
         }

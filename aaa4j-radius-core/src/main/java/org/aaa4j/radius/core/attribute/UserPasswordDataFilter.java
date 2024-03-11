@@ -21,43 +21,32 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 /**
- * Codec for attribute data that uses the User-Password attribute "encryption" as defined in RFC 2865.
- *
- * @param <D> the underlying data type
+ * Data filter for attribute data that uses the User-Password attribute "encryption" as defined in RFC 2865.
  */
-public class UserPasswordDataCodec<D extends Data> implements DataCodec<D> {
+public class UserPasswordDataFilter implements DataFilter {
 
-    private final DataCodec<D> dataCodec;
-
-    /**
-     * Constructs a codec for User-Password attribute "encryption" using the provided data codec.
-     *
-     * @param dataCodec the data codec
-     */
-    public UserPasswordDataCodec(DataCodec<D> dataCodec) {
-        this.dataCodec = dataCodec;
-    }
+    public static final UserPasswordDataFilter INSTANCE = new UserPasswordDataFilter();
 
     @Override
-    public D decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] hiddenPassword) {
+    public byte[] decode(CodecContext codecContext, byte[] data) {
         MessageDigest md5 = getMd5Instance();
 
-        byte[] paddedPassword = new byte[hiddenPassword.length];
+        byte[] paddedPassword = new byte[data.length];
 
         md5.update(codecContext.getSecret());
         md5.update(codecContext.getRequestAuthenticator());
 
         byte[] b = md5.digest();
 
-        for (int i = 0; i < hiddenPassword.length; i += 16) {
+        for (int i = 0; i < data.length; i += 16) {
             if (i != 0) {
                 md5.update(codecContext.getSecret());
-                md5.update(Arrays.copyOfRange(hiddenPassword, i - 16, i));
+                md5.update(Arrays.copyOfRange(data, i - 16, i));
                 b = md5.digest();
             }
 
             for (int j = 0; j < 16; j++) {
-                paddedPassword[i + j] = (byte) (hiddenPassword[i + j] ^ b[j]);
+                paddedPassword[i + j] = (byte) (data[i + j] ^ b[j]);
             }
 
         }
@@ -75,21 +64,19 @@ public class UserPasswordDataCodec<D extends Data> implements DataCodec<D> {
 
         byte[] password = Arrays.copyOfRange(paddedPassword, 0, passwordLength);
 
-        return dataCodec.decode(codecContext, parentAttributeType, password);
+        return password;
     }
 
     @Override
-    public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
-        byte[] password = dataCodec.encode(codecContext, parentAttributeType, data);
-
-        if (password.length > 128) {
+    public byte[] encode(CodecContext codecContext, byte[] data) {
+        if (data.length > 128) {
             throw new IllegalArgumentException("Password length must be in range [0, 128]");
         }
 
         MessageDigest md5 = getMd5Instance();
 
-        byte[] paddedPassword = new byte[password.length - ((password.length - 1) % 16) + 15];
-        System.arraycopy(password, 0, paddedPassword, 0, password.length);
+        byte[] paddedPassword = new byte[data.length - ((data.length - 1) % 16) + 15];
+        System.arraycopy(data, 0, paddedPassword, 0, data.length);
 
         byte[] hiddenPassword = new byte[paddedPassword.length];
 

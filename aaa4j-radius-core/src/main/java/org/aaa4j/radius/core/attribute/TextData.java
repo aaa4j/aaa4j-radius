@@ -55,18 +55,48 @@ public class TextData extends Data {
     public static class Codec implements DataCodec<TextData> {
 
         /**
-         * An instance of {@link Ipv4AddrData.Codec}.
+         * An instance of {@link Codec}.
          */
         public static final Codec INSTANCE = new Codec();
 
+        private final DataFilter dataFilter;
+
+        /**
+         * Constructs a {@link Codec}.
+         */
+        public Codec() {
+            this.dataFilter = null;
+        }
+
+        /**
+         * Constructs a {@link Codec} with the provided {@link DataFilter}.
+         *
+         * @param dataFilter the data filter
+         */
+        public Codec(DataFilter dataFilter) {
+            this.dataFilter = dataFilter;
+        }
+
         @Override
         public TextData decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
+            if (dataFilter != null) {
+                bytes = dataFilter.decode(codecContext, bytes);
+
+                if (bytes == null) {
+                    return null;
+                }
+            }
+
             return new TextData(new String(bytes, StandardCharsets.UTF_8));
         }
 
         @Override
         public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
             TextData textData = (TextData) data;
+
+            if (dataFilter != null) {
+                return dataFilter.encode(codecContext, textData.value.getBytes(StandardCharsets.UTF_8));
+            }
 
             return textData.value.getBytes(StandardCharsets.UTF_8);
         }

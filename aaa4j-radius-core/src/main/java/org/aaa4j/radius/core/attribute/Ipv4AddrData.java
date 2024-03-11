@@ -60,8 +60,34 @@ public final class Ipv4AddrData extends Data {
          */
         public static final Codec INSTANCE = new Codec();
 
+        private final DataFilter dataFilter;
+
+        /**
+         * Constructs a {@link Codec}.
+         */
+        public Codec() {
+            this.dataFilter = null;
+        }
+
+        /**
+         * Constructs a {@link Codec} with the provided {@link DataFilter}.
+         *
+         * @param dataFilter the data filter
+         */
+        public Codec(DataFilter dataFilter) {
+            this.dataFilter = dataFilter;
+        }
+
         @Override
         public Ipv4AddrData decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
+            if (dataFilter != null) {
+                bytes = dataFilter.decode(codecContext, bytes);
+
+                if (bytes == null) {
+                    return null;
+                }
+            }
+
             if (bytes.length != 4) {
                 return null;
             }
@@ -78,6 +104,10 @@ public final class Ipv4AddrData extends Data {
         @Override
         public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
             Ipv4AddrData ipv4AddrData = (Ipv4AddrData) data;
+
+            if (dataFilter != null) {
+                return dataFilter.encode(codecContext, ipv4AddrData.value.getAddress());
+            }
 
             return ipv4AddrData.value.getAddress();
         }
