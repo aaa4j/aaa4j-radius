@@ -11,23 +11,24 @@ Java library for building RADIUS clients and RADIUS servers.
 
 * RADIUS client implementation
 * RADIUS server implementation
-* Standard RADIUS data types (`integer`, `text`, `string`, `concat`, `ipv4addr`, `vsa`)
-* Standard RADIUS dictionary (packets, attributes)
+* Standard RADIUS data types
+* Standard RADIUS dictionary
 * Custom dictionary support
+* FreeRADIUS dictionary support
 * Java 8+ support
-* Java 9+ modules (JPMS)
+* Apache-2.0 license
 
 ## Usage
 
 ### Client
 
-Add `aaa4j-radius-client` dependency from [Maven Central](https://search.maven.org/artifact/org.aaa4j.radius/aaa4j-radius-client/0.1.0/jar):
+Add `aaa4j-radius-client` dependency from [Maven Central](https://central.sonatype.com/artifact/org.aaa4j.radius/aaa4j-radius-client):
 
 ```xml
 <dependency>
     <groupId>org.aaa4j.radius</groupId>
     <artifactId>aaa4j-radius-client</artifactId>
-    <version>0.1.0</version>
+    <version>0.3.0</version>
 </dependency>
 ```
 
@@ -87,13 +88,13 @@ public class Main {
 
 ### Server
 
-Add `aaa4j-radius-server` dependency  from [Maven Central](https://search.maven.org/artifact/org.aaa4j.radius/aaa4j-radius-server/0.1.0/jar):
+Add `aaa4j-radius-server` dependency  from [Maven Central](https://central.sonatype.com/artifact/org.aaa4j.radius/aaa4j-radius-server):
 
 ```xml
 <dependency>
     <groupId>org.aaa4j.radius</groupId>
     <artifactId>aaa4j-radius-server</artifactId>
-    <version>0.1.0</version>
+    <version>0.3.0</version>
 </dependency>
 ```
 
