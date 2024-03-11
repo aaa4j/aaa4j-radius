@@ -10,6 +10,7 @@
     </properties>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>aaa4j-radius-client</artifactId>
+    <name>AAA4J-RADIUS Client</name>
     <dependencies>
         <dependency>
             <groupId>org.aaa4j.radius</groupId>

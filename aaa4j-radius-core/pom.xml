@@ -10,6 +10,7 @@
     </properties>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>aaa4j-radius-core</artifactId>
+    <name>AAA4J-RADIUS Core</name>
     <build>
         <plugins>
             <plugin>
