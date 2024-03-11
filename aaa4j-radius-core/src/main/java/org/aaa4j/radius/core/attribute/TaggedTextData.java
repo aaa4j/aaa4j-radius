@@ -16,25 +16,26 @@
 
 package org.aaa4j.radius.core.attribute;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * A "string" attribute data type containing a 1-byte tag. The string (of octets) data is mapped to a byte array.
+ * A "text" attribute data type containing a 1-byte tag. The text data is mapped to a {@link String}.
  */
-public class TaggedStringData extends Data {
+public class TaggedTextData extends Data {
 
-    private final byte[] value;
+    private final String value;
 
     private final int tag;
 
     /**
-     * Constructs tagged string data from a given byte array and tag.
+     * Constructs tagged text data from a given String and tag.
      *
-     * @param value the byte array
+     * @param value the string
      * @param tag the tag (int in range [0, 31])
      */
-    public TaggedStringData(byte[] value, int tag) {
+    public TaggedTextData(String value, int tag) {
         if (tag < 0 || tag > 31) {
             throw new IllegalArgumentException("Tag must be in range [0, 31]");
         }
@@ -45,15 +46,15 @@ public class TaggedStringData extends Data {
 
     @Override
     public int length() {
-        return 1 + value.length;
+        return 1 + value.getBytes(StandardCharsets.UTF_8).length;
     }
 
     /**
-     * Gets the octet string value as a byte array.
+     * Gets the text value as a String.
      *
-     * @return the string value as a byte array
+     * @return the text data as a String
      */
-    public byte[] getValue() {
+    public String getValue() {
         return value;
     }
 
@@ -67,9 +68,9 @@ public class TaggedStringData extends Data {
     }
 
     /**
-     * A codec for tagged "string" data.
+     * A codec for tagged "text" data.
      */
-    public static class Codec implements DataCodec<TaggedStringData> {
+    public static class Codec implements DataCodec<TaggedTextData> {
 
         /**
          * An instance of {@link Codec}.
@@ -95,7 +96,7 @@ public class TaggedStringData extends Data {
         }
 
         @Override
-        public TaggedStringData decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
+        public TaggedTextData decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
             if (bytes.length < 1) {
                 return null;
             }
@@ -107,37 +108,39 @@ public class TaggedStringData extends Data {
                 return null;
             }
 
-            byte[] stringData = Arrays.copyOfRange(bytes, 1, bytes.length);
+            byte[] textData = Arrays.copyOfRange(bytes, 1, bytes.length);
 
             if (dataFilter != null) {
-                byte[] filteredData = dataFilter.decode(codecContext, stringData);
+                byte[] filteredData = dataFilter.decode(codecContext, textData);
 
                 if (filteredData != null) {
-                    stringData = filteredData;
+                    return new TaggedTextData(new String(filteredData, StandardCharsets.UTF_8), tag);
                 }
                 else {
                     return null;
                 }
             }
 
-            return new TaggedStringData(stringData, tag);
+            return new TaggedTextData(new String(textData, StandardCharsets.UTF_8), tag);
         }
 
         @Override
         public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
-            TaggedStringData taggedStringData = (TaggedStringData) data;
+            TaggedTextData taggedTextData = (TaggedTextData) data;
 
-            byte[] bytes = new byte[1 + taggedStringData.value.length];
+            byte[] bytes = new byte[taggedTextData.length()];
 
-            bytes[0] = (byte) taggedStringData.tag;
+            bytes[0] = (byte) taggedTextData.tag;
 
             if (dataFilter != null) {
-                byte[] filteredData = dataFilter.encode(codecContext, taggedStringData.value);
+                byte[] filteredData =
+                        dataFilter.encode(codecContext, taggedTextData.value.getBytes(StandardCharsets.UTF_8));
 
                 System.arraycopy(filteredData, 0, bytes, 1, filteredData.length);
             }
             else {
-                System.arraycopy(taggedStringData.value, 0, bytes, 1, taggedStringData.value.length);
+                byte[] textData = taggedTextData.value.getBytes(StandardCharsets.UTF_8);
+                System.arraycopy(textData, 0, bytes, 1, textData.length);
             }
 
             return bytes;

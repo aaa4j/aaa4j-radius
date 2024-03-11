@@ -18,18 +18,18 @@ package org.aaa4j.radius.core.attribute.attributes;
 
 import org.aaa4j.radius.core.attribute.AttributeType;
 import org.aaa4j.radius.core.attribute.StandardAttribute;
-import org.aaa4j.radius.core.attribute.StringData;
+import org.aaa4j.radius.core.attribute.TaggedStringData;
 
 /**
  * Tunnel-Password (69) attribute.
  */
-public final class TunnelPassword extends StandardAttribute<StringData> {
+public final class TunnelPassword extends StandardAttribute<TaggedStringData> {
 
     public static final AttributeType TYPE = new AttributeType(69);
 
     public static final String NAME = "Tunnel-Password";
 
-    public TunnelPassword(StringData data) {
+    public TunnelPassword(TaggedStringData data) {
         super(TYPE.head(), data);
     }
 

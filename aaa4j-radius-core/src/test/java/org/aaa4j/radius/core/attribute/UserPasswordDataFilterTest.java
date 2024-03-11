@@ -16,7 +16,6 @@
 
 package org.aaa4j.radius.core.attribute;
 
-import org.aaa4j.radius.core.attribute.attributes.UserPassword;
 import org.aaa4j.radius.core.dictionary.dictionaries.StandardDictionary;
 import org.aaa4j.radius.core.util.SecureRandomProvider;
 import org.junit.jupiter.api.DisplayName;
@@ -27,17 +26,14 @@ import java.nio.charset.StandardCharsets;
 import static org.aaa4j.radius.core.Utils.fromHex;
 import static org.aaa4j.radius.core.Utils.toHex;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@DisplayName("UserPasswordDataCodec")
-class UserPasswordDataCodecTest {
+@DisplayName("UserPasswordDataFilter")
+class UserPasswordDataFilterTest {
 
     @Test
     @DisplayName("UserPassword data is decoded successfully")
     void testDecode() {
-        UserPasswordDataCodec<StringData> userPasswordDataCodec =
-                new UserPasswordDataCodec<>(StringData.Codec.INSTANCE);
+        UserPasswordDataFilter userPasswordDataFilter = new UserPasswordDataFilter();
 
         CodecContext codecContext = new CodecContext(new StandardDictionary(),
                 fromHex("d955e791c15fe6996434be163c8c019d21cd901b867600c2662e8a4628c5bff3"),
@@ -47,30 +43,27 @@ class UserPasswordDataCodecTest {
         {
             byte[] hiddenPassword = fromHex("b04ef795318fb58d6da1ccc94ff1552c");
 
-            StringData passwordStringData =
-                    userPasswordDataCodec.decode(codecContext, UserPassword.TYPE, hiddenPassword);
+            byte[] passwordBytes = userPasswordDataFilter.decode(codecContext, hiddenPassword);
 
-            String password = new String(passwordStringData.getValue(), StandardCharsets.UTF_8);
+            String password = new String(passwordBytes, StandardCharsets.UTF_8);
 
             assertEquals("", password);
         }
         {
             byte[] hiddenPassword = fromHex("d12c9495318fb58d6da1ccc94ff1552c");
 
-            StringData passwordStringData =
-                    userPasswordDataCodec.decode(codecContext, UserPassword.TYPE, hiddenPassword);
+            byte[] passwordBytes = userPasswordDataFilter.decode(codecContext, hiddenPassword);
 
-            String password = new String(passwordStringData.getValue(), StandardCharsets.UTF_8);
+            String password = new String(passwordBytes, StandardCharsets.UTF_8);
 
             assertEquals("abc", password);
         }
         {
             byte[] hiddenPassword = fromHex("d12c94f154e9d2e504cba7a5229f3a5c");
 
-            StringData passwordStringData =
-                    userPasswordDataCodec.decode(codecContext, UserPassword.TYPE, hiddenPassword);
+            byte[] passwordBytes = userPasswordDataFilter.decode(codecContext, hiddenPassword);
 
-            String password = new String(passwordStringData.getValue(), StandardCharsets.UTF_8);
+            String password = new String(passwordBytes, StandardCharsets.UTF_8);
 
             assertEquals("abcdefghijklmnop", password);
         }
@@ -80,10 +73,9 @@ class UserPasswordDataCodecTest {
                     "72dfdb01a95d8c1d473daad70b763494a65dc6c705e276634f8040ae9af5d0b3" +
                     "a501bb4ce27950968a2ce5926dfd2f1a5c642f59e615b4188389cfe99e518ea9");
 
-            StringData passwordStringData =
-                    userPasswordDataCodec.decode(codecContext, UserPassword.TYPE, hiddenPassword);
+            byte[] passwordBytes = userPasswordDataFilter.decode(codecContext, hiddenPassword);
 
-            String password = new String(passwordStringData.getValue(), StandardCharsets.UTF_8);
+            String password = new String(passwordBytes, StandardCharsets.UTF_8);
 
             assertEquals("abcdefghijklmnopqrstuvwxyz" +
                     "abcdefghijklmnopqrstuvwxyz" +
@@ -97,8 +89,8 @@ class UserPasswordDataCodecTest {
     @Test
     @DisplayName("UserPassword is encoded successfully")
     void testEncode() {
-        UserPasswordDataCodec<StringData> userPasswordDataCodec =
-                new UserPasswordDataCodec<>(StringData.Codec.INSTANCE);
+        UserPasswordDataFilter userPasswordDataFilter =
+                new UserPasswordDataFilter();
 
         CodecContext codecContext = new CodecContext(new StandardDictionary(),
                 fromHex("d955e791c15fe6996434be163c8c019d21cd901b867600c2662e8a4628c5bff3"),
@@ -108,24 +100,21 @@ class UserPasswordDataCodecTest {
         {
             byte[] password = "".getBytes(StandardCharsets.UTF_8);
 
-            byte[] hiddenPassword =
-                    userPasswordDataCodec.encode(codecContext, UserPassword.TYPE, new StringData(password));
+            byte[] hiddenPassword = userPasswordDataFilter.encode(codecContext, password);
 
             assertEquals("b04ef795318fb58d6da1ccc94ff1552c", toHex(hiddenPassword));
         }
         {
             byte[] password = "abc".getBytes(StandardCharsets.UTF_8);
 
-            byte[] hiddenPassword =
-                    userPasswordDataCodec.encode(codecContext, UserPassword.TYPE, new StringData(password));
+            byte[] hiddenPassword = userPasswordDataFilter.encode(codecContext, password);
 
             assertEquals("d12c9495318fb58d6da1ccc94ff1552c", toHex(hiddenPassword));
         }
         {
             byte[] password = "abcdefghijklmnop".getBytes(StandardCharsets.UTF_8);
 
-            byte[] hiddenPassword =
-                    userPasswordDataCodec.encode(codecContext, UserPassword.TYPE, new StringData(password));
+            byte[] hiddenPassword = userPasswordDataFilter.encode(codecContext, password);
 
             assertEquals("d12c94f154e9d2e504cba7a5229f3a5c", toHex(hiddenPassword));
         }
@@ -136,33 +125,13 @@ class UserPasswordDataCodecTest {
                     "abcdefghijklmnopqrstuvwxyz" +
                     "abcdefghijklmnopqrstuvwx").getBytes(StandardCharsets.UTF_8);
 
-            byte[] hiddenPassword =
-                    userPasswordDataCodec.encode(codecContext, UserPassword.TYPE, new StringData(password));
+            byte[] hiddenPassword = userPasswordDataFilter.encode(codecContext, password);
 
             assertEquals("d12c94f154e9d2e504cba7a5229f3a5cf3e675578cc3abb486e814c9a97dd5d0" +
                             "657fd2d428d79fa68b9be651ac0893a440e94a20e238962bc3de4b9184ccbb7c" +
                             "72dfdb01a95d8c1d473daad70b763494a65dc6c705e276634f8040ae9af5d0b3" +
                             "a501bb4ce27950968a2ce5926dfd2f1a5c642f59e615b4188389cfe99e518ea9",
                     toHex(hiddenPassword));
-        }
-    }
-
-    @Test
-    @DisplayName("Invalid vsa data is decoded into null")
-    void testEncodeInvalid() {
-        UserPasswordDataCodec<StringData> userPasswordDataCodec =
-                new UserPasswordDataCodec<>(StringData.Codec.INSTANCE);
-
-        CodecContext codecContext = new CodecContext(new StandardDictionary(),
-                fromHex("d955e791c15fe6996434be163c8c019d21cd901b867600c2662e8a4628c5bff3"),
-                fromHex("9fa4ee463dbfd1b0c99a209490c52cb6"),
-                new SecureRandomProvider());
-
-        {
-            // Too many bytes (> 128)
-            assertThrows(IllegalArgumentException.class, () -> {
-                new EvsData(32473, -1, fromHex("abcd"));
-            });
         }
     }
 

@@ -57,8 +57,34 @@ public final class IntegerData extends Data {
          */
         public static final Codec INSTANCE = new Codec();
 
+        private final DataFilter dataFilter;
+
+        /**
+         * Constructs a {@link TaggedStringData.Codec}.
+         */
+        public Codec() {
+            this.dataFilter = null;
+        }
+
+        /**
+         * Constructs a {@link TaggedStringData.Codec} with the provided {@link DataFilter}.
+         *
+         * @param dataFilter the data filter
+         */
+        public Codec(DataFilter dataFilter) {
+            this.dataFilter = dataFilter;
+        }
+
         @Override
         public IntegerData decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
+            if (dataFilter != null) {
+                bytes = dataFilter.decode(codecContext, bytes);
+
+                if (bytes == null) {
+                    return null;
+                }
+            }
+
             if (bytes.length != 4) {
                 return null;
             }
@@ -81,6 +107,10 @@ public final class IntegerData extends Data {
             bytes[1] = (byte) ((integerData.value & 0x00ff0000) >>> 16);
             bytes[2] = (byte) ((integerData.value & 0x0000ff00) >>> 8);
             bytes[3] = (byte) (integerData.value & 0x000000ff);
+
+            if (dataFilter != null) {
+                bytes = dataFilter.encode(codecContext, bytes);
+            }
 
             return bytes;
         }

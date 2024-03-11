@@ -17,6 +17,7 @@
 package org.aaa4j.radius.dictionaries.freeradius;
 
 import org.aaa4j.radius.core.attribute.AttributeType;
+import org.aaa4j.radius.core.attribute.DataCodec;
 import org.aaa4j.radius.core.attribute.EnumData;
 import org.aaa4j.radius.core.attribute.IfidData;
 import org.aaa4j.radius.core.attribute.Integer64Data;
@@ -25,9 +26,16 @@ import org.aaa4j.radius.core.attribute.Ipv4AddrData;
 import org.aaa4j.radius.core.attribute.Ipv4PrefixData;
 import org.aaa4j.radius.core.attribute.Ipv6AddrData;
 import org.aaa4j.radius.core.attribute.Ipv6PrefixData;
+import org.aaa4j.radius.core.attribute.OptionalTaggedStringData;
+import org.aaa4j.radius.core.attribute.OptionalTaggedTextData;
 import org.aaa4j.radius.core.attribute.StandardAttribute;
 import org.aaa4j.radius.core.attribute.StringData;
+import org.aaa4j.radius.core.attribute.TaggedIntegerData;
+import org.aaa4j.radius.core.attribute.TaggedStringData;
+import org.aaa4j.radius.core.attribute.TaggedTextData;
 import org.aaa4j.radius.core.attribute.TextData;
+import org.aaa4j.radius.core.attribute.TunnelPasswordDataFilter;
+import org.aaa4j.radius.core.attribute.UserPasswordDataFilter;
 import org.aaa4j.radius.core.attribute.VendorSpecificAttribute;
 import org.aaa4j.radius.core.dictionary.AttributeDefinition;
 import org.aaa4j.radius.core.dictionary.Dictionary;
@@ -151,22 +159,32 @@ public class FreeRadiusDictionary implements Dictionary {
                                             String attributeId = tokens[++j];
                                             String typeLiteral = tokens[++j];
 
-                                            if (tokens.length > j + 1) {
-                                                // Handle format
-                                                String format = tokens[++j];
-                                            }
-
                                             if (!DIGITS_PATTERN.asPredicate().test(attributeId)) {
                                                 // Only consider non-nested attributes
                                                 break tokens;
                                             }
+
+                                            boolean hasTag = false;
+                                            boolean usesUserPasswordEncryption = false;
+                                            boolean usesTunnelPasswordEncryption = false;
+
+                                            if (tokens.length > j + 1) {
+                                                String modifiers = tokens[++j];
+
+                                                hasTag = modifiers.contains("has_tag");
+                                                usesUserPasswordEncryption = modifiers.contains("encrypt=1");
+                                                usesTunnelPasswordEncryption = modifiers.contains("encrypt=2");
+                                            }
+
+                                            boolean usesEncryption = usesUserPasswordEncryption
+                                                    || usesTunnelPasswordEncryption;
 
                                             int intAttributeId = Integer.parseInt(attributeId);
 
                                             AttributeType attributeType = new AttributeType(intAttributeId);
                                             String fullName = String.format("%s", attributeName);
 
-                                            switch (typeFromString(typeLiteral)) {
+                                            switch (typeFromString(typeLiteral, hasTag, usesEncryption)) {
                                                 case CONCAT:
                                                     break;
                                                 case ENUM: {
@@ -231,6 +249,12 @@ public class FreeRadiusDictionary implements Dictionary {
                                                 }
                                                 break;
                                                 case INTEGER: {
+                                                    DataCodec<IntegerData> dataCodec = IntegerData.Codec.INSTANCE;
+
+                                                    if (usesTunnelPasswordEncryption) {
+                                                        dataCodec = new IntegerData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                    }
+
                                                     AttributeDefinition<?, ?> attributeDefinition =
                                                             new AttributeDefinition<>(
                                                                     attributeType,
@@ -238,7 +262,7 @@ public class FreeRadiusDictionary implements Dictionary {
                                                                     VendorSpecificAttribute.class,
                                                                     IntegerData.class,
                                                                     new StandardAttribute.Codec<>(
-                                                                            IntegerData.Codec.INSTANCE,
+                                                                            dataCodec,
                                                                             StandardAttribute::new),
                                                                     (IntegerData data) ->
                                                                             new StandardAttribute<>(intAttributeId,
@@ -250,6 +274,12 @@ public class FreeRadiusDictionary implements Dictionary {
                                                 }
                                                 break;
                                                 case IPV4_ADDR: {
+                                                    DataCodec<Ipv4AddrData> dataCodec = Ipv4AddrData.Codec.INSTANCE;
+
+                                                    if (usesTunnelPasswordEncryption) {
+                                                        dataCodec = new Ipv4AddrData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                    }
+
                                                     AttributeDefinition<?, ?> attributeDefinition =
                                                             new AttributeDefinition<>(
                                                                     attributeType,
@@ -257,7 +287,7 @@ public class FreeRadiusDictionary implements Dictionary {
                                                                     VendorSpecificAttribute.class,
                                                                     Ipv4AddrData.class,
                                                                     new StandardAttribute.Codec<>(
-                                                                            Ipv4AddrData.Codec.INSTANCE,
+                                                                            dataCodec,
                                                                             StandardAttribute::new),
                                                                     (Ipv4AddrData data) ->
                                                                             new StandardAttribute<>(intAttributeId,
@@ -327,9 +357,25 @@ public class FreeRadiusDictionary implements Dictionary {
                                                 break;
                                                 case LONG_EXTENDED:
                                                     break;
-                                                case OPTIONAL_TAGGED_STRING:
-                                                    break;
+                                                case OPTIONAL_TAGGED_STRING: {
+
+                                                }
+                                                break;
+                                                case OPTIONAL_TAGGED_TEXT: {
+
+                                                }
+                                                break;
                                                 case STRING: {
+                                                    DataCodec<StringData> dataCodec = StringData.Codec.INSTANCE;
+
+                                                    if (usesUserPasswordEncryption) {
+                                                        dataCodec = new StringData.Codec(UserPasswordDataFilter.INSTANCE);
+                                                    }
+
+                                                    if (usesTunnelPasswordEncryption) {
+                                                        dataCodec = new StringData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                    }
+
                                                     AttributeDefinition<?, ?> attributeDefinition =
                                                             new AttributeDefinition<>(
                                                                     attributeType,
@@ -337,7 +383,7 @@ public class FreeRadiusDictionary implements Dictionary {
                                                                     VendorSpecificAttribute.class,
                                                                     StringData.class,
                                                                     new StandardAttribute.Codec<>(
-                                                                            StringData.Codec.INSTANCE,
+                                                                            dataCodec,
                                                                             StandardAttribute::new),
                                                                     (StringData data) ->
                                                                             new StandardAttribute<>(intAttributeId,
@@ -348,11 +394,84 @@ public class FreeRadiusDictionary implements Dictionary {
                                                             attributeDefinition);
                                                 }
                                                 break;
-                                                case TAGGED_INTEGER:
-                                                    break;
-                                                case TAGGED_STRING:
-                                                    break;
+                                                case TAGGED_INTEGER: {
+                                                    AttributeDefinition<?, ?> attributeDefinition =
+                                                            new AttributeDefinition<>(
+                                                                    attributeType,
+                                                                    fullName,
+                                                                    VendorSpecificAttribute.class,
+                                                                    TaggedIntegerData.class,
+                                                                    new StandardAttribute.Codec<>(
+                                                                            TaggedIntegerData.Codec.INSTANCE,
+                                                                            StandardAttribute::new),
+                                                                    (TaggedIntegerData data) ->
+                                                                            new StandardAttribute<>(intAttributeId,
+                                                                                    data));
+
+                                                    typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
+                                                    nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
+                                                            attributeDefinition);
+                                                }
+                                                break;
+                                                case TAGGED_STRING: {
+                                                    DataCodec<TaggedStringData> dataCodec = TaggedStringData.Codec.INSTANCE;
+
+                                                    if (usesUserPasswordEncryption) {
+                                                        dataCodec = new TaggedStringData.Codec(UserPasswordDataFilter.INSTANCE);
+                                                    }
+
+                                                    if (usesTunnelPasswordEncryption) {
+                                                        dataCodec = new TaggedStringData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                    }
+
+                                                    AttributeDefinition<?, ?> attributeDefinition =
+                                                            new AttributeDefinition<>(
+                                                                    attributeType,
+                                                                    fullName,
+                                                                    VendorSpecificAttribute.class,
+                                                                    TaggedStringData.class,
+                                                                    new StandardAttribute.Codec<>(
+                                                                            dataCodec,
+                                                                            StandardAttribute::new),
+                                                                    (TaggedStringData data) ->
+                                                                            new StandardAttribute<>(intAttributeId,
+                                                                                    data));
+
+                                                    typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
+                                                    nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
+                                                            attributeDefinition);
+                                                }
+                                                break;
+                                                case TAGGED_TEXT: {
+                                                    AttributeDefinition<?, ?> attributeDefinition =
+                                                            new AttributeDefinition<>(
+                                                                    attributeType,
+                                                                    fullName,
+                                                                    VendorSpecificAttribute.class,
+                                                                    TaggedTextData.class,
+                                                                    new StandardAttribute.Codec<>(
+                                                                            TaggedTextData.Codec.INSTANCE,
+                                                                            StandardAttribute::new),
+                                                                    (TaggedTextData data) ->
+                                                                            new StandardAttribute<>(intAttributeId,
+                                                                                    data));
+
+                                                    typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
+                                                    nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
+                                                            attributeDefinition);
+                                                }
+                                                break;
                                                 case TEXT: {
+                                                    DataCodec<TextData> dataCodec = TextData.Codec.INSTANCE;
+
+                                                    if (usesUserPasswordEncryption) {
+                                                        dataCodec = new TextData.Codec(UserPasswordDataFilter.INSTANCE);
+                                                    }
+
+                                                    if (usesTunnelPasswordEncryption) {
+                                                        dataCodec = new TextData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                    }
+
                                                     AttributeDefinition<?, ?> attributeDefinition =
                                                             new AttributeDefinition<>(
                                                                     attributeType,
@@ -360,7 +479,7 @@ public class FreeRadiusDictionary implements Dictionary {
                                                                     VendorSpecificAttribute.class,
                                                                     TextData.class,
                                                                     new StandardAttribute.Codec<>(
-                                                                            TextData.Codec.INSTANCE,
+                                                                            dataCodec,
                                                                             StandardAttribute::new),
                                                                     (TextData data) ->
                                                                             new StandardAttribute<>(intAttributeId,
@@ -387,10 +506,20 @@ public class FreeRadiusDictionary implements Dictionary {
                                             String attributeId = tokens[++j];
                                             String typeLiteral = tokens[++j];
 
+                                            boolean hasTag = false;
+                                            boolean usesUserPasswordEncryption = false;
+                                            boolean usesTunnelPasswordEncryption = false;
+
                                             if (tokens.length > j + 1) {
-                                                // Handle format
-                                                String format = tokens[++j];
+                                                String modifiers = tokens[++j];
+
+                                                hasTag = modifiers.contains("has_tag");
+                                                usesUserPasswordEncryption = modifiers.contains("encrypt=1");
+                                                usesTunnelPasswordEncryption = modifiers.contains("encrypt=2");
                                             }
+
+                                            boolean usesEncryption = usesUserPasswordEncryption
+                                                    || usesTunnelPasswordEncryption;
 
                                             if (!DIGITS_PATTERN.asPredicate().test(attributeId)) {
                                                 // Only consider non-nested attributes
@@ -404,7 +533,7 @@ public class FreeRadiusDictionary implements Dictionary {
                                             String fullName = String.format("%s-%s", currentVendorName, attributeName);
                                             final Integer finalVendorId = currentVendorId;
 
-                                            switch (typeFromString(typeLiteral)) {
+                                            switch (typeFromString(typeLiteral, hasTag, usesEncryption)) {
                                                 case CONCAT:
                                                     break;
                                                 case ENUM: {
@@ -490,6 +619,12 @@ public class FreeRadiusDictionary implements Dictionary {
                                                 }
                                                 break;
                                                 case INTEGER: {
+                                                    DataCodec<IntegerData> dataCodec = IntegerData.Codec.INSTANCE;
+
+                                                    if (usesTunnelPasswordEncryption) {
+                                                        dataCodec = new IntegerData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                    }
+
                                                     AttributeDefinition<?, ?> attributeDefinition =
                                                             new AttributeDefinition<>(
                                                                     attributeType,
@@ -497,7 +632,7 @@ public class FreeRadiusDictionary implements Dictionary {
                                                                     VendorSpecificAttribute.class,
                                                                     IntegerData.class,
                                                                     new VendorSpecificAttribute.Codec<>(
-                                                                            IntegerData.Codec.INSTANCE,
+                                                                            dataCodec,
                                                                             (type, vendorId, vendorType, data) ->
                                                                                     new VendorSpecificAttribute<>(
                                                                                             VENDOR_SPECIFIC_ATTRIBUTE,
@@ -516,6 +651,12 @@ public class FreeRadiusDictionary implements Dictionary {
                                                 }
                                                 break;
                                                 case IPV4_ADDR: {
+                                                    DataCodec<Ipv4AddrData> dataCodec = Ipv4AddrData.Codec.INSTANCE;
+
+                                                    if (usesTunnelPasswordEncryption) {
+                                                        dataCodec = new Ipv4AddrData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                    }
+
                                                     AttributeDefinition<?, ?> attributeDefinition =
                                                             new AttributeDefinition<>(
                                                                     attributeType,
@@ -523,7 +664,7 @@ public class FreeRadiusDictionary implements Dictionary {
                                                                     VendorSpecificAttribute.class,
                                                                     Ipv4AddrData.class,
                                                                     new VendorSpecificAttribute.Codec<>(
-                                                                            Ipv4AddrData.Codec.INSTANCE,
+                                                                            dataCodec,
                                                                             (type, vendorId, vendorType, data) ->
                                                                                     new VendorSpecificAttribute<>(
                                                                                             VENDOR_SPECIFIC_ATTRIBUTE,
@@ -621,9 +762,89 @@ public class FreeRadiusDictionary implements Dictionary {
                                                 break;
                                                 case LONG_EXTENDED:
                                                     break;
-                                                case OPTIONAL_TAGGED_STRING:
-                                                    break;
+                                                case OPTIONAL_TAGGED_STRING: {
+                                                    DataCodec<OptionalTaggedStringData> dataCodec = OptionalTaggedStringData.Codec.INSTANCE;
+
+                                                    if (usesUserPasswordEncryption) {
+                                                        dataCodec = new OptionalTaggedStringData.Codec(UserPasswordDataFilter.INSTANCE);
+                                                    }
+
+                                                    if (usesTunnelPasswordEncryption) {
+                                                        dataCodec = new OptionalTaggedStringData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                    }
+
+                                                    AttributeDefinition<?, ?> attributeDefinition =
+                                                            new AttributeDefinition<>(
+                                                                    attributeType,
+                                                                    fullName,
+                                                                    VendorSpecificAttribute.class,
+                                                                    OptionalTaggedStringData.class,
+                                                                    new VendorSpecificAttribute.Codec<>(
+                                                                            dataCodec,
+                                                                            (type, vendorId, vendorType, data) ->
+                                                                                    new VendorSpecificAttribute<>(
+                                                                                            VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                                            vendorId,
+                                                                                            vendorType, data)),
+                                                                    (OptionalTaggedStringData data) ->
+                                                                            new VendorSpecificAttribute<>(
+                                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                                    finalVendorId,
+                                                                                    intAttributeId,
+                                                                                    data));
+
+                                                    typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
+                                                    nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
+                                                            attributeDefinition);
+                                                }
+                                                break;
+                                                case OPTIONAL_TAGGED_TEXT: {
+                                                    DataCodec<OptionalTaggedTextData> dataCodec = OptionalTaggedTextData.Codec.INSTANCE;
+
+                                                    if (usesUserPasswordEncryption) {
+                                                        dataCodec = new OptionalTaggedTextData.Codec(UserPasswordDataFilter.INSTANCE);
+                                                    }
+
+                                                    if (usesTunnelPasswordEncryption) {
+                                                        dataCodec = new OptionalTaggedTextData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                    }
+
+                                                    AttributeDefinition<?, ?> attributeDefinition =
+                                                            new AttributeDefinition<>(
+                                                                    attributeType,
+                                                                    fullName,
+                                                                    VendorSpecificAttribute.class,
+                                                                    OptionalTaggedTextData.class,
+                                                                    new VendorSpecificAttribute.Codec<>(
+                                                                            dataCodec,
+                                                                            (type, vendorId, vendorType, data) ->
+                                                                                    new VendorSpecificAttribute<>(
+                                                                                            VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                                            vendorId,
+                                                                                            vendorType, data)),
+                                                                    (OptionalTaggedTextData data) ->
+                                                                            new VendorSpecificAttribute<>(
+                                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                                    finalVendorId,
+                                                                                    intAttributeId,
+                                                                                    data));
+
+                                                    typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
+                                                    nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
+                                                            attributeDefinition);
+                                                }
+                                                break;
                                                 case STRING: {
+                                                    DataCodec<StringData> dataCodec = StringData.Codec.INSTANCE;
+
+                                                    if (usesUserPasswordEncryption) {
+                                                        dataCodec = new StringData.Codec(UserPasswordDataFilter.INSTANCE);
+                                                    }
+
+                                                    if (usesTunnelPasswordEncryption) {
+                                                        dataCodec = new StringData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                    }
+
                                                     AttributeDefinition<?, ?> attributeDefinition =
                                                             new AttributeDefinition<>(
                                                                     attributeType,
@@ -631,7 +852,7 @@ public class FreeRadiusDictionary implements Dictionary {
                                                                     VendorSpecificAttribute.class,
                                                                     StringData.class,
                                                                     new VendorSpecificAttribute.Codec<>(
-                                                                            StringData.Codec.INSTANCE,
+                                                                            dataCodec,
                                                                             (type, vendorId, vendorType, data) ->
                                                                                     new VendorSpecificAttribute<>(
                                                                                             VENDOR_SPECIFIC_ATTRIBUTE,
@@ -649,11 +870,79 @@ public class FreeRadiusDictionary implements Dictionary {
                                                             attributeDefinition);
                                                 }
                                                 break;
-                                                case TAGGED_INTEGER:
-                                                    break;
-                                                case TAGGED_STRING:
-                                                    break;
-                                                case TEXT: {
+                                                case TAGGED_INTEGER: {
+                                                    AttributeDefinition<?, ?> attributeDefinition =
+                                                            new AttributeDefinition<>(
+                                                                    attributeType,
+                                                                    fullName,
+                                                                    VendorSpecificAttribute.class,
+                                                                    TaggedIntegerData.class,
+                                                                    new VendorSpecificAttribute.Codec<>(
+                                                                            TaggedIntegerData.Codec.INSTANCE,
+                                                                            (type, vendorId, vendorType, data) ->
+                                                                                    new VendorSpecificAttribute<>(
+                                                                                            VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                                            vendorId,
+                                                                                            vendorType, data)),
+                                                                    (TaggedIntegerData data) ->
+                                                                            new VendorSpecificAttribute<>(
+                                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                                    finalVendorId,
+                                                                                    intAttributeId,
+                                                                                    data));
+
+                                                    typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
+                                                    nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
+                                                            attributeDefinition);
+                                                }
+                                                break;
+                                                case TAGGED_STRING: {
+                                                    DataCodec<TaggedStringData> dataCodec = TaggedStringData.Codec.INSTANCE;
+
+                                                    if (usesUserPasswordEncryption) {
+                                                        dataCodec = new TaggedStringData.Codec(UserPasswordDataFilter.INSTANCE);
+                                                    }
+
+                                                    if (usesTunnelPasswordEncryption) {
+                                                        dataCodec = new TaggedStringData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                    }
+
+                                                    AttributeDefinition<?, ?> attributeDefinition =
+                                                            new AttributeDefinition<>(
+                                                                    attributeType,
+                                                                    fullName,
+                                                                    VendorSpecificAttribute.class,
+                                                                    TaggedStringData.class,
+                                                                    new VendorSpecificAttribute.Codec<>(
+                                                                            dataCodec,
+                                                                            (type, vendorId, vendorType, data) ->
+                                                                                    new VendorSpecificAttribute<>(
+                                                                                            VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                                            vendorId,
+                                                                                            vendorType, data)),
+                                                                    (TaggedStringData data) ->
+                                                                            new VendorSpecificAttribute<>(
+                                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                                    finalVendorId,
+                                                                                    intAttributeId,
+                                                                                    data));
+
+                                                    typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
+                                                    nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
+                                                            attributeDefinition);
+                                                }
+                                                break;
+                                                case TAGGED_TEXT: {
+                                                    DataCodec<TaggedTextData> dataCodec = TaggedTextData.Codec.INSTANCE;
+
+                                                    if (usesUserPasswordEncryption) {
+                                                        dataCodec = new TaggedTextData.Codec(UserPasswordDataFilter.INSTANCE);
+                                                    }
+
+                                                    if (usesTunnelPasswordEncryption) {
+                                                        dataCodec = new TaggedTextData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                    }
+
                                                     AttributeDefinition<?, ?> attributeDefinition =
                                                             new AttributeDefinition<>(
                                                                     attributeType,
@@ -661,7 +950,43 @@ public class FreeRadiusDictionary implements Dictionary {
                                                                     VendorSpecificAttribute.class,
                                                                     TextData.class,
                                                                     new VendorSpecificAttribute.Codec<>(
-                                                                            TextData.Codec.INSTANCE,
+                                                                            dataCodec,
+                                                                            (type, vendorId, vendorType, data) ->
+                                                                                    new VendorSpecificAttribute<>(
+                                                                                            VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                                            vendorId,
+                                                                                            vendorType, data)),
+                                                                    (TextData data) ->
+                                                                            new VendorSpecificAttribute<>(
+                                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                                    finalVendorId,
+                                                                                    intAttributeId,
+                                                                                    data));
+
+                                                    typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
+                                                    nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
+                                                            attributeDefinition);
+                                                }
+                                                break;
+                                                case TEXT: {
+                                                    DataCodec<TextData> dataCodec = TextData.Codec.INSTANCE;
+
+                                                    if (usesUserPasswordEncryption) {
+                                                        dataCodec = new TextData.Codec(UserPasswordDataFilter.INSTANCE);
+                                                    }
+
+                                                    if (usesTunnelPasswordEncryption) {
+                                                        dataCodec = new TextData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                    }
+
+                                                    AttributeDefinition<?, ?> attributeDefinition =
+                                                            new AttributeDefinition<>(
+                                                                    attributeType,
+                                                                    fullName,
+                                                                    VendorSpecificAttribute.class,
+                                                                    TextData.class,
+                                                                    new VendorSpecificAttribute.Codec<>(
+                                                                            dataCodec,
                                                                             (type, vendorId, vendorType, data) ->
                                                                                     new VendorSpecificAttribute<>(
                                                                                             VENDOR_SPECIFIC_ATTRIBUTE,
@@ -788,56 +1113,99 @@ public class FreeRadiusDictionary implements Dictionary {
         }
     }
 
-    private static DataType typeFromString(String type) {
+    private static DataType typeFromString(String type, boolean hasTag, boolean hasEncryption) {
         if (type.contains("[")) {
             // Turn attributes with size limits (e.g., octets[24]) into the simplified attribute
             type = type.substring(0, type.indexOf("["));
         }
 
+        DataType dataType = DataType.UNKNOWN;
+
         switch (type) {
             case "byte":
-                return DataType.STRING;
+                dataType = DataType.STRING;
+                break;
             case "combo-ip":
-                return DataType.STRING;
+                dataType = DataType.STRING;
+                break;
             case "date":
-                return DataType.STRING;
+                dataType = DataType.STRING;
+                break;
             case "ether":
-                return DataType.STRING;
+                dataType = DataType.STRING;
+                break;
             case "ifid":
-                return DataType.IFID;
+                dataType = DataType.IFID;
+                break;
             case "integer":
-                return DataType.INTEGER;
+                dataType = DataType.INTEGER;
+                break;
             case "integer64":
-                return DataType.INTEGER_64;
+                dataType = DataType.INTEGER_64;
+                break;
             case "ipaddr":
-                return DataType.IPV4_ADDR;
+                dataType = DataType.IPV4_ADDR;
+                break;
             case "ipv4prefix":
-                return DataType.IPV4_PREFIX;
+                dataType = DataType.IPV4_PREFIX;
+                break;
             case "ipv6addr":
-                return DataType.IPV6_ADDR;
+                dataType = DataType.IPV6_ADDR;
+                break;
             case "ipv6prefix":
-                return DataType.IPV6_PREFIX;
+                dataType = DataType.IPV6_PREFIX;
+                break;
             case "octets":
-                return DataType.STRING;
+                dataType = DataType.STRING;
+                break;
             case "short":
-                return DataType.INTEGER;
+                dataType = DataType.INTEGER;
+                break;
             case "signed":
-                return DataType.INTEGER;
+                dataType = DataType.INTEGER;
+                break;
             case "string":
-                return DataType.TEXT;
+                dataType = DataType.TEXT;
+                break;
             case "struct":
-                return DataType.STRING;
+                dataType = DataType.STRING;
+                break;
             case "time_delta":
-                return DataType.STRING;
+                dataType = DataType.STRING;
+                break;
             case "tlv":
-                return DataType.STRING;
+                dataType = DataType.STRING;
+                break;
             case "uint32":
-                return DataType.INTEGER;
+                dataType = DataType.INTEGER;
+                break;
             case "vsa":
-                return DataType.VSA;
+                dataType = DataType.VSA;
+                break;
         }
 
-        return DataType.UNKNOWN;
+        switch (dataType) {
+            case INTEGER: {
+                if (hasTag) {
+                    dataType = DataType.TAGGED_INTEGER;
+                }
+            }
+            break;
+            case STRING: {
+                if (hasTag) {
+                    dataType = hasEncryption ? DataType.TAGGED_STRING : DataType.OPTIONAL_TAGGED_STRING;
+                }
+            }
+            break;
+            case TEXT: {
+                if (hasTag) {
+                    dataType = hasEncryption ? DataType.TAGGED_TEXT : DataType.OPTIONAL_TAGGED_TEXT;
+                }
+            }
+            break;
+        }
+
+        return dataType;
     }
 
     @Override
@@ -891,9 +1259,11 @@ public class FreeRadiusDictionary implements Dictionary {
         IPV6_PREFIX,
         LONG_EXTENDED,
         OPTIONAL_TAGGED_STRING,
+        OPTIONAL_TAGGED_TEXT,
         STRING,
         TAGGED_INTEGER,
         TAGGED_STRING,
+        TAGGED_TEXT,
         TEXT,
         TIME,
         TLV,

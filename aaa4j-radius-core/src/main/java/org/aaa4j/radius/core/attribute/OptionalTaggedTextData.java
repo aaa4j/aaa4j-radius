@@ -16,27 +16,27 @@
 
 package org.aaa4j.radius.core.attribute;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
 /**
- * A "string" attribute data type containing an optional 1-byte tag. The string (of octets) data is mapped to a byte
- * array.
+ * A "text" attribute data type containing an optional 1-byte tag. The text data is mapped to a {@link String}.
  */
-public class OptionalTaggedStringData extends Data {
+public class OptionalTaggedTextData extends Data {
 
-    private final byte[] value;
+    private final String value;
 
     private final Integer tag;
 
     /**
      * Constructs tagged string data from a given byte array and tag.
      *
-     * @param value the byte array
+     * @param value the string
      * @param tag the tag (int in range [0, 31])
      */
-    public OptionalTaggedStringData(byte[] value, int tag) {
+    public OptionalTaggedTextData(String value, int tag) {
         if (tag < 0 || tag > 31) {
             throw new IllegalArgumentException("Tag must be in range [0, 31]");
         }
@@ -46,26 +46,26 @@ public class OptionalTaggedStringData extends Data {
     }
 
     /**
-     * Constructs tagged string data from a given byte array. No tag is included in the data with this constructor.
+     * Constructs tagged string data from a given string. No tag is included in the data with this constructor.
      *
-     * @param value the byte array
+     * @param value the string
      */
-    public OptionalTaggedStringData(byte[] value) {
+    public OptionalTaggedTextData(String value) {
         this.tag = null;
         this.value = Objects.requireNonNull(value);
     }
 
     @Override
     public int length() {
-        return tag == null ? value.length : 1 + value.length;
+        return (tag == null ? 0 : 1) + value.getBytes(StandardCharsets.UTF_8).length;
     }
 
     /**
-     * Gets the octet string value as a byte array.
+     * Gets the text value as a String.
      *
-     * @return the string value as a byte array
+     * @return the text data as a String
      */
-    public byte[] getValue() {
+    public String getValue() {
         return value;
     }
 
@@ -79,9 +79,9 @@ public class OptionalTaggedStringData extends Data {
     }
 
     /**
-     * A codec for optional tagged "string" data.
+     * A codec for optional tagged "text" data.
      */
-    public static class Codec implements DataCodec<OptionalTaggedStringData> {
+    public static class Codec implements DataCodec<OptionalTaggedTextData> {
 
         /**
          * An instance of {@link Codec}.
@@ -107,11 +107,11 @@ public class OptionalTaggedStringData extends Data {
         }
 
         @Override
-        public OptionalTaggedStringData decode(CodecContext codecContext, AttributeType parentAttributeType,
-                byte[] bytes)
+        public OptionalTaggedTextData decode(CodecContext codecContext, AttributeType parentAttributeType,
+                                             byte[] bytes)
         {
             if (bytes.length < 1) {
-                return new OptionalTaggedStringData(new byte[] {});
+                return new OptionalTaggedTextData("");
             }
 
             int tag = bytes[0] & 0xff;
@@ -125,7 +125,7 @@ public class OptionalTaggedStringData extends Data {
                     }
                 }
 
-                return new OptionalTaggedStringData(bytes);
+                return new OptionalTaggedTextData(new String(bytes, StandardCharsets.UTF_8));
             }
 
             byte[] dataBytes = Arrays.copyOfRange(bytes, 1, bytes.length);
@@ -138,18 +138,19 @@ public class OptionalTaggedStringData extends Data {
                 return null;
             }
 
-            return new OptionalTaggedStringData(dataBytes, tag);
+            return new OptionalTaggedTextData(new String(dataBytes, StandardCharsets.UTF_8), tag);
         }
 
         @Override
         public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
-            OptionalTaggedStringData optionalTaggedStringData = (OptionalTaggedStringData) data;
+            OptionalTaggedTextData optionalTaggedTextData = (OptionalTaggedTextData) data;
 
-            if (optionalTaggedStringData.tag != null) {
-                byte[] bytes = new byte[1 + optionalTaggedStringData.value.length];
+            if (optionalTaggedTextData.tag != null) {
+                byte[] bytes = new byte[optionalTaggedTextData.length()];
+                byte[] dataBytes = optionalTaggedTextData.value.getBytes(StandardCharsets.UTF_8);
 
-                bytes[0] = optionalTaggedStringData.tag.byteValue();
-                System.arraycopy(optionalTaggedStringData.value, 0, bytes, 1, optionalTaggedStringData.value.length);
+                dataBytes[0] = optionalTaggedTextData.tag.byteValue();
+                System.arraycopy(dataBytes, 0, bytes, 1, dataBytes.length);
 
                 if (dataFilter != null) {
                     return dataFilter.encode(codecContext, bytes);
@@ -158,11 +159,13 @@ public class OptionalTaggedStringData extends Data {
                 return bytes;
             }
 
+            byte[] bytes = optionalTaggedTextData.value.getBytes(StandardCharsets.UTF_8);
+
             if (dataFilter != null) {
-                return dataFilter.encode(codecContext, optionalTaggedStringData.value);
+                return dataFilter.encode(codecContext, bytes);
             }
 
-            return optionalTaggedStringData.value;
+            return bytes;
         }
 
     }

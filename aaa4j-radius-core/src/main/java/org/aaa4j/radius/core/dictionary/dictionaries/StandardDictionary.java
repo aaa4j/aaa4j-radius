@@ -34,10 +34,12 @@ import org.aaa4j.radius.core.attribute.LongExtendedAttribute;
 import org.aaa4j.radius.core.attribute.LongExtendedData;
 import org.aaa4j.radius.core.attribute.StandardAttribute;
 import org.aaa4j.radius.core.attribute.StringData;
+import org.aaa4j.radius.core.attribute.TaggedStringData;
 import org.aaa4j.radius.core.attribute.TextData;
 import org.aaa4j.radius.core.attribute.TimeData;
 import org.aaa4j.radius.core.attribute.TlvData;
-import org.aaa4j.radius.core.attribute.UserPasswordDataCodec;
+import org.aaa4j.radius.core.attribute.TunnelPasswordDataFilter;
+import org.aaa4j.radius.core.attribute.UserPasswordDataFilter;
 import org.aaa4j.radius.core.attribute.VsaData;
 import org.aaa4j.radius.core.attribute.attributes.AcctAuthentic;
 import org.aaa4j.radius.core.attribute.attributes.AcctDelayTime;
@@ -336,7 +338,7 @@ public final class StandardDictionary implements Dictionary {
                         UserPassword.class,
                         StringData.class,
                         new StandardAttribute.Codec<>(
-                                new UserPasswordDataCodec<>(StringData.Codec.INSTANCE),
+                                new StringData.Codec(UserPasswordDataFilter.INSTANCE),
                                 (type, data) -> new UserPassword(data)),
                         UserPassword::new));
 
@@ -1038,9 +1040,9 @@ public final class StandardDictionary implements Dictionary {
                         TunnelPassword.TYPE,
                         TunnelPassword.NAME,
                         TunnelPassword.class,
-                        StringData.class,
+                        TaggedStringData.class,
                         new StandardAttribute.Codec<>(
-                                StringData.Codec.INSTANCE,
+                                new TaggedStringData.Codec(TunnelPasswordDataFilter.INSTANCE),
                                 (type, data) -> new TunnelPassword(data)),
                         TunnelPassword::new));
 
