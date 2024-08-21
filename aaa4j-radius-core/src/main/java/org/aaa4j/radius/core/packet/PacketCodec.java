@@ -45,6 +45,8 @@ import java.util.Objects;
  */
 public final class PacketCodec {
 
+    private static final int ACCOUNTING_REQUEST_CODE = 4;
+
     private static final int MESSAGE_AUTHENTICATOR_TYPE = 80;
 
     private final Dictionary dictionary;
@@ -74,7 +76,7 @@ public final class PacketCodec {
 
     /**
      * Constructs a packet codec with the given dictionary, random provider, and packet identifier generator.
-     * 
+     *
      * @param dictionary the dictionary to use
      * @param randomProvider the random provider to use
      * @param packetIdGenerator the packet identifier generator to use
@@ -110,13 +112,23 @@ public final class PacketCodec {
      *
      * @param request the request packet to encode
      * @param secret the shared secret
-     * 
+     * @param requestAuthenticator the request authenticator (must be 16 bytes in length); populated by this method for
+     *                             Accounting-Request packets
+     *
      * @return byte array of the encoded request packet
-     * 
+     *
      * @throws PacketCodecException if there's a problem encoding the packet
      */
     public byte[] encodeRequest(Packet request, byte[] secret, byte[] requestAuthenticator)
             throws PacketCodecException {
+        if (requestAuthenticator.length != 16) {
+            throw new IllegalArgumentException("requestAuthenticator length must be 16");
+        }
+
+        if (request.getCode() == ACCOUNTING_REQUEST_CODE) {
+            Arrays.fill(requestAuthenticator, (byte) 0x00);
+        }
+
         CodecContext codecContext = new CodecContext(dictionary, secret, requestAuthenticator, randomProvider);
 
         List<RawAttribute> rawAttributes = encodeAttributes(codecContext, request.getAttributes());
@@ -177,6 +189,16 @@ public final class PacketCodec {
             System.arraycopy(messageAuthenticator, 0, bytes, messageAuthenticatorPosition + 2, 16);
         }
 
+        if (request.getCode() == ACCOUNTING_REQUEST_CODE) {
+            MessageDigest md5 = getMd5Instance();
+            md5.update(bytes);
+            md5.update(secret);
+            byte[] accountingRequestAuthenticator = md5.digest();
+
+            System.arraycopy(accountingRequestAuthenticator, 0, bytes, 4, 16);
+            System.arraycopy(accountingRequestAuthenticator, 0, requestAuthenticator, 0, 16);
+        }
+
         return bytes;
     }
 
@@ -187,13 +209,17 @@ public final class PacketCodec {
      * @param secret the shared secret
      * @param requestId the request identifier
      * @param requestAuthenticator the request authenticator
-     * 
+     *
      * @return byte array of the encoded response packet
-     * 
+     *
      * @throws PacketCodecException if there's a problem encoding the packet
      */
     public byte[] encodeResponse(Packet response, byte[] secret, int requestId, byte[] requestAuthenticator)
             throws PacketCodecException {
+        if (requestAuthenticator.length != 16) {
+            throw new IllegalArgumentException("requestAuthenticator length must be 16");
+        }
+
         CodecContext codecContext = new CodecContext(dictionary, secret, requestAuthenticator, randomProvider);
 
         List<RawAttribute> rawAttributes = encodeAttributes(codecContext, response.getAttributes());
@@ -269,9 +295,9 @@ public final class PacketCodec {
      *
      * @param bytes byte array of the encoded request packet
      * @param secret the shared secret
-     * 
+     *
      * @return a packet object
-     * 
+     *
      * @throws PacketCodecException if the packet is malformed or there's a problem decoding the request packet
      */
     public Packet decodeRequest(byte[] bytes, byte[] secret) throws PacketCodecException {
@@ -290,6 +316,19 @@ public final class PacketCodec {
 
         byte[] authenticatorBytes = new byte[16];
         System.arraycopy(bytes, 4, authenticatorBytes, 0, 16);
+
+        if (code == ACCOUNTING_REQUEST_CODE) {
+            Arrays.fill(bytes, 4, 4 + 16, (byte) 0x00);
+
+            MessageDigest md5 = getMd5Instance();
+            md5.update(bytes);
+            md5.update(secret);
+            byte[] calculatedAccountingRequestAuthenticator = md5.digest();
+
+            if (!Arrays.equals(authenticatorBytes, calculatedAccountingRequestAuthenticator)) {
+                throw new PacketCodecException("Invalid Accounting-Request packet authenticator");
+            }
+        }
 
         CodecContext codecContext = new CodecContext(dictionary, secret, authenticatorBytes, randomProvider);
 
@@ -372,9 +411,9 @@ public final class PacketCodec {
      * @param bytes byte array of the encoded request packet
      * @param secret the shared secret
      * @param requestAuthenticator the request authenticator
-     * 
+     *
      * @return a packet object
-     * 
+     *
      * @throws PacketCodecException if the packet is malformed or there's a problem decoding the request packet
      */
     public Packet decodeResponse(byte[] bytes, byte[] secret, byte[] requestAuthenticator) throws PacketCodecException {
