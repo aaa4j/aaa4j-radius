@@ -545,13 +545,15 @@ public final class PacketCodec {
 
                 AttributeDefinition<?, ?> attributeDefinition = dictionary.getAttributeDefinition(nextType);
 
-                int numComplete = attributeDefinition.getAttributeCodec().decode(codecContext, attributeStack);
+                if (attributeDefinition != null) {
+                    int numComplete = attributeDefinition.getAttributeCodec().decode(codecContext, attributeStack);
 
-                for (int i = 0; i < numComplete; i++) {
-                    attributes.add(attributeStack.removeFirst());
+                    for (int i = 0; i < numComplete; i++) {
+                        attributes.add(attributeStack.removeFirst());
+                    }
+
+                    continue;
                 }
-
-                continue;
             }
 
             attributes.add(attributeStack.removeFirst());
