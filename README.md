@@ -28,7 +28,7 @@ Add `aaa4j-radius-client` dependency from [Maven Central](https://central.sonaty
 <dependency>
     <groupId>org.aaa4j.radius</groupId>
     <artifactId>aaa4j-radius-client</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
 </dependency>
 ```
 
@@ -63,6 +63,7 @@ public class Main {
                 .build();
 
         AccessRequest accessRequest = new AccessRequest(List.of(
+                new MessageAuthenticator(),
                 new UserName(new TextData("john.doe")),
                 new UserPassword(new StringData("hunter2".getBytes(UTF_8))),
                 new NasIdentifier(new TextData("SSID1"))
@@ -94,7 +95,7 @@ Add `aaa4j-radius-server` dependency  from [Maven Central](https://central.sonat
 <dependency>
     <groupId>org.aaa4j.radius</groupId>
     <artifactId>aaa4j-radius-server</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
 </dependency>
 ```
 
@@ -144,6 +145,11 @@ public class Main {
         @Override
         public Packet handlePacket(InetAddress clientAddress, Packet requestPacket) {
             if (requestPacket instanceof AccessRequest) {
+                if (requestPacket.getAttribute(MessageAuthenticator.class).isEmpty()) {
+                    // Require Message-Authenticator to mitigate Blast-RADIUS
+                    return null;
+                }
+                
                 Optional<UserName> userNameAttribute = requestPacket.getAttribute(UserName.class);
                 Optional<UserPassword> userPasswordAttribute = requestPacket.getAttribute(UserPassword.class);
 
@@ -152,11 +158,11 @@ public class Main {
                     String password = new String(userPasswordAttribute.get().getData().getValue(), UTF_8);
 
                     if (username.equals("john.doe") && password.equals("hunter2")) {
-                        return new AccessAccept();
+                        return new AccessAccept(List.of(new MessageAuthenticator()));
                     }
                 }
 
-                return new AccessReject();
+                return new AccessReject(List.of(new MessageAuthenticator()));
             }
 
             return null;
