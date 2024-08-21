@@ -164,6 +164,67 @@ class PacketCodecTest {
     }
 
     @Nested
+    @DisplayName("Accounting packet encoding and decoding")
+    class AccountingPackets {
+
+        @Test
+        @DisplayName("Accounting-Request packet is encoded successfully")
+        void encodeRequest() throws PacketCodecException {
+            when(mockedPacketIdGenerator.nextId()).thenReturn(42);
+
+            Packet requestPacket = new Packet(4, List.of(
+                    new RawAttribute(32, fromHex("5353494431")),
+                    new RawAttribute(40, fromHex("00000001")),
+                    new RawAttribute(44, fromHex("616263313233"))));
+
+            byte[] accountingRequestAuthenticator = new byte[16];
+
+            byte[] actual = packetCodec.encodeRequest(requestPacket, "abc123".getBytes(US_ASCII),
+                    accountingRequestAuthenticator);
+
+            assertEquals("042a00295129abcd7a107c329bee6866d2887782200753534944312806000000" +
+                            "012c08616263313233",
+                    toHex(actual));
+
+            assertEquals("5129abcd7a107c329bee6866d2887782",
+                    toHex(accountingRequestAuthenticator));
+        }
+
+        @Test
+        @DisplayName("Accounting-Request packet is decoded successfully")
+        void decodeRequest() throws PacketCodecException {
+            byte[] encoded = fromHex("042a00295129abcd7a107c329bee6866d2887782200753534944312806000000" +
+                    "012c08616263313233");
+
+            Packet requestPacket = packetCodec.decodeRequest(encoded, "abc123".getBytes(US_ASCII));
+
+            assertEquals(4, requestPacket.getCode());
+            assertEquals(42, requestPacket.getReceivedFields().getIdentifier());
+            assertEquals("5129abcd7a107c329bee6866d2887782",
+                    toHex(requestPacket.getReceivedFields().getAuthenticator()));
+            assertEquals(3, requestPacket.getAttributes().size());
+            assertEquals(new RawAttribute(32, fromHex("5353494431")),
+                    requestPacket.getAttributes().get(0));
+            assertEquals(new RawAttribute(40, fromHex("00000001")),
+                    requestPacket.getAttributes().get(1));
+            assertEquals(new RawAttribute(44, fromHex("616263313233")),
+                    requestPacket.getAttributes().get(2));
+        }
+
+        @Test
+        @DisplayName("Accounting-Request packet with invalid request authenticator throws codec exception")
+        void decodeRequestWithInvalidRequestAuthenticatorThrows() throws PacketCodecException {
+            byte[] encoded = fromHex("042a0029ffffabcd7a107c329bee6866d2887782200753534944312806000000" +
+                    "012c08616263313233");
+
+            assertThrows(PacketCodecException.class, () -> {
+                packetCodec.decodeRequest(encoded, "abc123".getBytes(US_ASCII));
+            });
+        }
+
+    }
+
+    @Nested
     @DisplayName("Malformed packets")
     class MalformedPackets {
 
