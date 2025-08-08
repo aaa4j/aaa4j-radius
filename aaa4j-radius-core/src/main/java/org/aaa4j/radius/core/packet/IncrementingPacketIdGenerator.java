@@ -19,7 +19,7 @@ package org.aaa4j.radius.core.packet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * An identifier generator that increments the packet identifier.
+ * An identifier generator that increments the packet identifier. Returns identifiers between [1, 255].
  */
 public class IncrementingPacketIdGenerator implements PacketIdGenerator {
 
@@ -28,11 +28,11 @@ public class IncrementingPacketIdGenerator implements PacketIdGenerator {
     /**
      * Constructs a new {@link IncrementingPacketIdGenerator} with the provided initial value.
      *
-     * @param initial the initial identifier in range [0, 255]
+     * @param initial the initial identifier in range [1, 255]
      */
     public IncrementingPacketIdGenerator(int initial) {
-        if (initial < 0 || initial > 255) {
-            throw new IllegalArgumentException("Initial id must be in range [0, 255]");
+        if (initial < 1 || initial > 255) {
+            throw new IllegalArgumentException("Initial identifier must be in range [1, 255]");
         }
 
         this.counter = new AtomicInteger(initial);
@@ -40,7 +40,7 @@ public class IncrementingPacketIdGenerator implements PacketIdGenerator {
 
     @Override
     public int nextId() {
-        return counter.getAndUpdate(value -> (value + 1) % 256);
+        return counter.getAndUpdate(value -> (value % 255) + 1);
     }
 
 }

@@ -61,7 +61,7 @@ public final class PacketCodec {
      * @param dictionary the dictionary to use
      */
     public PacketCodec(Dictionary dictionary) {
-        this(dictionary, new SecureRandomProvider(), new IncrementingPacketIdGenerator(0));
+        this(dictionary, new SecureRandomProvider(), new IncrementingPacketIdGenerator(1));
     }
 
     /**
@@ -71,7 +71,7 @@ public final class PacketCodec {
      * @param randomProvider the random provider to use
      */
     public PacketCodec(Dictionary dictionary, RandomProvider randomProvider) {
-        this(dictionary, randomProvider, new IncrementingPacketIdGenerator(0));
+        this(dictionary, randomProvider, new IncrementingPacketIdGenerator(1));
     }
 
     /**
@@ -381,7 +381,7 @@ public final class PacketCodec {
                 hmacMd5.init(new SecretKeySpec(secret, "HmacMD5"));
             }
             catch (InvalidKeyException e) {
-                throw new PacketCodecException(e);
+                throw new RuntimeException(e);
             }
 
             hmacMd5.update(messageAuthenticatorWorkingBytes);
@@ -498,7 +498,7 @@ public final class PacketCodec {
                 hmacMd5.init(new SecretKeySpec(secret, "HmacMD5"));
             }
             catch (InvalidKeyException e) {
-                throw new PacketCodecException(e);
+                throw new RuntimeException(e);
             }
 
             hmacMd5.update(messageAuthenticatorWorkingBytes);

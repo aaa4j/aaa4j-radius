@@ -16,45 +16,44 @@
 
 package org.aaa4j.radius.server;
 
-import org.aaa4j.radius.core.packet.Packet;
-
 import java.net.InetSocketAddress;
 
 /**
- * Strategy for handling duplicate requests.
+ * Cache for handling duplicate requests.
  */
-public interface DuplicationStrategy {
+public interface DeduplicationCache {
 
     /**
      * Handles a request.
      *
      * @param clientAddress the client address
-     * @param requestPacket the request packet
      * @param requestPacketBytes the request packet bytes
      *
      * @return the duplication strategy result
      */
-    Result handleRequest(InetSocketAddress clientAddress, Packet requestPacket, byte[] requestPacketBytes);
+    Result handleRequest(InetSocketAddress clientAddress, byte[] requestPacketBytes);
 
     /**
      * Handles a response. The response will be saved to the cache.
      *
      * @param clientAddress the client address
-     * @param requestPacket the request packet
      * @param requestPacketBytes the request packet bytes
-     * @param responsePacket the response packet
+     * @param responsePacketBytes the response packet bytes
      */
-    void handleResponse(InetSocketAddress clientAddress, Packet requestPacket, byte[] requestPacketBytes,
-                        Packet responsePacket);
+    void handleResponse(InetSocketAddress clientAddress, byte[] requestPacketBytes, byte[] responsePacketBytes);
 
     /**
      * Unhandles a request. Removes an in-progress request from the cache.
      *
      * @param clientAddress the client address
-     * @param requestPacket the request packet
-     * @param requestPacketBytes the request packet bytes
+     * @param requestPacketBytes the request packet
      */
-    void unhandleRequest(InetSocketAddress clientAddress, Packet requestPacket, byte[] requestPacketBytes);
+    void unhandleRequest(InetSocketAddress clientAddress, byte[] requestPacketBytes);
+
+    /**
+     * Clears the cache.
+     */
+    void clear();
 
     /**
      * A duplication strategy result contains a State and a possible response packet. When {@link #getState()} is
@@ -64,17 +63,17 @@ public interface DuplicationStrategy {
 
         private final State state;
 
-        private final Packet responsePacket;
+        private final byte[] responsePacketBytes;
 
         /**
          * Creates a new duplication strategy result for the given state and response packet.
          *
          * @param state the state
-         * @param responsePacket the response packet
+         * @param responsePacketBytes the response packet bytes
          */
-        public Result(State state, Packet responsePacket) {
+        public Result(State state, byte[] responsePacketBytes) {
             this.state = state;
-            this.responsePacket = responsePacket;
+            this.responsePacketBytes = responsePacketBytes;
         }
 
         /**
@@ -87,12 +86,12 @@ public interface DuplicationStrategy {
         }
 
         /**
-         * Gets the response packet.
+         * Gets the response packet bytes.
          *
-         * @return the response packet or null if there is none
+         * @return the response packet bytes or null if there is none
          */
-        public Packet getResponsePacket() {
-            return responsePacket;
+        public byte[] getResponsePacket() {
+            return responsePacketBytes;
         }
 
         public enum State {
