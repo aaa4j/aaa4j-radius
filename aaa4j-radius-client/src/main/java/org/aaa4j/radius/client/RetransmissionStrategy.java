@@ -25,7 +25,7 @@ public interface RetransmissionStrategy {
 
     /**
      * Gets the maximum number of transmission attempts. The value <code>1</code> means that only one attempt will be
-     * made (i.e, there will be no retransmissions if there is no response packet within the attempt timeout.
+     * made (i.e., there will be no retransmissions if there is no response packet within the attempt timeout).
      *
      * @return maximum number of transmission attempts a client should attempt
      */

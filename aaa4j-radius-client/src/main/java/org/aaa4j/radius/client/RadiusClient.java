@@ -21,7 +21,7 @@ import org.aaa4j.radius.core.packet.Packet;
 /**
  * A RADIUS client sends RADIUS request packets and receives RADIUS response packets.
  */
-public interface RadiusClient {
+public interface RadiusClient extends AutoCloseable {
 
     /**
      * Sends a RADIUS request packet.
@@ -29,7 +29,17 @@ public interface RadiusClient {
      * @param requestPacket the request packet to send
      * 
      * @return a RADIUS response packet
+     *
+     * @throws IllegalStateException if the client has already been closed
+     * @throws RadiusClientException if an error occurs (e.g., IO error or timeout)
      */
-    Packet send(Packet requestPacket) throws RadiusClientException;
+    Packet send(Packet requestPacket) throws IllegalStateException, RadiusClientException;
+
+    /**
+     * Initiates an orderly shutdown where all packets in flight are handled to completion. Blocks until all resources
+     * are released. Calling this method multiple times is permitted.
+     */
+    @Override
+    void close();
 
 }

@@ -16,8 +16,7 @@
 
 package org.aaa4j.radius.server;
 
-import org.aaa4j.radius.core.packet.Packet;
-import org.aaa4j.radius.server.DuplicationStrategy.Result.State;
+import org.aaa4j.radius.server.DeduplicationCache.Result.State;
 
 import java.net.InetSocketAddress;
 import java.time.Duration;
@@ -29,24 +28,22 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * An implementation of {@link DuplicationStrategy} with a configurable time-to-live value for the cached responses.
+ * An implementation of {@link DeduplicationCache} with a configurable time-to-live value for the cached responses.
  * Caches all requests using the entire request packet bytes.
  */
-public final class TimedDuplicationStrategy implements DuplicationStrategy {
+public final class TimedDeduplicationCache implements DeduplicationCache {
 
     private final Map<CacheKey, CacheValue> cacheMap;
 
     private final long ttlMillis;
 
-    public TimedDuplicationStrategy(Duration ttlDuration) {
+    public TimedDeduplicationCache(Duration ttlDuration) {
         this.cacheMap = new LinkedHashMap<>();
         this.ttlMillis = ttlDuration.toMillis();
     }
 
     @Override
-    public synchronized Result handleRequest(InetSocketAddress clientAddress, Packet requestPacket,
-                                             byte[] requestPacketBytes)
-    {
+    public synchronized Result handleRequest(InetSocketAddress clientAddress, byte[] requestPacketBytes) {
         long currentEpochMillis = Instant.now().toEpochMilli();
 
         // Remove the expired cache entries
@@ -68,15 +65,15 @@ public final class TimedDuplicationStrategy implements DuplicationStrategy {
 
         if (!cacheMap.containsKey(cacheKey)) {
             // It's a new, unseen request; add it to the cache
-            cacheMap.put(cacheKey, new CacheValue(currentEpochMillis, requestPacket));
+            cacheMap.put(cacheKey, new CacheValue(currentEpochMillis, requestPacketBytes));
 
             return new Result(State.NEW_REQUEST, null);
         }
 
         CacheValue cacheValue = cacheMap.get(cacheKey);
 
-        if (cacheValue.responsePacket != null) {
-            return new Result(State.CACHED_RESPONSE, cacheValue.responsePacket);
+        if (cacheValue.responsePacketBytes != null) {
+            return new Result(State.CACHED_RESPONSE, cacheValue.responsePacketBytes);
         }
         else {
             return new Result(State.IN_PROGRESS_REQUEST, null);
@@ -84,8 +81,8 @@ public final class TimedDuplicationStrategy implements DuplicationStrategy {
     }
 
     @Override
-    public synchronized void handleResponse(InetSocketAddress clientAddress, Packet requestPacket,
-                                            byte[] requestPacketBytes, Packet responsePacket)
+    public synchronized void handleResponse(InetSocketAddress clientAddress, byte[] requestPacketBytes,
+                                            byte[] responsePacketBytes)
     {
         CacheKey cacheKey = new CacheKey(clientAddress, requestPacketBytes);
 
@@ -95,36 +92,23 @@ public final class TimedDuplicationStrategy implements DuplicationStrategy {
 
         CacheValue cacheValue = cacheMap.get(cacheKey);
 
-        if (!Arrays.equals(cacheValue.requestPacket.getReceivedFields().getAuthenticator(),
-                requestPacket.getReceivedFields().getAuthenticator()))
-        {
-            // Don't save to the cache if this request was replaced by another with a different authenticator field
-            return;
-        }
-
-        cacheValue.responsePacket = responsePacket;
+        cacheValue.responsePacketBytes = responsePacketBytes;
     }
 
     @Override
-    public synchronized void unhandleRequest(InetSocketAddress clientAddress, Packet requestPacket,
-                                             byte[] requestPacketBytes)
-    {
+    public synchronized void unhandleRequest(InetSocketAddress clientAddress, byte[] requestPacketBytes) {
         CacheKey cacheKey = new CacheKey(clientAddress, requestPacketBytes);
 
         if (!cacheMap.containsKey(cacheKey)) {
-            return;
-        }
-
-        CacheValue cacheValue = cacheMap.get(cacheKey);
-
-        if (!Arrays.equals(cacheValue.requestPacket.getReceivedFields().getAuthenticator(),
-                requestPacket.getReceivedFields().getAuthenticator()))
-        {
-            // Don't modify the cache if this request was replaced by another with a different authenticator field
             return;
         }
 
         cacheMap.remove(cacheKey);
+    }
+
+    @Override
+    public synchronized void clear() {
+        cacheMap.clear();
     }
 
     private static class CacheKey {
@@ -165,13 +149,13 @@ public final class TimedDuplicationStrategy implements DuplicationStrategy {
 
         private final long insertionEpochMillis;
 
-        private final Packet requestPacket;
+        private final byte[] requestPacketBytes;
 
-        private Packet responsePacket;
+        private byte[] responsePacketBytes;
 
-        private CacheValue(long insertionEpochMillis, Packet requestPacket) {
+        private CacheValue(long insertionEpochMillis, byte[] requestPacketBytes) {
             this.insertionEpochMillis = insertionEpochMillis;
-            this.requestPacket = requestPacket;
+            this.requestPacketBytes = requestPacketBytes;
         }
 
     }

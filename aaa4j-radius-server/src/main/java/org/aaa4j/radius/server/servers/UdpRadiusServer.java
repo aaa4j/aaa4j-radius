@@ -17,29 +17,17 @@
 package org.aaa4j.radius.server.servers;
 
 import org.aaa4j.radius.core.dictionary.Dictionary;
-import org.aaa4j.radius.core.dictionary.dictionaries.StandardDictionary;
 import org.aaa4j.radius.core.packet.Packet;
-import org.aaa4j.radius.core.packet.PacketCodec;
-import org.aaa4j.radius.core.util.RandomProvider;
-import org.aaa4j.radius.core.util.SecureRandomProvider;
-import org.aaa4j.radius.server.DuplicationStrategy;
-import org.aaa4j.radius.server.DuplicationStrategy.Result;
-import org.aaa4j.radius.server.RadiusServer;
-import org.aaa4j.radius.server.TimedDuplicationStrategy;
+import org.aaa4j.radius.server.DeduplicationCache;
 
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.time.Duration;
-import java.util.Iterator;
 import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Supplier;
 
 /**
  * A RADIUS server using UDP as the underlying transport layer.
@@ -48,59 +36,24 @@ import java.util.concurrent.RejectedExecutionException;
  * Build an instance of {@link UdpRadiusServer} by using a {@link Builder} object retrieved from {@link #newBuilder()}.
  * </p>
  */
-public final class UdpRadiusServer implements RadiusServer {
+public final class UdpRadiusServer extends AbstractRadiusServer {
 
-    private static final int MAX_PACKET_SIZE = 4096;
+    private static final String THREAD_NAME_PREFIX = "aaa4j-radius-server-udp";
 
-    private static final DuplicationStrategy DEFAULT_DUPLICATION_STRATEGY =
-            new TimedDuplicationStrategy(Duration.ofSeconds(30));
+    private static final AtomicLong SERVER_ID_COUNTER = new AtomicLong(1);
 
-    private final InetSocketAddress bindAddress;
+    private final DeduplicationCache deduplicationCache;
 
     private final Handler handler;
 
-    private final DuplicationStrategy duplicationStrategy;
-
-    private final Executor executor;
-
-    private final PacketCodec packetCodec;
-
-    private final CountDownLatch startCountDownLatch;
-
-    private final CountDownLatch stopCountDownLatch;
-
-    private volatile boolean isRunning = false;
-
-    private boolean isStarted = false;
-
-    private boolean isStopped = false;
-
-    private SelectorManager selectorManager;
+    private DatagramSocket serverSocket;
 
     private UdpRadiusServer(Builder builder) {
-        this.bindAddress = Objects.requireNonNull(builder.bindAddress);
+        super(builder, String.format("%s-%d", THREAD_NAME_PREFIX, SERVER_ID_COUNTER.getAndIncrement()));
+
+        this.deduplicationCache = builder.deduplicationCacheSupplier == null
+                ? DEFAULT_DEDUPLICATION_CACHE_SUPPLIER.get() : builder.deduplicationCacheSupplier.get();
         this.handler = Objects.requireNonNull(builder.handler);
-
-        this.duplicationStrategy = builder.duplicationStrategy == null
-                ? DEFAULT_DUPLICATION_STRATEGY
-                : builder.duplicationStrategy;
-
-        this.executor = builder.executor == null
-                ? ForkJoinPool.commonPool()
-                : builder.executor;
-
-        Dictionary dictionary = builder.dictionary == null
-                ? new StandardDictionary()
-                : builder.dictionary;
-
-        RandomProvider randomProvider = builder.randomProvider == null
-                ? new SecureRandomProvider()
-                : builder.randomProvider;
-
-        this.packetCodec = new PacketCodec(dictionary, randomProvider);
-
-        this.startCountDownLatch = new CountDownLatch(1);
-        this.stopCountDownLatch = new CountDownLatch(1);
     }
 
     /**
@@ -113,191 +66,134 @@ public final class UdpRadiusServer implements RadiusServer {
     }
 
     @Override
-    public synchronized void start() throws InterruptedException {
-        if (!isStarted && !isStopped) {
-            selectorManager = new SelectorManager(this);
-            selectorManager.setDaemon(false);
-            selectorManager.start();
-
-            isStarted = true;
+    void close() {
+        try {
+            startCountDownLatch.await();
+        }
+        catch (InterruptedException ignored) {
+            // Ignored
         }
 
-        startCountDownLatch.await();
+        if (serverSocket != null) {
+            serverSocket.close();
+        }
+
+        if (isInternalExecutor) {
+            ((ExecutorService) executor).shutdown();
+        }
+
+        deduplicationCache.clear();
     }
 
     @Override
-    public synchronized void stop() throws InterruptedException {
-        if (isStarted && !isStopped) {
-            selectorManager.interrupt();
+    void listen() {
+        try (DatagramSocket serverSocket = new DatagramSocket(bindAddress)) {
+            this.serverSocket = serverSocket;
 
-            isStopped = true;
-        }
+            startCountDownLatch.countDown();
 
-        stopCountDownLatch.await();
-    }
+            while (isRunning) {
+                byte[] buffer = new byte[MAX_PACKET_SIZE];
+                DatagramPacket requestDatagramPacket = new DatagramPacket(buffer, buffer.length);
 
-    @Override
-    public boolean isRunning() {
-        return isRunning;
-    }
+                // Block and wait
+                serverSocket.receive(requestDatagramPacket);
 
-    private final static class SelectorManager extends Thread {
-
-        private static final String NAME = "aaa4j-radius-server-udp-selector-manager";
-
-        private final UdpRadiusServer udpRadiusServer;
-
-        private DatagramChannel datagramChannel;
-
-        SelectorManager(UdpRadiusServer udpRadiusServer) {
-            super(NAME);
-
-            this.udpRadiusServer = udpRadiusServer;
-        }
-
-        @Override
-        public void run() {
-            try {
-                Selector selector = Selector.open();
-
-                datagramChannel = DatagramChannel.open();
-                datagramChannel.configureBlocking(false);
-                datagramChannel.register(selector, SelectionKey.OP_READ);
-
-                datagramChannel.socket().bind(udpRadiusServer.bindAddress);
-
-                udpRadiusServer.isRunning = true;
-
-                udpRadiusServer.startCountDownLatch.countDown();
-
-                while (!isInterrupted()) {
-                    int numKeysChanged = selector.select();
-
-                    if (isInterrupted()) {
-                        break;
-                    }
-
-                    if (numKeysChanged > 0) {
-                        Set<SelectionKey> selectedKeys = selector.selectedKeys();
-                        Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
-
-                        boolean isReadable = false;
-
-                        while (keyIterator.hasNext()) {
-                            SelectionKey key = keyIterator.next();
-
-                            if (key.isReadable()) {
-                                isReadable = true;
-                            }
-
-                            keyIterator.remove();
-                        }
-
-                        selectedKeys.clear();
-
-                        if (isReadable) {
-                            ByteBuffer inByteBuffer = ByteBuffer.allocate(MAX_PACKET_SIZE);
-
-                            InetSocketAddress clientAddress = (InetSocketAddress) datagramChannel.receive(inByteBuffer);
-
-                            try {
-                                udpRadiusServer.executor.execute(() -> {
-                                    try {
-                                        runHandler(clientAddress, inByteBuffer);
-                                    } catch (Exception exception) {
-                                        try {
-                                            udpRadiusServer.handler.handleException(exception);
-                                        }
-                                        catch (Exception exceptionHandlerException) {
-                                            // Not much we can do if the exception handler itself throws an exception
-                                            exceptionHandlerException.printStackTrace();
-                                        }
-                                    }
-                                });
-                            }
-                            catch (RejectedExecutionException rejectedExecutionException) {
-                                try {
-                                    udpRadiusServer.handler.handleException(rejectedExecutionException);
-                                }
-                                catch (Exception exceptionHandlerException) {
-                                    // Not much we can do if the exception handler itself throws an exception
-                                    exceptionHandlerException.printStackTrace();
-                                }
-                            }
-                        }
-                    }
-                }
-
-                datagramChannel.close();
-                selector.close();
+                // Handle the request
+                executor.execute(() -> handleRequest(serverSocket, requestDatagramPacket));
             }
-            catch (Exception exception) {
+        }
+        catch (Throwable e) {
+            if (isRunning) {
                 try {
-                    udpRadiusServer.handler.handleException(exception);
+                    handler.handleException(e);
                 }
-                catch (Exception exceptionHandlerException) {
-                    // Not much we can do if the exception handler itself throws an exception
-                    exceptionHandlerException.printStackTrace();
+                catch (Exception ignored) {
+                    // Ignored
                 }
-            }
-            finally {
-                udpRadiusServer.isRunning = false;
-
-                udpRadiusServer.startCountDownLatch.countDown();
-                udpRadiusServer.stopCountDownLatch.countDown();
             }
         }
+        finally {
+            startCountDownLatch.countDown();
 
-        private void runHandler(InetSocketAddress clientAddress, ByteBuffer inByteBuffer) throws Exception {
-            byte[] secret = udpRadiusServer.handler.handleClient(clientAddress.getAddress());
+            if (isRunning) {
+                close();
 
-            if (secret != null) {
-                inByteBuffer.flip();
-                byte[] inBytes = new byte[inByteBuffer.remaining()];
-                inByteBuffer.get(inBytes);
-
-                Packet requestPacket = udpRadiusServer.packetCodec.decodeRequest(inBytes, secret);
-
-                Packet responsePacket = null;
-
-                // Check the duplication cache for a cached response
-                Result result =
-                        udpRadiusServer.duplicationStrategy.handleRequest(clientAddress, requestPacket, inBytes);
-
-                switch (result.getState()) {
-                    case NEW_REQUEST:
-                        // The response will be generated since it's a new request
-                        try {
-                            responsePacket = udpRadiusServer.handler.handlePacket(clientAddress.getAddress(),
-                                    requestPacket);
-
-                            if (responsePacket != null) {
-                                udpRadiusServer.duplicationStrategy.handleResponse(clientAddress, requestPacket,
-                                        inBytes, responsePacket);
-                            }
-                        }
-                        catch (Exception e) {
-                            udpRadiusServer.duplicationStrategy.unhandleRequest(clientAddress, requestPacket, inBytes);
-
-                            throw e;
-                        }
-                        break;
-                    case IN_PROGRESS_REQUEST:
-                        // Ignore the request since it's a duplicate of one that's being handled
-                        break;
-                    case CACHED_RESPONSE:
-                        responsePacket = result.getResponsePacket();
-                        break;
-                }
-
-                if (responsePacket != null) {
-                    byte[] outBytes = udpRadiusServer.packetCodec.encodeResponse(responsePacket, secret,
-                            requestPacket.getReceivedFields().getIdentifier(),
-                            requestPacket.getReceivedFields().getAuthenticator());
-
-                    datagramChannel.send(ByteBuffer.wrap(outBytes), clientAddress);
-                }
+                isRunning = false;
             }
+
+            stopCountDownLatch.countDown();
+        }
+    }
+
+    private void handleRequest(DatagramSocket serverSocket, DatagramPacket requestDatagramPacket) {
+        try {
+            InetSocketAddress clientInetSocketAddress = (InetSocketAddress) requestDatagramPacket.getSocketAddress();
+
+            byte[] secret = handler.handleClient(clientInetSocketAddress);
+
+            if (secret == null) {
+                // The handler doesn't want to handle requests from this client
+                return;
+            }
+
+            byte[] requestPacketBytes = new byte[requestDatagramPacket.getLength()];
+            System.arraycopy(requestDatagramPacket.getData(), 0, requestPacketBytes, 0,
+                    requestDatagramPacket.getLength());
+
+            // Perform deduplication and get a response from the handler
+            byte[] responsePacketBytes = processRequest(clientInetSocketAddress, deduplicationCache, secret,
+                    requestPacketBytes, (Packet packet) -> handler.handlePacket(clientInetSocketAddress, packet));
+
+            if (responsePacketBytes != null) {
+                DatagramPacket responseDatagramPacket = new DatagramPacket(responsePacketBytes,
+                        responsePacketBytes.length, clientInetSocketAddress);
+
+                // Send the response
+                serverSocket.send(responseDatagramPacket);
+            }
+        }
+        catch (Throwable e) {
+            try {
+                handler.handleException(e);
+            }
+            catch (Exception ignored) {
+                // Ignored
+            }
+        }
+    }
+
+    /**
+     * A UDP RADIUS server handler.
+     */
+    public interface Handler {
+
+        /**
+         * Handles a client.
+         *
+         * @param clientSocketAddress the client socket address
+         *
+         * @return the shared secret to use for the client or {@code null} if the client should be ignored
+         */
+        byte[] handleClient(InetSocketAddress clientSocketAddress);
+
+        /**
+         * Handles an incoming RADIUS request packet.
+         *
+         * @param clientSocketAddress the client socket address
+         * @param requestPacket the request packet
+         *
+         * @return the response packet or {@code null} if no response should be sent back
+         */
+        Packet handlePacket(InetSocketAddress clientSocketAddress, Packet requestPacket);
+
+        /**
+         * Handles thrown exceptions.
+         *
+         * @param throwable the exception that was thrown
+         */
+        default void handleException(Throwable throwable) {
+            throwable.printStackTrace();
         }
 
     }
@@ -305,97 +201,47 @@ public final class UdpRadiusServer implements RadiusServer {
     /**
      * Builder for {@link UdpRadiusServer}s.
      */
-    public final static class Builder {
-
-        InetSocketAddress bindAddress;
-
-        DuplicationStrategy duplicationStrategy;
+    public final static class Builder extends AbstractRadiusServer.Builder<UdpRadiusServer, UdpRadiusServer.Builder> {
 
         Handler handler;
 
-        Executor executor;
-
-        Dictionary dictionary;
-
-        RandomProvider randomProvider;
-
         /**
-         * Sets the address to bind the server to. Required.
-         *
-         * @param bindAddress the address to bind to
-         * 
-         * @return this builder
+         * {@inheritDoc}
          */
         public Builder bindAddress(InetSocketAddress bindAddress) {
-            this.bindAddress = bindAddress;
+            return super.bindAddress(bindAddress);
+        }
 
-            return this;
+        /**
+         * {@inheritDoc}
+         */
+        public Builder executor(Executor executor) {
+            return super.executor(executor);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public Builder dictionary(Dictionary dictionary) {
+            return super.dictionary(dictionary);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public Builder deduplicationCacheSupplier(Supplier<DeduplicationCache> deduplicationCacheSupplier) {
+            return super.deduplicationCacheSupplier(deduplicationCacheSupplier);
         }
 
         /**
          * Sets the server handler. Required.
          *
          * @param handler the handler to use
-         * 
+         *
          * @return this builder
          */
         public Builder handler(Handler handler) {
             this.handler = handler;
-
-            return this;
-        }
-
-        /**
-         * Sets the duplication strategy. Optional. When not set, a default duplication strategy that caches responses
-         * for 30 seconds will be used.
-         *
-         * @param duplicationStrategy the duplication strategy to use
-         *
-         * @return this builder
-         */
-        public Builder duplicationStrategy(DuplicationStrategy duplicationStrategy) {
-            this.duplicationStrategy = duplicationStrategy;
-
-            return this;
-        }
-
-        /**
-         * Sets the executor used to run the handling of RADIUS clients and requests. Optional. When not set, the common
-         * ForkJoinPool will be used.
-         *
-         * @param executor the executor to use
-         * 
-         * @return this builder
-         */
-        public Builder executor(Executor executor) {
-            this.executor = executor;
-
-            return this;
-        }
-
-        /**
-         * Sets the {@link Dictionary} to use. Optional. When not set, the standard dictionary will be used.
-         *
-         * @param dictionary the dictionary to use
-         * 
-         * @return this builder
-         */
-        public Builder dictionary(Dictionary dictionary) {
-            this.dictionary = dictionary;
-
-            return this;
-        }
-
-        /**
-         * Sets the {@link RandomProvider} to use for all randomness required by RADIUS. Optional. When not set, a
-         * cryptographically-secure random source will be used.
-         *
-         * @param randomProvider the random provider to use
-         * 
-         * @return this builder
-         */
-        public Builder randomProvider(RandomProvider randomProvider) {
-            this.randomProvider = randomProvider;
 
             return this;
         }

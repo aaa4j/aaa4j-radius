@@ -17,18 +17,11 @@
 package org.aaa4j.radius.client.clients;
 
 import org.aaa4j.radius.client.IntervalRetransmissionStrategy;
-import org.aaa4j.radius.client.RadiusClient;
 import org.aaa4j.radius.client.RadiusClientException;
 import org.aaa4j.radius.client.RetransmissionStrategy;
 import org.aaa4j.radius.core.dictionary.Dictionary;
-import org.aaa4j.radius.core.dictionary.dictionaries.StandardDictionary;
-import org.aaa4j.radius.core.packet.IncrementingPacketIdGenerator;
 import org.aaa4j.radius.core.packet.Packet;
-import org.aaa4j.radius.core.packet.PacketCodec;
 import org.aaa4j.radius.core.packet.PacketCodecException;
-import org.aaa4j.radius.core.packet.PacketIdGenerator;
-import org.aaa4j.radius.core.util.RandomProvider;
-import org.aaa4j.radius.core.util.SecureRandomProvider;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -37,62 +30,38 @@ import java.net.InetSocketAddress;
 import java.net.SocketTimeoutException;
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.Objects;
 
 /**
  * A client using UDP as the underlying transport layer. Create an instance using {@link Builder}.
+ *
+ * @implNote The client does not currently reuse sockets.
  */
-public class UdpRadiusClient implements RadiusClient {
+public final class UdpRadiusClient extends AbstractRadiusClient {
 
-    private static final int MAX_PACKET_SIZE = 4096;
-
-    private static final RetransmissionStrategy DEFAULT_RETRANSMISSION_STRATEGY = new IntervalRetransmissionStrategy(3,
-            Duration.ofSeconds(5));
-
-    private final InetSocketAddress address;
-
-    private final byte[] secret;
+    private static final RetransmissionStrategy DEFAULT_RETRANSMISSION_STRATEGY
+            = new IntervalRetransmissionStrategy(3, Duration.ofSeconds(5));
 
     private final RetransmissionStrategy retransmissionStrategy;
 
-    private final RandomProvider randomProvider;
-
-    private final PacketCodec packetCodec;
-
     private UdpRadiusClient(Builder builder) {
-        this.address = Objects.requireNonNull(builder.address);
-        this.secret = Objects.requireNonNull(builder.secret);
+        super(builder);
 
         this.retransmissionStrategy = builder.retransmissionStrategy == null
                 ? DEFAULT_RETRANSMISSION_STRATEGY
                 : builder.retransmissionStrategy;
-
-        Dictionary dictionary = builder.dictionary == null
-                ? new StandardDictionary()
-                : builder.dictionary;
-
-        PacketIdGenerator packetIdGenerator = builder.packetIdGenerator == null
-                ? new IncrementingPacketIdGenerator(0)
-                : builder.packetIdGenerator;
-
-        this.randomProvider = builder.randomProvider == null
-                ? new SecureRandomProvider()
-                : builder.randomProvider;
-
-        this.packetCodec = new PacketCodec(dictionary, randomProvider, packetIdGenerator);
     }
 
     /**
-     * Creates a new builder object.
+     * Creates a new builder for {@link UdpRadiusClient}.
      *
-     * @return a new builder object
+     * @return a new builder
      */
     public static Builder newBuilder() {
         return new Builder();
     }
 
     @Override
-    public Packet send(Packet requestPacket) throws RadiusClientException {
+    public Packet doSend(Packet requestPacket) throws RadiusClientException {
         DatagramSocket datagramSocket = null;
 
         try {
@@ -101,25 +70,23 @@ public class UdpRadiusClient implements RadiusClient {
 
             byte[] outBytes = packetCodec.encodeRequest(requestPacket, secret, authenticatorBytes);
 
-            datagramSocket = new DatagramSocket();
-            datagramSocket.setSoTimeout(0);
-
             DatagramPacket outDatagramPacket = new DatagramPacket(outBytes, outBytes.length, address);
+
+            datagramSocket = new DatagramSocket();
 
             int maxAttempts = retransmissionStrategy.getMaxAttempts();
 
-            DatagramPacket inDatagramPacket = null;
-
             for (int attempt = 0; attempt < maxAttempts; attempt++) {
                 Duration timeoutDuration = retransmissionStrategy.timeoutForAttempt(attempt);
-                datagramSocket.setSoTimeout(Math.toIntExact(timeoutDuration.toMillis()));
+                datagramSocket.setSoTimeout((int) Math.min(timeoutDuration.toMillis(), Integer.MAX_VALUE));
 
                 datagramSocket.send(outDatagramPacket);
 
                 byte[] inBuffer = new byte[MAX_PACKET_SIZE];
-                inDatagramPacket = new DatagramPacket(inBuffer, inBuffer.length);
+                DatagramPacket inDatagramPacket = new DatagramPacket(inBuffer, inBuffer.length);
 
                 try {
+                    // Block until we receive the response or until we time out
                     datagramSocket.receive(inDatagramPacket);
 
                     byte[] inBytes = Arrays.copyOfRange(inDatagramPacket.getData(), 0, inDatagramPacket.getLength());
@@ -143,47 +110,37 @@ public class UdpRadiusClient implements RadiusClient {
         }
     }
 
+    @Override
+    public void doClose() {
+        // Nothing to do
+    }
+
     /**
      * Builder for {@link UdpRadiusClient}s.
      */
-    public final static class Builder {
-
-        InetSocketAddress address;
-
-        byte[] secret;
+    public final static class Builder extends AbstractRadiusClient.Builder<UdpRadiusClient, Builder> {
 
         RetransmissionStrategy retransmissionStrategy;
 
-        Dictionary dictionary;
-
-        PacketIdGenerator packetIdGenerator;
-
-        RandomProvider randomProvider;
-
         /**
-         * Sets the address of the server. Required.
-         *
-         * @param address the server address
-         * 
-         * @return this builder
+         * {@inheritDoc}
          */
         public Builder address(InetSocketAddress address) {
-            this.address = address;
-
-            return this;
+            return super.address(address);
         }
 
         /**
-         * Sets the RADIUS shared secret. Required.
-         *
-         * @param secret the address to bind to
-         * 
-         * @return this builder
+         * {@inheritDoc}
          */
         public Builder secret(byte[] secret) {
-            this.secret = secret;
+            return super.secret(secret);
+        }
 
-            return this;
+        /**
+         * {@inheritDoc}
+         */
+        public Builder dictionary(Dictionary dictionary) {
+            return super.dictionary(dictionary);
         }
 
         /**
@@ -196,47 +153,6 @@ public class UdpRadiusClient implements RadiusClient {
          */
         public Builder retransmissionStrategy(RetransmissionStrategy retransmissionStrategy) {
             this.retransmissionStrategy = retransmissionStrategy;
-
-            return this;
-        }
-
-        /**
-         * Sets the {@link Dictionary} to use. Optional. When not set, the standard dictionary will be used.
-         *
-         * @param dictionary the dictionary to use
-         * 
-         * @return this builder
-         */
-        public Builder dictionary(Dictionary dictionary) {
-            this.dictionary = dictionary;
-
-            return this;
-        }
-
-        /**
-         * Sets the {@link PacketIdGenerator} to use to generate packet identifiers for outbound packets. Optional. When
-         * not set, a default incrementing packet identifier generator will be used.
-         *
-         * @param packetIdGenerator the packet identifier generator to use
-         * 
-         * @return this builder
-         */
-        public Builder packetIdGenerator(PacketIdGenerator packetIdGenerator) {
-            this.packetIdGenerator = packetIdGenerator;
-
-            return this;
-        }
-
-        /**
-         * Sets the {@link RandomProvider} to use for all randomness required by RADIUS. Optional. When not set, a
-         * cryptographically-secure random source will be used.
-         *
-         * @param randomProvider the random provider to use
-         * 
-         * @return this builder
-         */
-        public Builder randomProvider(RandomProvider randomProvider) {
-            this.randomProvider = randomProvider;
 
             return this;
         }
