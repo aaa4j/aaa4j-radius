@@ -3,7 +3,7 @@
     <parent>
         <artifactId>aaa4j-radius</artifactId>
         <groupId>org.aaa4j.radius</groupId>
-        <version>0.3.2-SNAPSHOT</version>
+        <version>0.4.0</version>
     </parent>
     <properties>
         <rootDir>${basedir}/..</rootDir>
@@ -15,7 +15,7 @@
         <dependency>
             <groupId>org.aaa4j.radius</groupId>
             <artifactId>aaa4j-radius-core</artifactId>
-            <version>0.3.2-SNAPSHOT</version>
+            <version>0.4.0</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
