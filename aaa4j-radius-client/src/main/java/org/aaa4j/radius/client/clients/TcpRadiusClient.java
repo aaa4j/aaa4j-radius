@@ -31,7 +31,9 @@ import java.time.Instant;
 /**
  * A client using TCP as the underlying transport layer. Create an instance using {@link Builder}.
  *
- * @implNote The client currently creates a new TCP connection for each packet sent
+ * <p>
+ * The client currently creates a new TCP connection for each packet sent.
+ * </p>
  */
 public final class TcpRadiusClient extends AbstractRadiusClient {
 

@@ -2,7 +2,7 @@
 
 ![GitHub](https://img.shields.io/github/license/aaa4j/aaa4j-radius)
 [![Maven Central](https://img.shields.io/maven-central/v/org.aaa4j.radius/aaa4j-radius)](https://search.maven.org/search?q=org.aaa4j.radius)
-[![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/aaa4j/aaa4j-radius/Build/master)](https://github.com/aaa4j/aaa4j-radius/actions?query=workflow%3ABuild+branch%3Amaster)
+[![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/aaa4j/aaa4j-radius/build.yml?branch=master)](https://github.com/aaa4j/aaa4j-radius/actions?query=workflow%3ABuild+branch%3Amaster)
 [![GitHub Repo stars](https://img.shields.io/github/stars/aaa4j/aaa4j-radius)](https://github.com/aaa4j/aaa4j-radius)
 
 Java library for building RADIUS clients and RADIUS servers.

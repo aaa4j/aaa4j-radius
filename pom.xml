@@ -36,25 +36,104 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <rootDir>${basedir}</rootDir>
+        <!-- Fixed timestamp for reproducible builds; updated by maven-release-plugin on release. -->
+        <project.build.outputTimestamp>2025-08-09T09:17:58Z</project.build.outputTimestamp>
     </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.aaa4j.radius</groupId>
+                <artifactId>aaa4j-radius-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>5.14.4</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest</artifactId>
+                <version>3.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>5.23.0</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.22.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.15.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.12.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.4.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.5.6</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.11.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>3.2.8</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>3.3.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>net.revelc.code.formatter</groupId>
+                    <artifactId>formatter-maven-plugin</artifactId>
+                    <version>2.29.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.14.0</version>
                 <configuration>
-                    <source>9</source>
-                    <target>9</target>
                     <release>9</release>
                 </configuration>
                 <executions>
+                    <!--
+                        Two-pass compilation: the first pass compiles module-info.java (and only it, in
+                        practice) at release 9; the second pass recompiles everything else at release 8 so the
+                        library stays usable on Java 8. -Xpkginfo:always is required because the release 9 pass
+                        emits package-info.class files that the release 8 pass would otherwise not regenerate,
+                        leaving Java 9 bytecode in the jar.
+                    -->
                     <execution>
                         <id>default-compile</id>
                         <configuration>
-                            <jdkToolchain>
-                                <version>9</version>
-                            </jdkToolchain>
+                            <release>9</release>
                         </configuration>
                     </execution>
                     <execution>
@@ -63,14 +142,13 @@
                             <goal>compile</goal>
                         </goals>
                         <configuration>
-                            <source>8</source>
-                            <target>8</target>
                             <release>8</release>
                             <excludes>
                                 <exclude>module-info.java</exclude>
                             </excludes>
                             <compilerArgs>
                                 <arg>-Xlint:-options</arg>
+                                <arg>-Xpkginfo:always</arg>
                             </compilerArgs>
                         </configuration>
                     </execution>
@@ -79,11 +157,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.11.2</version>
                 <configuration>
-                    <source>8</source>
-                    <additionalOptions>-Xdoclint:none</additionalOptions>
-                    <additionalJOption>-Xdoclint:none</additionalJOption>
+                    <source>9</source>
+                    <doclint>all,-missing</doclint>
+                    <detectJavaApiLink>false</detectJavaApiLink>
+                    <links>
+                        <link>https://docs.oracle.com/en/java/javase/25/docs/api/</link>
+                    </links>
                 </configuration>
                 <executions>
                     <execution>
@@ -97,7 +177,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -110,7 +189,6 @@
             <plugin>
                 <groupId>net.revelc.code.formatter</groupId>
                 <artifactId>formatter-maven-plugin</artifactId>
-                <version>2.12.2</version>
                 <configuration>
                     <configFile>${rootDir}/eclipse-formatter-config.xml</configFile>
                 </configuration>
@@ -118,7 +196,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>3.2.8</version>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
@@ -132,7 +209,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>3.1.1</version>
                 <configuration>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
@@ -145,7 +221,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.11.2</version>
+                <version>3.12.0</version>
                 <reportSets>
                     <reportSet>
                         <id>aggregate</id>
@@ -165,9 +241,9 @@
         </plugins>
     </reporting>
     <modules>
-        <module>aaa4j-radius-client</module>
         <module>aaa4j-radius-core</module>
-        <module>aaa4j-radius-dictionary-freeradius</module>
+        <module>aaa4j-radius-client</module>
         <module>aaa4j-radius-server</module>
+        <module>aaa4j-radius-dictionary-freeradius</module>
     </modules>
 </project>

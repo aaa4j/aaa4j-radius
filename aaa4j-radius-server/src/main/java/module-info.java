@@ -19,7 +19,7 @@
  */
 module org.aaa4j.radius.server {
 
-    requires org.aaa4j.radius.core;
+    requires transitive org.aaa4j.radius.core;
 
     exports org.aaa4j.radius.server;
     exports org.aaa4j.radius.server.servers;

@@ -34,7 +34,9 @@ import java.util.Arrays;
 /**
  * A client using UDP as the underlying transport layer. Create an instance using {@link Builder}.
  *
- * @implNote The client does not currently reuse sockets.
+ * <p>
+ * The client does not currently reuse sockets.
+ * </p>
  */
 public final class UdpRadiusClient extends AbstractRadiusClient {
 

@@ -19,7 +19,7 @@
  */
 module org.aaa4j.radius.client {
 
-    requires org.aaa4j.radius.core;
+    requires transitive org.aaa4j.radius.core;
 
     exports org.aaa4j.radius.client;
     exports org.aaa4j.radius.client.clients;
