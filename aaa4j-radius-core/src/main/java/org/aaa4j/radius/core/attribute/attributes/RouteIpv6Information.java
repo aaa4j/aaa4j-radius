@@ -34,4 +34,3 @@ public final class RouteIpv6Information extends StandardAttribute<Ipv6PrefixData
     }
 
 }
-

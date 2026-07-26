@@ -62,7 +62,7 @@ public final class AttributeType {
 
     /**
      * Returns the first component of the attribute type.
-     * 
+     *
      * @return the first component of the attribute type
      */
     public int head() {
@@ -71,7 +71,7 @@ public final class AttributeType {
 
     /**
      * Returns the last component of the attribute type.
-     * 
+     *
      * @return the last component of the attribute type
      */
     public int last() {
@@ -94,7 +94,7 @@ public final class AttributeType {
 
     /**
      * Returns the number of components in this attribute type.
-     * 
+     *
      * @return the number of components in this attribute type
      */
     public int length() {

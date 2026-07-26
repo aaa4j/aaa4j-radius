@@ -21,7 +21,7 @@ import org.aaa4j.radius.core.attribute.StandardAttribute;
 import org.aaa4j.radius.core.attribute.TextData;
 
 /**
- * 	Reply-Message (18) attribute.
+ * Reply-Message (18) attribute.
  */
 public final class ReplyMessage extends StandardAttribute<TextData> {
 

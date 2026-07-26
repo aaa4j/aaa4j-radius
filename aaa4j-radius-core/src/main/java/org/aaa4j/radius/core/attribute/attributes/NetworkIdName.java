@@ -34,4 +34,3 @@ public final class NetworkIdName extends StandardAttribute<StringData> {
     }
 
 }
-

@@ -34,4 +34,3 @@ public final class WlanVenueInfo extends StandardAttribute<IntegerData> {
     }
 
 }
-

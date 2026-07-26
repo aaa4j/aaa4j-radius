@@ -58,7 +58,8 @@ public final class TcpRadiusServer extends AbstractRadiusServer {
         super(builder, String.format("%s-%d", THREAD_NAME_PREFIX, SERVER_ID_COUNTER.getAndIncrement()));
 
         this.deduplicationCacheSupplier = builder.deduplicationCacheSupplier == null
-                ? DEFAULT_DEDUPLICATION_CACHE_SUPPLIER : builder.deduplicationCacheSupplier;
+                ? DEFAULT_DEDUPLICATION_CACHE_SUPPLIER
+                : builder.deduplicationCacheSupplier;
         this.handler = Objects.requireNonNull(builder.handler);
     }
 
@@ -164,7 +165,8 @@ public final class TcpRadiusServer extends AbstractRadiusServer {
             byte[] buffer = new byte[MAX_PACKET_SIZE];
             int position = 0;
 
-            readLoop: while (isRunning) {
+            readLoop:
+            while (isRunning) {
                 // Block and wait for more bytes
                 int bytesRead = inputStream.read(buffer, position, buffer.length - position);
 
@@ -196,8 +198,8 @@ public final class TcpRadiusServer extends AbstractRadiusServer {
                         System.arraycopy(buffer, 0, requestPacketBytes, 0, packetLength);
 
                         // Handle the request
-                        executor.execute(() ->
-                                handleRequest(clientSocket, deduplicationCache, secret, requestPacketBytes));
+                        executor.execute(
+                                () -> handleRequest(clientSocket, deduplicationCache, secret, requestPacketBytes));
 
                         // Shift the bytes in the buffer
                         System.arraycopy(buffer, packetLength, buffer, 0, position - packetLength);
@@ -240,8 +242,7 @@ public final class TcpRadiusServer extends AbstractRadiusServer {
     }
 
     private void handleRequest(Socket clientSocket, DeduplicationCache deduplicationCache, byte[] secret,
-                               byte[] requestPacketBytes)
-    {
+            byte[] requestPacketBytes) {
         try {
             InetSocketAddress clientSocketAddress = (InetSocketAddress) clientSocket.getRemoteSocketAddress();
 

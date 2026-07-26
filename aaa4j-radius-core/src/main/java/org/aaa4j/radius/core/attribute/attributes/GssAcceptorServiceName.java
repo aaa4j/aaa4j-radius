@@ -34,4 +34,3 @@ public final class GssAcceptorServiceName extends StandardAttribute<TextData> {
     }
 
 }
-

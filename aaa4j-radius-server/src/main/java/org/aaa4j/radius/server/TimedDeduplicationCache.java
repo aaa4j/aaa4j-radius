@@ -82,8 +82,7 @@ public final class TimedDeduplicationCache implements DeduplicationCache {
 
     @Override
     public synchronized void handleResponse(InetSocketAddress clientAddress, byte[] requestPacketBytes,
-                                            byte[] responsePacketBytes)
-    {
+            byte[] responsePacketBytes) {
         CacheKey cacheKey = new CacheKey(clientAddress, requestPacketBytes);
 
         if (!cacheMap.containsKey(cacheKey)) {

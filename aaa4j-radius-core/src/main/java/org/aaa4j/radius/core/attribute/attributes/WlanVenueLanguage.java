@@ -34,4 +34,3 @@ public final class WlanVenueLanguage extends StandardAttribute<StringData> {
     }
 
 }
-

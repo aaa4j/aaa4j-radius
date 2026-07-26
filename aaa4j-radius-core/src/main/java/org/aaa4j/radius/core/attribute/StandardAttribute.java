@@ -108,7 +108,7 @@ public class StandardAttribute<D extends Data> extends Attribute<D> {
              *
              * @param type the attribute type (integer in range [0, 255])
              * @param data the attribute's data
-             * 
+             *
              * @return an instance of {@link StandardAttribute} or its subtypes with the provided type and data
              */
             StandardAttribute<D> build(int type, D data);

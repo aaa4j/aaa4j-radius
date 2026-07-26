@@ -21,7 +21,7 @@ import org.aaa4j.radius.core.attribute.Ipv4AddrData;
 import org.aaa4j.radius.core.attribute.StandardAttribute;
 
 /**
- * 	Login-IP-Host (14) attribute.
+ * Login-IP-Host (14) attribute.
  */
 public final class LoginIpHost extends StandardAttribute<Ipv4AddrData> {
 

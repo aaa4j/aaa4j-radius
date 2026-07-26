@@ -34,4 +34,3 @@ public final class StatefulIpv6AddressPool extends StandardAttribute<TextData> {
     }
 
 }
-

@@ -71,7 +71,7 @@ public final class ConcatData extends Data {
      * the fragments are smaller than a full attribute worth of data (253 bytes).
      *
      * @param fragments list of byte array fragments
-     * 
+     *
      * @throws IllegalArgumentException if any of the fragment lengths are outside of the range [1, 253]
      */
     public ConcatData(List<byte[]> fragments) {

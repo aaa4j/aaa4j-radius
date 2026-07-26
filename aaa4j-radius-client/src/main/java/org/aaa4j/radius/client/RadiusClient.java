@@ -27,7 +27,7 @@ public interface RadiusClient extends AutoCloseable {
      * Sends a RADIUS request packet.
      *
      * @param requestPacket the request packet to send
-     * 
+     *
      * @return a RADIUS response packet
      *
      * @throws IllegalStateException if the client has already been closed

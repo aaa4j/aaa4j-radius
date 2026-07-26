@@ -21,7 +21,7 @@ import org.aaa4j.radius.core.attribute.Ipv4AddrData;
 import org.aaa4j.radius.core.attribute.StandardAttribute;
 
 /**
- * 	Framed-IPX-Network (23) attribute.
+ * Framed-IPX-Network (23) attribute.
  */
 public final class FramedIpxNetwork extends StandardAttribute<Ipv4AddrData> {
 

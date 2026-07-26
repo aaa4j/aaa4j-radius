@@ -34,4 +34,3 @@ public final class EapPeerId extends StandardAttribute<StringData> {
     }
 
 }
-

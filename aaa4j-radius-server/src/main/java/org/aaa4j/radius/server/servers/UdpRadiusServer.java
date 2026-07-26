@@ -52,7 +52,8 @@ public final class UdpRadiusServer extends AbstractRadiusServer {
         super(builder, String.format("%s-%d", THREAD_NAME_PREFIX, SERVER_ID_COUNTER.getAndIncrement()));
 
         this.deduplicationCache = builder.deduplicationCacheSupplier == null
-                ? DEFAULT_DEDUPLICATION_CACHE_SUPPLIER.get() : builder.deduplicationCacheSupplier.get();
+                ? DEFAULT_DEDUPLICATION_CACHE_SUPPLIER.get()
+                : builder.deduplicationCacheSupplier.get();
         this.handler = Objects.requireNonNull(builder.handler);
     }
 

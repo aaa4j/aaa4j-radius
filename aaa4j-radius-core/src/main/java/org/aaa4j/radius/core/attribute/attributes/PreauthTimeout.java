@@ -34,4 +34,3 @@ public final class PreauthTimeout extends StandardAttribute<IntegerData> {
     }
 
 }
-

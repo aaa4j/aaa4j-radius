@@ -34,4 +34,3 @@ public final class AllowedCalledStationId extends StandardAttribute<TextData> {
     }
 
 }
-

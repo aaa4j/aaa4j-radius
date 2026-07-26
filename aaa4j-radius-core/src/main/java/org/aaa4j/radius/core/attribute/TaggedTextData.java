@@ -133,8 +133,8 @@ public class TaggedTextData extends Data {
             bytes[0] = (byte) taggedTextData.tag;
 
             if (dataFilter != null) {
-                byte[] filteredData =
-                        dataFilter.encode(codecContext, taggedTextData.value.getBytes(StandardCharsets.UTF_8));
+                byte[] filteredData = dataFilter.encode(codecContext,
+                        taggedTextData.value.getBytes(StandardCharsets.UTF_8));
 
                 System.arraycopy(filteredData, 0, bytes, 1, filteredData.length);
             }

@@ -2659,9 +2659,9 @@ public final class StandardDictionary implements Dictionary {
                                 (type, extendedType, data) -> new ExtendedVendorSpecific6(data)),
                         ExtendedVendorSpecific6::new));
 
-        typeAttributeDefinitionsMap.forEach((attributeType, attributeDefinition) ->
-                nameAttributeDefinitionsMap.put(attributeDefinition.getName().toLowerCase(Locale.ROOT),
-                        attributeDefinition));
+        typeAttributeDefinitionsMap.forEach((attributeType, attributeDefinition) -> nameAttributeDefinitionsMap.put(
+                attributeDefinition.getName().toLowerCase(Locale.ROOT),
+                attributeDefinition));
     }
 
     static {

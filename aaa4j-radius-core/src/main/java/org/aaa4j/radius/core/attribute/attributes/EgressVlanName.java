@@ -21,7 +21,7 @@ import org.aaa4j.radius.core.attribute.StandardAttribute;
 import org.aaa4j.radius.core.attribute.TextData;
 
 /**
- * 	Egress-VLAN-Name (58) attribute.
+ * Egress-VLAN-Name (58) attribute.
  */
 public final class EgressVlanName extends StandardAttribute<TextData> {
 

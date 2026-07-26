@@ -108,8 +108,7 @@ public class OptionalTaggedTextData extends Data {
 
         @Override
         public OptionalTaggedTextData decode(CodecContext codecContext, AttributeType parentAttributeType,
-                                             byte[] bytes)
-        {
+                byte[] bytes) {
             if (bytes.length < 1) {
                 return new OptionalTaggedTextData("");
             }

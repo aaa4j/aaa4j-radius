@@ -34,4 +34,3 @@ public final class Pmip6VisitedIpv4Gateway extends StandardAttribute<Ipv4AddrDat
     }
 
 }
-

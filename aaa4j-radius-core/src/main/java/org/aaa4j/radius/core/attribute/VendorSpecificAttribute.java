@@ -133,8 +133,8 @@ public class VendorSpecificAttribute<D extends Data> extends Attribute<D> {
         @Override
         public void encode(CodecContext codecContext, Deque<Attribute<?>> attributeStack) {
             @SuppressWarnings("unchecked")
-            VendorSpecificAttribute<D> vendorSpecificAttribute =
-                    (VendorSpecificAttribute<D>) attributeStack.removeFirst();
+            VendorSpecificAttribute<D> vendorSpecificAttribute = (VendorSpecificAttribute<D>) attributeStack
+                    .removeFirst();
 
             int vendorId = vendorSpecificAttribute.vendorId;
             int vendorType = vendorSpecificAttribute.vendorType;
@@ -143,8 +143,8 @@ public class VendorSpecificAttribute<D extends Data> extends Attribute<D> {
 
             VsaData vsaData = new VsaData(vendorId, vendorType, data);
 
-            StandardAttribute<VsaData> attribute =
-                    new StandardAttribute<>(vendorSpecificAttribute.getType().head(), vsaData);
+            StandardAttribute<VsaData> attribute = new StandardAttribute<>(vendorSpecificAttribute.getType().head(),
+                    vsaData);
 
             attributeStack.addFirst(attribute);
         }

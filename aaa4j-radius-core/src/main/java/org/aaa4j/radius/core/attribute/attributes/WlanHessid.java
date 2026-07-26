@@ -34,4 +34,3 @@ public final class WlanHessid extends StandardAttribute<TextData> {
     }
 
 }
-

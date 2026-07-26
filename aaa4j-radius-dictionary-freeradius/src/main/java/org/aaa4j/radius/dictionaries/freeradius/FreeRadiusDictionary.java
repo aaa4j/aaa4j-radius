@@ -94,8 +94,7 @@ public class FreeRadiusDictionary implements Dictionary {
 
     private static final int VENDOR_SPECIFIC_ATTRIBUTE = 26;
 
-    private static final AttributeType VENDOR_SPECIFIC_ATTRIBUTE_TYPE =
-            new AttributeType(VENDOR_SPECIFIC_ATTRIBUTE);
+    private static final AttributeType VENDOR_SPECIFIC_ATTRIBUTE_TYPE = new AttributeType(VENDOR_SPECIFIC_ATTRIBUTE);
 
     static {
         try {
@@ -188,279 +187,270 @@ public class FreeRadiusDictionary implements Dictionary {
                                                 case CONCAT:
                                                     break;
                                                 case ENUM: {
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    EnumData.class,
-                                                                    new StandardAttribute.Codec<>(
-                                                                            EnumData.Codec.INSTANCE,
-                                                                            StandardAttribute::new),
-                                                                    (EnumData data) ->
-                                                                            new StandardAttribute<>(intAttributeId,
-                                                                                    data));
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            EnumData.class,
+                                                            new StandardAttribute.Codec<>(
+                                                                    EnumData.Codec.INSTANCE,
+                                                                    StandardAttribute::new),
+                                                            (EnumData data) -> new StandardAttribute<>(intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case EVS:
                                                     break;
                                                 case EXTENDED:
                                                     break;
                                                 case IFID: {
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    IfidData.class,
-                                                                    new StandardAttribute.Codec<>(
-                                                                            IfidData.Codec.INSTANCE,
-                                                                            StandardAttribute::new),
-                                                                    (IfidData data) ->
-                                                                            new StandardAttribute<>(intAttributeId,
-                                                                                    data));
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            IfidData.class,
+                                                            new StandardAttribute.Codec<>(
+                                                                    IfidData.Codec.INSTANCE,
+                                                                    StandardAttribute::new),
+                                                            (IfidData data) -> new StandardAttribute<>(intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case INTEGER_64: {
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    Integer64Data.class,
-                                                                    new StandardAttribute.Codec<>(
-                                                                            Integer64Data.Codec.INSTANCE,
-                                                                            StandardAttribute::new),
-                                                                    (Integer64Data data) ->
-                                                                            new StandardAttribute<>(intAttributeId,
-                                                                                    data));
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            Integer64Data.class,
+                                                            new StandardAttribute.Codec<>(
+                                                                    Integer64Data.Codec.INSTANCE,
+                                                                    StandardAttribute::new),
+                                                            (Integer64Data data) -> new StandardAttribute<>(
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case INTEGER: {
                                                     DataCodec<IntegerData> dataCodec = IntegerData.Codec.INSTANCE;
 
                                                     if (usesTunnelPasswordEncryption) {
-                                                        dataCodec = new IntegerData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                        dataCodec = new IntegerData.Codec(
+                                                                TunnelPasswordDataFilter.INSTANCE);
                                                     }
 
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    IntegerData.class,
-                                                                    new StandardAttribute.Codec<>(
-                                                                            dataCodec,
-                                                                            StandardAttribute::new),
-                                                                    (IntegerData data) ->
-                                                                            new StandardAttribute<>(intAttributeId,
-                                                                                    data));
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            IntegerData.class,
+                                                            new StandardAttribute.Codec<>(
+                                                                    dataCodec,
+                                                                    StandardAttribute::new),
+                                                            (IntegerData data) -> new StandardAttribute<>(
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case IPV4_ADDR: {
                                                     DataCodec<Ipv4AddrData> dataCodec = Ipv4AddrData.Codec.INSTANCE;
 
                                                     if (usesTunnelPasswordEncryption) {
-                                                        dataCodec = new Ipv4AddrData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                        dataCodec = new Ipv4AddrData.Codec(
+                                                                TunnelPasswordDataFilter.INSTANCE);
                                                     }
 
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    Ipv4AddrData.class,
-                                                                    new StandardAttribute.Codec<>(
-                                                                            dataCodec,
-                                                                            StandardAttribute::new),
-                                                                    (Ipv4AddrData data) ->
-                                                                            new StandardAttribute<>(intAttributeId,
-                                                                                    data));
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            Ipv4AddrData.class,
+                                                            new StandardAttribute.Codec<>(
+                                                                    dataCodec,
+                                                                    StandardAttribute::new),
+                                                            (Ipv4AddrData data) -> new StandardAttribute<>(
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case IPV4_PREFIX: {
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    Ipv4PrefixData.class,
-                                                                    new StandardAttribute.Codec<>(
-                                                                            Ipv4PrefixData.Codec.INSTANCE,
-                                                                            StandardAttribute::new),
-                                                                    (Ipv4PrefixData data) ->
-                                                                            new StandardAttribute<>(intAttributeId,
-                                                                                    data));
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            Ipv4PrefixData.class,
+                                                            new StandardAttribute.Codec<>(
+                                                                    Ipv4PrefixData.Codec.INSTANCE,
+                                                                    StandardAttribute::new),
+                                                            (Ipv4PrefixData data) -> new StandardAttribute<>(
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case IPV6_ADDR: {
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    Ipv6AddrData.class,
-                                                                    new StandardAttribute.Codec<>(
-                                                                            Ipv6AddrData.Codec.INSTANCE,
-                                                                            StandardAttribute::new),
-                                                                    (Ipv6AddrData data) ->
-                                                                            new StandardAttribute<>(intAttributeId,
-                                                                                    data));
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            Ipv6AddrData.class,
+                                                            new StandardAttribute.Codec<>(
+                                                                    Ipv6AddrData.Codec.INSTANCE,
+                                                                    StandardAttribute::new),
+                                                            (Ipv6AddrData data) -> new StandardAttribute<>(
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case IPV6_PREFIX: {
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    Ipv6PrefixData.class,
-                                                                    new StandardAttribute.Codec<>(
-                                                                            Ipv6PrefixData.Codec.INSTANCE,
-                                                                            StandardAttribute::new),
-                                                                    (Ipv6PrefixData data) ->
-                                                                            new StandardAttribute<>(intAttributeId,
-                                                                                    data));
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            Ipv6PrefixData.class,
+                                                            new StandardAttribute.Codec<>(
+                                                                    Ipv6PrefixData.Codec.INSTANCE,
+                                                                    StandardAttribute::new),
+                                                            (Ipv6PrefixData data) -> new StandardAttribute<>(
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case LONG_EXTENDED:
                                                     break;
                                                 case OPTIONAL_TAGGED_STRING: {
+                                                    break;
 
                                                 }
-                                                break;
                                                 case OPTIONAL_TAGGED_TEXT: {
+                                                    break;
 
                                                 }
-                                                break;
                                                 case STRING: {
                                                     DataCodec<StringData> dataCodec = StringData.Codec.INSTANCE;
 
                                                     if (usesUserPasswordEncryption) {
-                                                        dataCodec = new StringData.Codec(UserPasswordDataFilter.INSTANCE);
+                                                        dataCodec = new StringData.Codec(
+                                                                UserPasswordDataFilter.INSTANCE);
                                                     }
 
                                                     if (usesTunnelPasswordEncryption) {
-                                                        dataCodec = new StringData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                        dataCodec = new StringData.Codec(
+                                                                TunnelPasswordDataFilter.INSTANCE);
                                                     }
 
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    StringData.class,
-                                                                    new StandardAttribute.Codec<>(
-                                                                            dataCodec,
-                                                                            StandardAttribute::new),
-                                                                    (StringData data) ->
-                                                                            new StandardAttribute<>(intAttributeId,
-                                                                                    data));
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            StringData.class,
+                                                            new StandardAttribute.Codec<>(
+                                                                    dataCodec,
+                                                                    StandardAttribute::new),
+                                                            (StringData data) -> new StandardAttribute<>(intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case TAGGED_INTEGER: {
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    TaggedIntegerData.class,
-                                                                    new StandardAttribute.Codec<>(
-                                                                            TaggedIntegerData.Codec.INSTANCE,
-                                                                            StandardAttribute::new),
-                                                                    (TaggedIntegerData data) ->
-                                                                            new StandardAttribute<>(intAttributeId,
-                                                                                    data));
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            TaggedIntegerData.class,
+                                                            new StandardAttribute.Codec<>(
+                                                                    TaggedIntegerData.Codec.INSTANCE,
+                                                                    StandardAttribute::new),
+                                                            (TaggedIntegerData data) -> new StandardAttribute<>(
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case TAGGED_STRING: {
                                                     DataCodec<TaggedStringData> dataCodec = TaggedStringData.Codec.INSTANCE;
 
                                                     if (usesUserPasswordEncryption) {
-                                                        dataCodec = new TaggedStringData.Codec(UserPasswordDataFilter.INSTANCE);
+                                                        dataCodec = new TaggedStringData.Codec(
+                                                                UserPasswordDataFilter.INSTANCE);
                                                     }
 
                                                     if (usesTunnelPasswordEncryption) {
-                                                        dataCodec = new TaggedStringData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                        dataCodec = new TaggedStringData.Codec(
+                                                                TunnelPasswordDataFilter.INSTANCE);
                                                     }
 
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    TaggedStringData.class,
-                                                                    new StandardAttribute.Codec<>(
-                                                                            dataCodec,
-                                                                            StandardAttribute::new),
-                                                                    (TaggedStringData data) ->
-                                                                            new StandardAttribute<>(intAttributeId,
-                                                                                    data));
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            TaggedStringData.class,
+                                                            new StandardAttribute.Codec<>(
+                                                                    dataCodec,
+                                                                    StandardAttribute::new),
+                                                            (TaggedStringData data) -> new StandardAttribute<>(
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case TAGGED_TEXT: {
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    TaggedTextData.class,
-                                                                    new StandardAttribute.Codec<>(
-                                                                            TaggedTextData.Codec.INSTANCE,
-                                                                            StandardAttribute::new),
-                                                                    (TaggedTextData data) ->
-                                                                            new StandardAttribute<>(intAttributeId,
-                                                                                    data));
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            TaggedTextData.class,
+                                                            new StandardAttribute.Codec<>(
+                                                                    TaggedTextData.Codec.INSTANCE,
+                                                                    StandardAttribute::new),
+                                                            (TaggedTextData data) -> new StandardAttribute<>(
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case TEXT: {
                                                     DataCodec<TextData> dataCodec = TextData.Codec.INSTANCE;
 
@@ -469,27 +459,26 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     }
 
                                                     if (usesTunnelPasswordEncryption) {
-                                                        dataCodec = new TextData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                        dataCodec = new TextData.Codec(
+                                                                TunnelPasswordDataFilter.INSTANCE);
                                                     }
 
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    TextData.class,
-                                                                    new StandardAttribute.Codec<>(
-                                                                            dataCodec,
-                                                                            StandardAttribute::new),
-                                                                    (TextData data) ->
-                                                                            new StandardAttribute<>(intAttributeId,
-                                                                                    data));
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            TextData.class,
+                                                            new StandardAttribute.Codec<>(
+                                                                    dataCodec,
+                                                                    StandardAttribute::new),
+                                                            (TextData data) -> new StandardAttribute<>(intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case TIME:
                                                     break;
                                                 case TLV:
@@ -537,437 +526,421 @@ public class FreeRadiusDictionary implements Dictionary {
                                                 case CONCAT:
                                                     break;
                                                 case ENUM: {
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    EnumData.class,
-                                                                    new VendorSpecificAttribute.Codec<>(
-                                                                            EnumData.Codec.INSTANCE,
-                                                                            (type, vendorId, vendorType, data) ->
-                                                                                    new VendorSpecificAttribute<>(
-                                                                                            VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                            vendorId,
-                                                                                            vendorType, data)),
-                                                                    (EnumData data) ->
-                                                                            new VendorSpecificAttribute<>(
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            EnumData.class,
+                                                            new VendorSpecificAttribute.Codec<>(
+                                                                    EnumData.Codec.INSTANCE,
+                                                                    (type, vendorId, vendorType,
+                                                                            data) -> new VendorSpecificAttribute<>(
                                                                                     VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                    finalVendorId,
-                                                                                    intAttributeId,
-                                                                                    data));
+                                                                                    vendorId,
+                                                                                    vendorType, data)),
+                                                            (EnumData data) -> new VendorSpecificAttribute<>(
+                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                    finalVendorId,
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case EVS:
                                                     break;
                                                 case EXTENDED:
                                                     break;
                                                 case IFID: {
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    IfidData.class,
-                                                                    new VendorSpecificAttribute.Codec<>(
-                                                                            IfidData.Codec.INSTANCE,
-                                                                            (type, vendorId, vendorType, data) ->
-                                                                                    new VendorSpecificAttribute<>(
-                                                                                            VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                            vendorId,
-                                                                                            vendorType, data)),
-                                                                    (IfidData data) ->
-                                                                            new VendorSpecificAttribute<>(
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            IfidData.class,
+                                                            new VendorSpecificAttribute.Codec<>(
+                                                                    IfidData.Codec.INSTANCE,
+                                                                    (type, vendorId, vendorType,
+                                                                            data) -> new VendorSpecificAttribute<>(
                                                                                     VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                    finalVendorId,
-                                                                                    intAttributeId,
-                                                                                    data));
+                                                                                    vendorId,
+                                                                                    vendorType, data)),
+                                                            (IfidData data) -> new VendorSpecificAttribute<>(
+                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                    finalVendorId,
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case INTEGER_64: {
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    Integer64Data.class,
-                                                                    new VendorSpecificAttribute.Codec<>(
-                                                                            Integer64Data.Codec.INSTANCE,
-                                                                            (type, vendorId, vendorType, data) ->
-                                                                                    new VendorSpecificAttribute<>(
-                                                                                            VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                            vendorId,
-                                                                                            vendorType, data)),
-                                                                    (Integer64Data data) ->
-                                                                            new VendorSpecificAttribute<>(
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            Integer64Data.class,
+                                                            new VendorSpecificAttribute.Codec<>(
+                                                                    Integer64Data.Codec.INSTANCE,
+                                                                    (type, vendorId, vendorType,
+                                                                            data) -> new VendorSpecificAttribute<>(
                                                                                     VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                    finalVendorId,
-                                                                                    intAttributeId,
-                                                                                    data));
+                                                                                    vendorId,
+                                                                                    vendorType, data)),
+                                                            (Integer64Data data) -> new VendorSpecificAttribute<>(
+                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                    finalVendorId,
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case INTEGER: {
                                                     DataCodec<IntegerData> dataCodec = IntegerData.Codec.INSTANCE;
 
                                                     if (usesTunnelPasswordEncryption) {
-                                                        dataCodec = new IntegerData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                        dataCodec = new IntegerData.Codec(
+                                                                TunnelPasswordDataFilter.INSTANCE);
                                                     }
 
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    IntegerData.class,
-                                                                    new VendorSpecificAttribute.Codec<>(
-                                                                            dataCodec,
-                                                                            (type, vendorId, vendorType, data) ->
-                                                                                    new VendorSpecificAttribute<>(
-                                                                                            VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                            vendorId,
-                                                                                            vendorType, data)),
-                                                                    (IntegerData data) ->
-                                                                            new VendorSpecificAttribute<>(
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            IntegerData.class,
+                                                            new VendorSpecificAttribute.Codec<>(
+                                                                    dataCodec,
+                                                                    (type, vendorId, vendorType,
+                                                                            data) -> new VendorSpecificAttribute<>(
                                                                                     VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                    finalVendorId,
-                                                                                    intAttributeId,
-                                                                                    data));
+                                                                                    vendorId,
+                                                                                    vendorType, data)),
+                                                            (IntegerData data) -> new VendorSpecificAttribute<>(
+                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                    finalVendorId,
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case IPV4_ADDR: {
                                                     DataCodec<Ipv4AddrData> dataCodec = Ipv4AddrData.Codec.INSTANCE;
 
                                                     if (usesTunnelPasswordEncryption) {
-                                                        dataCodec = new Ipv4AddrData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                        dataCodec = new Ipv4AddrData.Codec(
+                                                                TunnelPasswordDataFilter.INSTANCE);
                                                     }
 
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    Ipv4AddrData.class,
-                                                                    new VendorSpecificAttribute.Codec<>(
-                                                                            dataCodec,
-                                                                            (type, vendorId, vendorType, data) ->
-                                                                                    new VendorSpecificAttribute<>(
-                                                                                            VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                            vendorId,
-                                                                                            vendorType, data)),
-                                                                    (Ipv4AddrData data) ->
-                                                                            new VendorSpecificAttribute<>(
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            Ipv4AddrData.class,
+                                                            new VendorSpecificAttribute.Codec<>(
+                                                                    dataCodec,
+                                                                    (type, vendorId, vendorType,
+                                                                            data) -> new VendorSpecificAttribute<>(
                                                                                     VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                    finalVendorId,
-                                                                                    intAttributeId,
-                                                                                    data));
+                                                                                    vendorId,
+                                                                                    vendorType, data)),
+                                                            (Ipv4AddrData data) -> new VendorSpecificAttribute<>(
+                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                    finalVendorId,
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case IPV4_PREFIX: {
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    Ipv4PrefixData.class,
-                                                                    new VendorSpecificAttribute.Codec<>(
-                                                                            Ipv4PrefixData.Codec.INSTANCE,
-                                                                            (type, vendorId, vendorType, data) ->
-                                                                                    new VendorSpecificAttribute<>(
-                                                                                            VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                            vendorId,
-                                                                                            vendorType, data)),
-                                                                    (Ipv4PrefixData data) ->
-                                                                            new VendorSpecificAttribute<>(
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            Ipv4PrefixData.class,
+                                                            new VendorSpecificAttribute.Codec<>(
+                                                                    Ipv4PrefixData.Codec.INSTANCE,
+                                                                    (type, vendorId, vendorType,
+                                                                            data) -> new VendorSpecificAttribute<>(
                                                                                     VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                    finalVendorId,
-                                                                                    intAttributeId,
-                                                                                    data));
+                                                                                    vendorId,
+                                                                                    vendorType, data)),
+                                                            (Ipv4PrefixData data) -> new VendorSpecificAttribute<>(
+                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                    finalVendorId,
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case IPV6_ADDR: {
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    Ipv6AddrData.class,
-                                                                    new VendorSpecificAttribute.Codec<>(
-                                                                            Ipv6AddrData.Codec.INSTANCE,
-                                                                            (type, vendorId, vendorType, data) ->
-                                                                                    new VendorSpecificAttribute<>(
-                                                                                            VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                            vendorId,
-                                                                                            vendorType, data)),
-                                                                    (Ipv6AddrData data) ->
-                                                                            new VendorSpecificAttribute<>(
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            Ipv6AddrData.class,
+                                                            new VendorSpecificAttribute.Codec<>(
+                                                                    Ipv6AddrData.Codec.INSTANCE,
+                                                                    (type, vendorId, vendorType,
+                                                                            data) -> new VendorSpecificAttribute<>(
                                                                                     VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                    finalVendorId,
-                                                                                    intAttributeId,
-                                                                                    data));
+                                                                                    vendorId,
+                                                                                    vendorType, data)),
+                                                            (Ipv6AddrData data) -> new VendorSpecificAttribute<>(
+                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                    finalVendorId,
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case IPV6_PREFIX: {
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    Ipv6PrefixData.class,
-                                                                    new VendorSpecificAttribute.Codec<>(
-                                                                            Ipv6PrefixData.Codec.INSTANCE,
-                                                                            (type, vendorId, vendorType, data) ->
-                                                                                    new VendorSpecificAttribute<>(
-                                                                                            VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                            vendorId,
-                                                                                            vendorType, data)),
-                                                                    (Ipv6PrefixData data) ->
-                                                                            new VendorSpecificAttribute<>(
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            Ipv6PrefixData.class,
+                                                            new VendorSpecificAttribute.Codec<>(
+                                                                    Ipv6PrefixData.Codec.INSTANCE,
+                                                                    (type, vendorId, vendorType,
+                                                                            data) -> new VendorSpecificAttribute<>(
                                                                                     VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                    finalVendorId,
-                                                                                    intAttributeId,
-                                                                                    data));
+                                                                                    vendorId,
+                                                                                    vendorType, data)),
+                                                            (Ipv6PrefixData data) -> new VendorSpecificAttribute<>(
+                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                    finalVendorId,
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case LONG_EXTENDED:
                                                     break;
                                                 case OPTIONAL_TAGGED_STRING: {
                                                     DataCodec<OptionalTaggedStringData> dataCodec = OptionalTaggedStringData.Codec.INSTANCE;
 
                                                     if (usesUserPasswordEncryption) {
-                                                        dataCodec = new OptionalTaggedStringData.Codec(UserPasswordDataFilter.INSTANCE);
+                                                        dataCodec = new OptionalTaggedStringData.Codec(
+                                                                UserPasswordDataFilter.INSTANCE);
                                                     }
 
                                                     if (usesTunnelPasswordEncryption) {
-                                                        dataCodec = new OptionalTaggedStringData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                        dataCodec = new OptionalTaggedStringData.Codec(
+                                                                TunnelPasswordDataFilter.INSTANCE);
                                                     }
 
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    OptionalTaggedStringData.class,
-                                                                    new VendorSpecificAttribute.Codec<>(
-                                                                            dataCodec,
-                                                                            (type, vendorId, vendorType, data) ->
-                                                                                    new VendorSpecificAttribute<>(
-                                                                                            VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                            vendorId,
-                                                                                            vendorType, data)),
-                                                                    (OptionalTaggedStringData data) ->
-                                                                            new VendorSpecificAttribute<>(
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            OptionalTaggedStringData.class,
+                                                            new VendorSpecificAttribute.Codec<>(
+                                                                    dataCodec,
+                                                                    (type, vendorId, vendorType,
+                                                                            data) -> new VendorSpecificAttribute<>(
                                                                                     VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                    finalVendorId,
-                                                                                    intAttributeId,
-                                                                                    data));
+                                                                                    vendorId,
+                                                                                    vendorType, data)),
+                                                            (OptionalTaggedStringData data) -> new VendorSpecificAttribute<>(
+                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                    finalVendorId,
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case OPTIONAL_TAGGED_TEXT: {
                                                     DataCodec<OptionalTaggedTextData> dataCodec = OptionalTaggedTextData.Codec.INSTANCE;
 
                                                     if (usesUserPasswordEncryption) {
-                                                        dataCodec = new OptionalTaggedTextData.Codec(UserPasswordDataFilter.INSTANCE);
+                                                        dataCodec = new OptionalTaggedTextData.Codec(
+                                                                UserPasswordDataFilter.INSTANCE);
                                                     }
 
                                                     if (usesTunnelPasswordEncryption) {
-                                                        dataCodec = new OptionalTaggedTextData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                        dataCodec = new OptionalTaggedTextData.Codec(
+                                                                TunnelPasswordDataFilter.INSTANCE);
                                                     }
 
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    OptionalTaggedTextData.class,
-                                                                    new VendorSpecificAttribute.Codec<>(
-                                                                            dataCodec,
-                                                                            (type, vendorId, vendorType, data) ->
-                                                                                    new VendorSpecificAttribute<>(
-                                                                                            VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                            vendorId,
-                                                                                            vendorType, data)),
-                                                                    (OptionalTaggedTextData data) ->
-                                                                            new VendorSpecificAttribute<>(
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            OptionalTaggedTextData.class,
+                                                            new VendorSpecificAttribute.Codec<>(
+                                                                    dataCodec,
+                                                                    (type, vendorId, vendorType,
+                                                                            data) -> new VendorSpecificAttribute<>(
                                                                                     VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                    finalVendorId,
-                                                                                    intAttributeId,
-                                                                                    data));
+                                                                                    vendorId,
+                                                                                    vendorType, data)),
+                                                            (OptionalTaggedTextData data) -> new VendorSpecificAttribute<>(
+                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                    finalVendorId,
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case STRING: {
                                                     DataCodec<StringData> dataCodec = StringData.Codec.INSTANCE;
 
                                                     if (usesUserPasswordEncryption) {
-                                                        dataCodec = new StringData.Codec(UserPasswordDataFilter.INSTANCE);
+                                                        dataCodec = new StringData.Codec(
+                                                                UserPasswordDataFilter.INSTANCE);
                                                     }
 
                                                     if (usesTunnelPasswordEncryption) {
-                                                        dataCodec = new StringData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                        dataCodec = new StringData.Codec(
+                                                                TunnelPasswordDataFilter.INSTANCE);
                                                     }
 
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    StringData.class,
-                                                                    new VendorSpecificAttribute.Codec<>(
-                                                                            dataCodec,
-                                                                            (type, vendorId, vendorType, data) ->
-                                                                                    new VendorSpecificAttribute<>(
-                                                                                            VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                            vendorId,
-                                                                                            vendorType, data)),
-                                                                    (StringData data) ->
-                                                                            new VendorSpecificAttribute<>(
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            StringData.class,
+                                                            new VendorSpecificAttribute.Codec<>(
+                                                                    dataCodec,
+                                                                    (type, vendorId, vendorType,
+                                                                            data) -> new VendorSpecificAttribute<>(
                                                                                     VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                    finalVendorId,
-                                                                                    intAttributeId,
-                                                                                    data));
+                                                                                    vendorId,
+                                                                                    vendorType, data)),
+                                                            (StringData data) -> new VendorSpecificAttribute<>(
+                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                    finalVendorId,
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case TAGGED_INTEGER: {
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    TaggedIntegerData.class,
-                                                                    new VendorSpecificAttribute.Codec<>(
-                                                                            TaggedIntegerData.Codec.INSTANCE,
-                                                                            (type, vendorId, vendorType, data) ->
-                                                                                    new VendorSpecificAttribute<>(
-                                                                                            VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                            vendorId,
-                                                                                            vendorType, data)),
-                                                                    (TaggedIntegerData data) ->
-                                                                            new VendorSpecificAttribute<>(
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            TaggedIntegerData.class,
+                                                            new VendorSpecificAttribute.Codec<>(
+                                                                    TaggedIntegerData.Codec.INSTANCE,
+                                                                    (type, vendorId, vendorType,
+                                                                            data) -> new VendorSpecificAttribute<>(
                                                                                     VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                    finalVendorId,
-                                                                                    intAttributeId,
-                                                                                    data));
+                                                                                    vendorId,
+                                                                                    vendorType, data)),
+                                                            (TaggedIntegerData data) -> new VendorSpecificAttribute<>(
+                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                    finalVendorId,
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case TAGGED_STRING: {
                                                     DataCodec<TaggedStringData> dataCodec = TaggedStringData.Codec.INSTANCE;
 
                                                     if (usesUserPasswordEncryption) {
-                                                        dataCodec = new TaggedStringData.Codec(UserPasswordDataFilter.INSTANCE);
+                                                        dataCodec = new TaggedStringData.Codec(
+                                                                UserPasswordDataFilter.INSTANCE);
                                                     }
 
                                                     if (usesTunnelPasswordEncryption) {
-                                                        dataCodec = new TaggedStringData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                        dataCodec = new TaggedStringData.Codec(
+                                                                TunnelPasswordDataFilter.INSTANCE);
                                                     }
 
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    TaggedStringData.class,
-                                                                    new VendorSpecificAttribute.Codec<>(
-                                                                            dataCodec,
-                                                                            (type, vendorId, vendorType, data) ->
-                                                                                    new VendorSpecificAttribute<>(
-                                                                                            VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                            vendorId,
-                                                                                            vendorType, data)),
-                                                                    (TaggedStringData data) ->
-                                                                            new VendorSpecificAttribute<>(
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            TaggedStringData.class,
+                                                            new VendorSpecificAttribute.Codec<>(
+                                                                    dataCodec,
+                                                                    (type, vendorId, vendorType,
+                                                                            data) -> new VendorSpecificAttribute<>(
                                                                                     VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                    finalVendorId,
-                                                                                    intAttributeId,
-                                                                                    data));
+                                                                                    vendorId,
+                                                                                    vendorType, data)),
+                                                            (TaggedStringData data) -> new VendorSpecificAttribute<>(
+                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                    finalVendorId,
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case TAGGED_TEXT: {
                                                     DataCodec<TaggedTextData> dataCodec = TaggedTextData.Codec.INSTANCE;
 
                                                     if (usesUserPasswordEncryption) {
-                                                        dataCodec = new TaggedTextData.Codec(UserPasswordDataFilter.INSTANCE);
+                                                        dataCodec = new TaggedTextData.Codec(
+                                                                UserPasswordDataFilter.INSTANCE);
                                                     }
 
                                                     if (usesTunnelPasswordEncryption) {
-                                                        dataCodec = new TaggedTextData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                        dataCodec = new TaggedTextData.Codec(
+                                                                TunnelPasswordDataFilter.INSTANCE);
                                                     }
 
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    TextData.class,
-                                                                    new VendorSpecificAttribute.Codec<>(
-                                                                            dataCodec,
-                                                                            (type, vendorId, vendorType, data) ->
-                                                                                    new VendorSpecificAttribute<>(
-                                                                                            VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                            vendorId,
-                                                                                            vendorType, data)),
-                                                                    (TextData data) ->
-                                                                            new VendorSpecificAttribute<>(
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            TextData.class,
+                                                            new VendorSpecificAttribute.Codec<>(
+                                                                    dataCodec,
+                                                                    (type, vendorId, vendorType,
+                                                                            data) -> new VendorSpecificAttribute<>(
                                                                                     VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                    finalVendorId,
-                                                                                    intAttributeId,
-                                                                                    data));
+                                                                                    vendorId,
+                                                                                    vendorType, data)),
+                                                            (TextData data) -> new VendorSpecificAttribute<>(
+                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                    finalVendorId,
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case TEXT: {
                                                     DataCodec<TextData> dataCodec = TextData.Codec.INSTANCE;
 
@@ -976,34 +949,33 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     }
 
                                                     if (usesTunnelPasswordEncryption) {
-                                                        dataCodec = new TextData.Codec(TunnelPasswordDataFilter.INSTANCE);
+                                                        dataCodec = new TextData.Codec(
+                                                                TunnelPasswordDataFilter.INSTANCE);
                                                     }
 
-                                                    AttributeDefinition<?, ?> attributeDefinition =
-                                                            new AttributeDefinition<>(
-                                                                    attributeType,
-                                                                    fullName,
-                                                                    VendorSpecificAttribute.class,
-                                                                    TextData.class,
-                                                                    new VendorSpecificAttribute.Codec<>(
-                                                                            dataCodec,
-                                                                            (type, vendorId, vendorType, data) ->
-                                                                                    new VendorSpecificAttribute<>(
-                                                                                            VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                            vendorId,
-                                                                                            vendorType, data)),
-                                                                    (TextData data) ->
-                                                                            new VendorSpecificAttribute<>(
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            VendorSpecificAttribute.class,
+                                                            TextData.class,
+                                                            new VendorSpecificAttribute.Codec<>(
+                                                                    dataCodec,
+                                                                    (type, vendorId, vendorType,
+                                                                            data) -> new VendorSpecificAttribute<>(
                                                                                     VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                    finalVendorId,
-                                                                                    intAttributeId,
-                                                                                    data));
+                                                                                    vendorId,
+                                                                                    vendorType, data)),
+                                                            (TextData data) -> new VendorSpecificAttribute<>(
+                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
+                                                                    finalVendorId,
+                                                                    intAttributeId,
+                                                                    data));
 
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    break;
                                                 }
-                                                break;
                                                 case TIME:
                                                     break;
                                                 case TLV:
@@ -1028,8 +1000,8 @@ public class FreeRadiusDictionary implements Dictionary {
                                                 ? attributeName
                                                 : String.format("%s-%s", currentVendorName, attributeName);
 
-                                        AttributeDefinition<?, ?> attributeDefinition =
-                                                nameAttributeDefinitionsMap.get(fullName.toLowerCase(Locale.ROOT));
+                                        AttributeDefinition<?, ?> attributeDefinition = nameAttributeDefinitionsMap
+                                                .get(fullName.toLowerCase(Locale.ROOT));
 
                                         if (attributeDefinition == null) {
                                             // No attribute found for the value (shouldn't happen if all attributes are
@@ -1042,9 +1014,8 @@ public class FreeRadiusDictionary implements Dictionary {
                                             break tokens;
                                         }
 
-                                        Map<String, Integer> valuesMap =
-                                                numericAttributeValueMap.computeIfAbsent(
-                                                        attributeDefinition.getIdentifier(), k -> new HashMap<>());
+                                        Map<String, Integer> valuesMap = numericAttributeValueMap.computeIfAbsent(
+                                                attributeDefinition.getIdentifier(), k -> new HashMap<>());
 
                                         valuesMap.put(valueName.toLowerCase(Locale.ROOT),
                                                 Integer.parseUnsignedInt(valueValue));
@@ -1076,9 +1047,9 @@ public class FreeRadiusDictionary implements Dictionary {
             throw new RuntimeException("Unable to load FreeRADIUS dictionary", e);
         }
 
-        typeAttributeDefinitionsMap.forEach((attributeType, attributeDefinition) ->
-                nameAttributeDefinitionsMap.put(attributeDefinition.getName().toLowerCase(Locale.ROOT),
-                        attributeDefinition));
+        typeAttributeDefinitionsMap.forEach((attributeType, attributeDefinition) -> nameAttributeDefinitionsMap.put(
+                attributeDefinition.getName().toLowerCase(Locale.ROOT),
+                attributeDefinition));
     }
 
     public FreeRadiusDictionary() {
@@ -1189,20 +1160,20 @@ public class FreeRadiusDictionary implements Dictionary {
                 if (hasTag) {
                     dataType = DataType.TAGGED_INTEGER;
                 }
+                break;
             }
-            break;
             case STRING: {
                 if (hasTag) {
                     dataType = hasEncryption ? DataType.TAGGED_STRING : DataType.OPTIONAL_TAGGED_STRING;
                 }
+                break;
             }
-            break;
             case TEXT: {
                 if (hasTag) {
                     dataType = hasEncryption ? DataType.TAGGED_TEXT : DataType.OPTIONAL_TAGGED_TEXT;
                 }
+                break;
             }
-            break;
         }
 
         return dataType;

@@ -101,7 +101,7 @@ public class Packet {
      *
      * @param aClass attribute type class
      * @param <A> attribute type for {@code aClass} parameter
-     * 
+     *
      * @return optional with the first attribute of the specified class (or empty optional)
      */
     public <A extends Attribute<?>> Optional<A> getAttribute(Class<A> aClass) {
@@ -116,7 +116,7 @@ public class Packet {
      *
      * @param aClass attribute type class
      * @param <A> attribute type for {@code aClass} parameter
-     * 
+     *
      * @return list of attributes of the given class
      */
     public <A extends Attribute<?>> List<A> getAttributes(Class<A> aClass) {

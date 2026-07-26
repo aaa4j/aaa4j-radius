@@ -34,4 +34,3 @@ public final class Pmip6VisitedDhcp4ServerAddress extends StandardAttribute<Ipv4
     }
 
 }
-

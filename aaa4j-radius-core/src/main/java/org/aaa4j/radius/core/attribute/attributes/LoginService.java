@@ -21,7 +21,7 @@ import org.aaa4j.radius.core.attribute.EnumData;
 import org.aaa4j.radius.core.attribute.StandardAttribute;
 
 /**
- * 	Login-Service (15) attribute.
+ * Login-Service (15) attribute.
  */
 public final class LoginService extends StandardAttribute<EnumData> {
 

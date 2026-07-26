@@ -29,7 +29,7 @@ import java.util.Objects;
  * @param <A> the concrete attribute type parameter
  * @param <D> the concrete data type parameter
  */
-public final class AttributeDefinition <A extends Attribute<D>, D extends Data> {
+public final class AttributeDefinition<A extends Attribute<D>, D extends Data> {
 
     private final AttributeType type;
 

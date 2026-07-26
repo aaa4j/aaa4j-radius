@@ -40,8 +40,8 @@ import java.util.Arrays;
  */
 public final class UdpRadiusClient extends AbstractRadiusClient {
 
-    private static final RetransmissionStrategy DEFAULT_RETRANSMISSION_STRATEGY
-            = new IntervalRetransmissionStrategy(3, Duration.ofSeconds(5));
+    private static final RetransmissionStrategy DEFAULT_RETRANSMISSION_STRATEGY = new IntervalRetransmissionStrategy(3,
+            Duration.ofSeconds(5));
 
     private final RetransmissionStrategy retransmissionStrategy;
 
@@ -150,7 +150,7 @@ public final class UdpRadiusClient extends AbstractRadiusClient {
          * will be used that will attempt a maximum of three attempts at a 5-second interval.
          *
          * @param retransmissionStrategy the retransmission strategy to use
-         * 
+         *
          * @return this builder
          */
         public Builder retransmissionStrategy(RetransmissionStrategy retransmissionStrategy) {

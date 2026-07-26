@@ -113,7 +113,7 @@ public final class PacketCodec {
      * @param request the request packet to encode
      * @param secret the shared secret
      * @param requestAuthenticator the request authenticator (must be 16 bytes in length); populated by this method for
-     *                             Accounting-Request packets
+     * Accounting-Request packets
      *
      * @return byte array of the encoded request packet
      *

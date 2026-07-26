@@ -31,7 +31,7 @@ public interface AttributeCodec {
      *
      * @param codecContext the codec context
      * @param attributeStack the current attribute stack
-     * 
+     *
      * @return number of attributes which should not be processed anymore (i.e., because they contain invalid data or
      * because the codec has processed them and knows that they don't contain any encapsulated attributes to parse).
      */

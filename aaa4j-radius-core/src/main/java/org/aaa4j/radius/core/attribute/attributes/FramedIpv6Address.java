@@ -34,4 +34,3 @@ public final class FramedIpv6Address extends StandardAttribute<Ipv6AddrData> {
     }
 
 }
-

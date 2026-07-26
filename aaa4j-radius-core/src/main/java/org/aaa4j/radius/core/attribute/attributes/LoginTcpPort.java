@@ -21,7 +21,7 @@ import org.aaa4j.radius.core.attribute.IntegerData;
 import org.aaa4j.radius.core.attribute.StandardAttribute;
 
 /**
- * 	Login-TCP-Port (16) attribute.
+ * Login-TCP-Port (16) attribute.
  */
 public final class LoginTcpPort extends StandardAttribute<IntegerData> {
 

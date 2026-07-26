@@ -30,7 +30,7 @@ public class TunnelPasswordDataFilter implements DataFilter {
     @Override
     public byte[] decode(CodecContext codecContext, byte[] data) {
         if (data.length < 18) {
-             return null;
+            return null;
         }
 
         if (((data.length - 2) % 16) != 0) {
@@ -41,7 +41,7 @@ public class TunnelPasswordDataFilter implements DataFilter {
         System.arraycopy(data, 0, salt, 0, 2);
 
         if ((salt[0] & 0x80) != 0x80) {
-             return null;
+            return null;
         }
 
         byte[] paddedLengthAndPassword = new byte[data.length - 2];
@@ -73,7 +73,7 @@ public class TunnelPasswordDataFilter implements DataFilter {
         int passwordLength = paddedLengthAndPassword[0] & 0xff;
 
         if (passwordLength > paddedLengthAndPassword.length - 1) {
-             return null;
+            return null;
         }
 
         byte[] password = Arrays.copyOfRange(paddedLengthAndPassword, 1, passwordLength + 1);

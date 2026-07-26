@@ -29,7 +29,7 @@ public interface Dictionary {
      * Gets a packet definition for a given packet code
      *
      * @param code packet code (integer in range [0, 255])
-     * 
+     *
      * @return a packet definition or null if there's no definition for the packet code
      */
     PacketDefinition getPacketDefinition(int code);
@@ -38,7 +38,7 @@ public interface Dictionary {
      * Gets an attribute definition for a given attribute identifier.
      *
      * @param type an attribute identifier
-     * 
+     *
      * @return the attribute definition or null if there's no definition for the attribute type
      */
     AttributeDefinition<?, ?> getAttributeDefinition(AttributeType type);

@@ -21,7 +21,7 @@ import org.aaa4j.radius.core.attribute.StandardAttribute;
 import org.aaa4j.radius.core.attribute.TextData;
 
 /**
- * 	Callback-Id (20) attribute.
+ * Callback-Id (20) attribute.
  */
 public final class CallbackId extends StandardAttribute<TextData> {
 

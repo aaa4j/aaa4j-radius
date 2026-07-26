@@ -183,7 +183,7 @@ class PacketCodecTest {
                     accountingRequestAuthenticator);
 
             assertEquals("042a00295129abcd7a107c329bee6866d2887782200753534944312806000000" +
-                            "012c08616263313233",
+                    "012c08616263313233",
                     toHex(actual));
 
             assertEquals("5129abcd7a107c329bee6866d2887782",

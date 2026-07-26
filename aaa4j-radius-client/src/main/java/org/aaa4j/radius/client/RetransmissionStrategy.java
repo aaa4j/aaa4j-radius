@@ -35,7 +35,7 @@ public interface RetransmissionStrategy {
      * Gets the timeout duration that a client should wait before timing out.
      *
      * @param attempt the attempt number (starting at <code>0</code>)
-     * 
+     *
      * @return the timeout duration to wait for the given attempt
      */
     Duration timeoutForAttempt(int attempt);

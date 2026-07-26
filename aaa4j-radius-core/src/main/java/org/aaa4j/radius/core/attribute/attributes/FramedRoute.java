@@ -21,7 +21,7 @@ import org.aaa4j.radius.core.attribute.StandardAttribute;
 import org.aaa4j.radius.core.attribute.TextData;
 
 /**
- * 	Framed-Route (22) attribute.
+ * Framed-Route (22) attribute.
  */
 public final class FramedRoute extends StandardAttribute<TextData> {
 

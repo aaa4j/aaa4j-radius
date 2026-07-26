@@ -41,8 +41,8 @@ abstract class AbstractRadiusServer implements RadiusServer {
 
     static final int MAX_PACKET_SIZE = 4096;
 
-    static final Supplier<DeduplicationCache> DEFAULT_DEDUPLICATION_CACHE_SUPPLIER = () ->
-            new TimedDeduplicationCache(Duration.ofSeconds(30));
+    static final Supplier<DeduplicationCache> DEFAULT_DEDUPLICATION_CACHE_SUPPLIER = () -> new TimedDeduplicationCache(
+            Duration.ofSeconds(30));
 
     final CountDownLatch startCountDownLatch = new CountDownLatch(1);
 
@@ -80,6 +80,7 @@ abstract class AbstractRadiusServer implements RadiusServer {
         }
         else {
             this.executor = Executors.newCachedThreadPool(new ThreadFactory() {
+
                 private final AtomicLong threadNumber = new AtomicLong(1);
 
                 @Override
@@ -90,6 +91,7 @@ abstract class AbstractRadiusServer implements RadiusServer {
 
                     return thread;
                 }
+
             });
             this.isInternalExecutor = true;
         }
@@ -139,9 +141,8 @@ abstract class AbstractRadiusServer implements RadiusServer {
     }
 
     byte[] processRequest(InetSocketAddress clientSocketAddress, DeduplicationCache deduplicationCache, byte[] secret,
-                          byte[] requestPacketBytes, PacketProcessor packetProcessor)
-            throws PacketCodecException
-    {
+            byte[] requestPacketBytes, PacketProcessor packetProcessor)
+            throws PacketCodecException {
         byte[] responsePacketBytes = null;
 
         Packet requestPacket = packetCodec.decodeRequest(requestPacketBytes, secret);

@@ -70,25 +70,24 @@ public final class FreeRadiusAttributeFactory {
         Objects.requireNonNull(name);
         Objects.requireNonNull(value);
 
-        AttributeDefinition<?, ?> attributeDefinition =
-                dictionary.getAttributeDefinition(name.toLowerCase(Locale.ROOT));
+        AttributeDefinition<?, ?> attributeDefinition = dictionary
+                .getAttributeDefinition(name.toLowerCase(Locale.ROOT));
 
         if (attributeDefinition == null) {
             return null;
         }
 
         if (attributeDefinition.getDataClass().equals(EnumData.class)) {
-            Integer numericAttributeValue =
-                    dictionary.getNumericAttributeValue(attributeDefinition.getIdentifier(),
-                            value.toUpperCase(Locale.ROOT));
+            Integer numericAttributeValue = dictionary.getNumericAttributeValue(attributeDefinition.getIdentifier(),
+                    value.toUpperCase(Locale.ROOT));
 
             try {
                 EnumData data = numericAttributeValue != null
                         ? new EnumData(numericAttributeValue)
                         : new EnumData(new BigInteger(value).intValueExact());
 
-                AttributeFactory<EnumData> attributeFactory =
-                        (AttributeFactory<EnumData>) attributeDefinition.getAttributeFactory();
+                AttributeFactory<EnumData> attributeFactory = (AttributeFactory<EnumData>) attributeDefinition
+                        .getAttributeFactory();
 
                 return attributeFactory.build(data);
             }
@@ -100,8 +99,8 @@ public final class FreeRadiusAttributeFactory {
             try {
                 Integer64Data data = new Integer64Data(new BigInteger(value).longValueExact());
 
-                AttributeFactory<Integer64Data> attributeFactory =
-                        (AttributeFactory<Integer64Data>) attributeDefinition.getAttributeFactory();
+                AttributeFactory<Integer64Data> attributeFactory = (AttributeFactory<Integer64Data>) attributeDefinition
+                        .getAttributeFactory();
 
                 return attributeFactory.build(data);
             }
@@ -111,17 +110,16 @@ public final class FreeRadiusAttributeFactory {
         }
         else if (attributeDefinition.getDataClass().equals(IntegerData.class)) {
             // FreeRADIUS uses "integer" data type for enum attributes
-            Integer numericAttributeValue =
-                    dictionary.getNumericAttributeValue(attributeDefinition.getIdentifier(),
-                            value.toUpperCase(Locale.ROOT));
+            Integer numericAttributeValue = dictionary.getNumericAttributeValue(attributeDefinition.getIdentifier(),
+                    value.toUpperCase(Locale.ROOT));
 
             try {
                 IntegerData data = numericAttributeValue != null
                         ? new IntegerData(numericAttributeValue)
                         : new IntegerData(new BigInteger(value).intValueExact());
 
-                AttributeFactory<IntegerData> attributeFactory =
-                        (AttributeFactory<IntegerData>) attributeDefinition.getAttributeFactory();
+                AttributeFactory<IntegerData> attributeFactory = (AttributeFactory<IntegerData>) attributeDefinition
+                        .getAttributeFactory();
 
                 return attributeFactory.build(data);
             }
@@ -131,17 +129,16 @@ public final class FreeRadiusAttributeFactory {
         }
         else if (attributeDefinition.getDataClass().equals(TaggedIntegerData.class)) {
             // FreeRADIUS uses "integer" data type for enum attributes
-            Integer numericAttributeValue =
-                    dictionary.getNumericAttributeValue(attributeDefinition.getIdentifier(),
-                            value.toUpperCase(Locale.ROOT));
+            Integer numericAttributeValue = dictionary.getNumericAttributeValue(attributeDefinition.getIdentifier(),
+                    value.toUpperCase(Locale.ROOT));
 
             try {
                 TaggedIntegerData data = numericAttributeValue != null
                         ? new TaggedIntegerData(numericAttributeValue, 0)
                         : new TaggedIntegerData(new BigInteger(value).intValueExact(), 0);
 
-                AttributeFactory<TaggedIntegerData> attributeFactory =
-                        (AttributeFactory<TaggedIntegerData>) attributeDefinition.getAttributeFactory();
+                AttributeFactory<TaggedIntegerData> attributeFactory = (AttributeFactory<TaggedIntegerData>) attributeDefinition
+                        .getAttributeFactory();
 
                 return attributeFactory.build(data);
             }
@@ -161,8 +158,8 @@ public final class FreeRadiusAttributeFactory {
 
                 StringData data = new StringData(bytes);
 
-                AttributeFactory<StringData> attributeFactory =
-                        (AttributeFactory<StringData>) attributeDefinition.getAttributeFactory();
+                AttributeFactory<StringData> attributeFactory = (AttributeFactory<StringData>) attributeDefinition
+                        .getAttributeFactory();
 
                 return attributeFactory.build(data);
             }
@@ -182,8 +179,8 @@ public final class FreeRadiusAttributeFactory {
 
                 TaggedStringData data = new TaggedStringData(bytes, 0);
 
-                AttributeFactory<TaggedStringData> attributeFactory =
-                        (AttributeFactory<TaggedStringData>) attributeDefinition.getAttributeFactory();
+                AttributeFactory<TaggedStringData> attributeFactory = (AttributeFactory<TaggedStringData>) attributeDefinition
+                        .getAttributeFactory();
 
                 return attributeFactory.build(data);
             }
@@ -203,8 +200,8 @@ public final class FreeRadiusAttributeFactory {
 
                 OptionalTaggedStringData data = new OptionalTaggedStringData(bytes);
 
-                AttributeFactory<OptionalTaggedStringData> attributeFactory =
-                        (AttributeFactory<OptionalTaggedStringData>) attributeDefinition.getAttributeFactory();
+                AttributeFactory<OptionalTaggedStringData> attributeFactory = (AttributeFactory<OptionalTaggedStringData>) attributeDefinition
+                        .getAttributeFactory();
 
                 return attributeFactory.build(data);
             }
@@ -216,8 +213,8 @@ public final class FreeRadiusAttributeFactory {
             try {
                 TextData data = new TextData(value);
 
-                AttributeFactory<TextData> attributeFactory =
-                        (AttributeFactory<TextData>) attributeDefinition.getAttributeFactory();
+                AttributeFactory<TextData> attributeFactory = (AttributeFactory<TextData>) attributeDefinition
+                        .getAttributeFactory();
 
                 return attributeFactory.build(data);
             }
@@ -229,8 +226,8 @@ public final class FreeRadiusAttributeFactory {
             try {
                 TaggedTextData data = new TaggedTextData(value, 0);
 
-                AttributeFactory<TaggedTextData> attributeFactory =
-                        (AttributeFactory<TaggedTextData>) attributeDefinition.getAttributeFactory();
+                AttributeFactory<TaggedTextData> attributeFactory = (AttributeFactory<TaggedTextData>) attributeDefinition
+                        .getAttributeFactory();
 
                 return attributeFactory.build(data);
             }
@@ -242,8 +239,8 @@ public final class FreeRadiusAttributeFactory {
             try {
                 OptionalTaggedTextData data = new OptionalTaggedTextData(value);
 
-                AttributeFactory<OptionalTaggedTextData> attributeFactory =
-                        (AttributeFactory<OptionalTaggedTextData>) attributeDefinition.getAttributeFactory();
+                AttributeFactory<OptionalTaggedTextData> attributeFactory = (AttributeFactory<OptionalTaggedTextData>) attributeDefinition
+                        .getAttributeFactory();
 
                 return attributeFactory.build(data);
             }

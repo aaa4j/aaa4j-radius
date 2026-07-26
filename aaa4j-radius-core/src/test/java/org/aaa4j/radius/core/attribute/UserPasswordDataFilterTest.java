@@ -89,8 +89,7 @@ class UserPasswordDataFilterTest {
     @Test
     @DisplayName("UserPassword is encoded successfully")
     void testEncode() {
-        UserPasswordDataFilter userPasswordDataFilter =
-                new UserPasswordDataFilter();
+        UserPasswordDataFilter userPasswordDataFilter = new UserPasswordDataFilter();
 
         CodecContext codecContext = new CodecContext(new StandardDictionary(),
                 fromHex("d955e791c15fe6996434be163c8c019d21cd901b867600c2662e8a4628c5bff3"),
@@ -128,9 +127,9 @@ class UserPasswordDataFilterTest {
             byte[] hiddenPassword = userPasswordDataFilter.encode(codecContext, password);
 
             assertEquals("d12c94f154e9d2e504cba7a5229f3a5cf3e675578cc3abb486e814c9a97dd5d0" +
-                            "657fd2d428d79fa68b9be651ac0893a440e94a20e238962bc3de4b9184ccbb7c" +
-                            "72dfdb01a95d8c1d473daad70b763494a65dc6c705e276634f8040ae9af5d0b3" +
-                            "a501bb4ce27950968a2ce5926dfd2f1a5c642f59e615b4188389cfe99e518ea9",
+                    "657fd2d428d79fa68b9be651ac0893a440e94a20e238962bc3de4b9184ccbb7c" +
+                    "72dfdb01a95d8c1d473daad70b763494a65dc6c705e276634f8040ae9af5d0b3" +
+                    "a501bb4ce27950968a2ce5926dfd2f1a5c642f59e615b4188389cfe99e518ea9",
                     toHex(hiddenPassword));
         }
     }
