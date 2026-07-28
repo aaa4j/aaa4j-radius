@@ -17,20 +17,20 @@
 package org.aaa4j.radius.core.attribute.attributes;
 
 import org.aaa4j.radius.core.attribute.AttributeType;
-import org.aaa4j.radius.core.attribute.Ipv4PrefixData;
-import org.aaa4j.radius.core.attribute.StandardAttribute;
+import org.aaa4j.radius.core.attribute.LongExtendedAttribute;
+import org.aaa4j.radius.core.attribute.StringData;
 
 /**
- * PMIP6-Home-IPv4-HoA (155) attribute.
+ * DHCPv6-Options (245.3) attribute.
  */
-public final class Pmip6HomeIpv4HoA extends StandardAttribute<Ipv4PrefixData> {
+public final class Dhcpv6Options extends LongExtendedAttribute<StringData> {
 
-    public static final AttributeType TYPE = new AttributeType(155);
+    public static final AttributeType TYPE = new AttributeType(245, 3);
 
-    public static final String NAME = "PMIP6-Home-IPv4-HoA";
+    public static final String NAME = "DHCPv6-Options";
 
-    public Pmip6HomeIpv4HoA(Ipv4PrefixData data) {
-        super(TYPE.head(), data);
+    public Dhcpv6Options(StringData data) {
+        super(TYPE.head(), TYPE.at(1), data);
     }
 
 }
