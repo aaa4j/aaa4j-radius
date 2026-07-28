@@ -78,8 +78,8 @@ import org.aaa4j.radius.core.attribute.attributes.ConnectInfo;
 import org.aaa4j.radius.core.attribute.attributes.Cui;
 import org.aaa4j.radius.core.attribute.attributes.DelegatedIpv6Prefix;
 import org.aaa4j.radius.core.attribute.attributes.DelegatedIpv6PrefixPool;
-import org.aaa4j.radius.core.attribute.attributes.DhcpV4Options;
-import org.aaa4j.radius.core.attribute.attributes.DhcpV6Options;
+import org.aaa4j.radius.core.attribute.attributes.Dhcpv4Options;
+import org.aaa4j.radius.core.attribute.attributes.Dhcpv6Options;
 import org.aaa4j.radius.core.attribute.attributes.DigestAkaAuts;
 import org.aaa4j.radius.core.attribute.attributes.DigestAlgorithm;
 import org.aaa4j.radius.core.attribute.attributes.DigestAuthParam;
@@ -104,7 +104,7 @@ import org.aaa4j.radius.core.attribute.attributes.DsLiteTunnelName;
 import org.aaa4j.radius.core.attribute.attributes.EapKeyName;
 import org.aaa4j.radius.core.attribute.attributes.EapLowerLayer;
 import org.aaa4j.radius.core.attribute.attributes.EapMessage;
-import org.aaa4j.radius.core.attribute.attributes.EapOLAnnouncement;
+import org.aaa4j.radius.core.attribute.attributes.EapolAnnouncement;
 import org.aaa4j.radius.core.attribute.attributes.EapPeerId;
 import org.aaa4j.radius.core.attribute.attributes.EapServerId;
 import org.aaa4j.radius.core.attribute.attributes.EgressVlanName;
@@ -198,7 +198,7 @@ import org.aaa4j.radius.core.attribute.attributes.Pmip6HomeDhcp6ServerAddress;
 import org.aaa4j.radius.core.attribute.attributes.Pmip6HomeHnPrefix;
 import org.aaa4j.radius.core.attribute.attributes.Pmip6HomeInterfaceId;
 import org.aaa4j.radius.core.attribute.attributes.Pmip6HomeIpv4Gateway;
-import org.aaa4j.radius.core.attribute.attributes.Pmip6HomeIpv4HoA;
+import org.aaa4j.radius.core.attribute.attributes.Pmip6HomeIpv4Hoa;
 import org.aaa4j.radius.core.attribute.attributes.Pmip6HomeLmaIpv4Address;
 import org.aaa4j.radius.core.attribute.attributes.Pmip6HomeLmaIpv6Address;
 import org.aaa4j.radius.core.attribute.attributes.Pmip6VisitedDhcp4ServerAddress;
@@ -206,7 +206,7 @@ import org.aaa4j.radius.core.attribute.attributes.Pmip6VisitedDhcp6ServerAddress
 import org.aaa4j.radius.core.attribute.attributes.Pmip6VisitedHnPrefix;
 import org.aaa4j.radius.core.attribute.attributes.Pmip6VisitedInterfaceId;
 import org.aaa4j.radius.core.attribute.attributes.Pmip6VisitedIpv4Gateway;
-import org.aaa4j.radius.core.attribute.attributes.Pmip6VisitedIpv4HoA;
+import org.aaa4j.radius.core.attribute.attributes.Pmip6VisitedIpv4Hoa;
 import org.aaa4j.radius.core.attribute.attributes.Pmip6VisitedLmaIpv4Address;
 import org.aaa4j.radius.core.attribute.attributes.Pmip6VisitedLmaIpv6Address;
 import org.aaa4j.radius.core.attribute.attributes.PortLimit;
@@ -1967,27 +1967,27 @@ public final class StandardDictionary implements Dictionary {
                                 (type, data) -> new Pmip6VisitedInterfaceId(data)),
                         Pmip6VisitedInterfaceId::new));
 
-        typeAttributeDefinitionsMap.put(Pmip6HomeIpv4HoA.TYPE,
+        typeAttributeDefinitionsMap.put(Pmip6HomeIpv4Hoa.TYPE,
                 new AttributeDefinition<>(
-                        Pmip6HomeIpv4HoA.TYPE,
-                        Pmip6HomeIpv4HoA.NAME,
-                        Pmip6HomeIpv4HoA.class,
+                        Pmip6HomeIpv4Hoa.TYPE,
+                        Pmip6HomeIpv4Hoa.NAME,
+                        Pmip6HomeIpv4Hoa.class,
                         Ipv4PrefixData.class,
                         new StandardAttribute.Codec<>(
                                 Ipv4PrefixData.Codec.INSTANCE,
-                                (type, data) -> new Pmip6HomeIpv4HoA(data)),
-                        Pmip6HomeIpv4HoA::new));
+                                (type, data) -> new Pmip6HomeIpv4Hoa(data)),
+                        Pmip6HomeIpv4Hoa::new));
 
-        typeAttributeDefinitionsMap.put(Pmip6VisitedIpv4HoA.TYPE,
+        typeAttributeDefinitionsMap.put(Pmip6VisitedIpv4Hoa.TYPE,
                 new AttributeDefinition<>(
-                        Pmip6VisitedIpv4HoA.TYPE,
-                        Pmip6VisitedIpv4HoA.NAME,
-                        Pmip6VisitedIpv4HoA.class,
+                        Pmip6VisitedIpv4Hoa.TYPE,
+                        Pmip6VisitedIpv4Hoa.NAME,
+                        Pmip6VisitedIpv4Hoa.class,
                         Ipv4PrefixData.class,
                         new StandardAttribute.Codec<>(
                                 Ipv4PrefixData.Codec.INSTANCE,
-                                (type, data) -> new Pmip6VisitedIpv4HoA(data)),
-                        Pmip6VisitedIpv4HoA::new));
+                                (type, data) -> new Pmip6VisitedIpv4Hoa(data)),
+                        Pmip6VisitedIpv4Hoa::new));
 
         typeAttributeDefinitionsMap.put(Pmip6HomeDhcp4ServerAddress.TYPE,
                 new AttributeDefinition<>(
@@ -2242,15 +2242,15 @@ public final class StandardDictionary implements Dictionary {
                                 (type, data) -> new NetworkIdName(data)),
                         NetworkIdName::new));
 
-        typeAttributeDefinitionsMap.put(EapOLAnnouncement.TYPE,
+        typeAttributeDefinitionsMap.put(EapolAnnouncement.TYPE,
                 new AttributeDefinition<>(
-                        EapOLAnnouncement.TYPE,
-                        EapOLAnnouncement.NAME,
-                        EapOLAnnouncement.class,
+                        EapolAnnouncement.TYPE,
+                        EapolAnnouncement.NAME,
+                        EapolAnnouncement.class,
                         ConcatData.class,
                         new ConcatAttribute.Codec(
-                                (type, data) -> new EapOLAnnouncement(data)),
-                        EapOLAnnouncement::new));
+                                (type, data) -> new EapolAnnouncement(data)),
+                        EapolAnnouncement::new));
 
         typeAttributeDefinitionsMap.put(WlanHessid.TYPE,
                 new AttributeDefinition<>(
@@ -2604,27 +2604,27 @@ public final class StandardDictionary implements Dictionary {
                                 (type, extendedType, data) -> new SamlProtocol(data)),
                         SamlProtocol::new));
 
-        typeAttributeDefinitionsMap.put(DhcpV6Options.TYPE,
+        typeAttributeDefinitionsMap.put(Dhcpv6Options.TYPE,
                 new AttributeDefinition<>(
-                        DhcpV6Options.TYPE,
-                        DhcpV6Options.NAME,
-                        DhcpV6Options.class,
+                        Dhcpv6Options.TYPE,
+                        Dhcpv6Options.NAME,
+                        Dhcpv6Options.class,
                         StringData.class,
                         new LongExtendedAttribute.Codec<>(
                                 StringData.Codec.INSTANCE,
-                                (type, extendedType, data) -> new DhcpV6Options(data)),
-                        DhcpV6Options::new));
+                                (type, extendedType, data) -> new Dhcpv6Options(data)),
+                        Dhcpv6Options::new));
 
-        typeAttributeDefinitionsMap.put(DhcpV4Options.TYPE,
+        typeAttributeDefinitionsMap.put(Dhcpv4Options.TYPE,
                 new AttributeDefinition<>(
-                        DhcpV4Options.TYPE,
-                        DhcpV4Options.NAME,
-                        DhcpV4Options.class,
+                        Dhcpv4Options.TYPE,
+                        Dhcpv4Options.NAME,
+                        Dhcpv4Options.class,
                         StringData.class,
                         new LongExtendedAttribute.Codec<>(
                                 StringData.Codec.INSTANCE,
-                                (type, extendedType, data) -> new DhcpV4Options(data)),
-                        DhcpV4Options::new));
+                                (type, extendedType, data) -> new Dhcpv4Options(data)),
+                        Dhcpv4Options::new));
 
         typeAttributeDefinitionsMap.put(ExtendedVendorSpecific5.TYPE,
                 new AttributeDefinition<>(

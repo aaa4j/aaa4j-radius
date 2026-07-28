@@ -17,20 +17,20 @@
 package org.aaa4j.radius.core.attribute.attributes;
 
 import org.aaa4j.radius.core.attribute.AttributeType;
-import org.aaa4j.radius.core.attribute.ConcatAttribute;
-import org.aaa4j.radius.core.attribute.ConcatData;
+import org.aaa4j.radius.core.attribute.LongExtendedAttribute;
+import org.aaa4j.radius.core.attribute.StringData;
 
 /**
- * EAPoL-Announcement (180) attribute.
+ * DHCPv4-Options (245.4) attribute.
  */
-public final class EapOLAnnouncement extends ConcatAttribute {
+public final class Dhcpv4Options extends LongExtendedAttribute<StringData> {
 
-    public static final AttributeType TYPE = new AttributeType(180);
+    public static final AttributeType TYPE = new AttributeType(245, 4);
 
-    public static final String NAME = "EAPoL-Announcement";
+    public static final String NAME = "DHCPv4-Options";
 
-    public EapOLAnnouncement(ConcatData data) {
-        super(TYPE.head(), data);
+    public Dhcpv4Options(StringData data) {
+        super(TYPE.head(), TYPE.at(1), data);
     }
 
 }

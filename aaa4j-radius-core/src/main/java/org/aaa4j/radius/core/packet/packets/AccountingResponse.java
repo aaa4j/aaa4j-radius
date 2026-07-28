@@ -34,7 +34,7 @@ public final class AccountingResponse extends Packet {
     /**
      * Packet name.
      */
-    public static final String NAME = "Accounting-Request";
+    public static final String NAME = "Accounting-Response";
 
     /**
      * Constructs Accounting-Response packets.
