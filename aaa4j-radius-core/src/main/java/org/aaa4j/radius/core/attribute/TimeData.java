@@ -17,6 +17,7 @@
 package org.aaa4j.radius.core.attribute;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 /**
@@ -24,15 +25,28 @@ import java.util.Objects;
  */
 public final class TimeData extends Data {
 
+    /**
+     * The largest number of seconds since the epoch representable in 32 unsigned bits.
+     */
+    private static final long MAX_EPOCH_SECOND = 4294967295L;
+
     private final Instant value;
 
     /**
-     * Constructs time data from a given instant.
+     * Constructs time data from a given instant. "time" data has one-second resolution, so the instant is truncated to
+     * second precision and any sub-second component of the given instant is discarded.
      *
-     * @param value the instant
+     * @param value the instant (must be in range [1970-01-01T00:00:00Z, 2106-02-07T06:28:15Z])
      */
     public TimeData(Instant value) {
-        this.value = Objects.requireNonNull(value);
+        Objects.requireNonNull(value);
+
+        if (value.getEpochSecond() < 0 || value.getEpochSecond() > MAX_EPOCH_SECOND) {
+            throw new IllegalArgumentException(
+                    "Instant must be in range [1970-01-01T00:00:00Z, 2106-02-07T06:28:15Z]");
+        }
+
+        this.value = value.truncatedTo(ChronoUnit.SECONDS);
     }
 
     @Override
@@ -43,7 +57,7 @@ public final class TimeData extends Data {
     /**
      * Gets the time value.
      *
-     * @return the instant
+     * @return the instant, at second precision
      */
     public Instant getValue() {
         return value;
@@ -65,10 +79,10 @@ public final class TimeData extends Data {
                 return null;
             }
 
-            long value = (bytes[0] & 0xff) << 24
-                    | (bytes[1] & 0xff) << 16
-                    | (bytes[2] & 0xff) << 8
-                    | bytes[3] & 0xff;
+            long value = (bytes[0] & 0xffL) << 24
+                    | (bytes[1] & 0xffL) << 16
+                    | (bytes[2] & 0xffL) << 8
+                    | (bytes[3] & 0xffL);
 
             return new TimeData(Instant.ofEpochSecond(value));
         }
@@ -81,10 +95,10 @@ public final class TimeData extends Data {
 
             long value = timeData.value.getEpochSecond();
 
-            bytes[0] = (byte) ((value & 0xff000000) >>> 24);
-            bytes[1] = (byte) ((value & 0x00ff0000) >>> 16);
-            bytes[2] = (byte) ((value & 0x0000ff00) >>> 8);
-            bytes[3] = (byte) (value & 0x000000ff);
+            bytes[0] = (byte) ((value & 0xff000000L) >>> 24);
+            bytes[1] = (byte) ((value & 0x00ff0000L) >>> 16);
+            bytes[2] = (byte) ((value & 0x0000ff00L) >>> 8);
+            bytes[3] = (byte) (value & 0x000000ffL);
 
             return bytes;
         }

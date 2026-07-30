@@ -70,7 +70,7 @@ public final class Ipv4PrefixData extends Data {
         }
 
         this.prefixLength = prefixLength;
-        this.prefixBytes = prefixBytes;
+        this.prefixBytes = Arrays.copyOf(prefixBytes, prefixBytes.length);
 
         try {
             this.prefixAddress = (Inet4Address) Inet4Address.getByAddress(maskedPrefixBytes);
@@ -200,7 +200,7 @@ public final class Ipv4PrefixData extends Data {
         int addressValue = (addressBytes[0] & 0xff) << 24
                 | (addressBytes[1] & 0xff) << 16
                 | (addressBytes[2] & 0xff) << 8
-                | addressBytes[3] & 0xff;
+                | (addressBytes[3] & 0xff);
 
         int maskedAddressValue = prefixLength == 0 ? 0 : addressValue & (0xffffffff << (32 - prefixLength));
 

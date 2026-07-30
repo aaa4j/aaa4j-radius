@@ -28,12 +28,21 @@ public final class Ipv6AddrData extends Data {
     private final Inet6Address value;
 
     /**
-     * Constructs ipv6addr data from a given {@link Inet6Address} object.
+     * Constructs ipv6addr data from a given {@link Inet6Address} object. Only the 16 address octets are kept: a scope
+     * identifier or hostname carried by the given address has no wire representation and is discarded.
      *
      * @param value the Inet6Address object
      */
     public Ipv6AddrData(Inet6Address value) {
-        this.value = Objects.requireNonNull(value);
+        Objects.requireNonNull(value);
+
+        try {
+            this.value = Inet6Address.getByAddress(null, value.getAddress(), -1);
+        }
+        catch (UnknownHostException e) {
+            // Thrown if the address is an invalid length, which can't happen for an Inet6Address
+            throw new AssertionError(e);
+        }
     }
 
     @Override
@@ -67,7 +76,7 @@ public final class Ipv6AddrData extends Data {
             }
 
             try {
-                return new Ipv6AddrData((Inet6Address) Inet6Address.getByAddress(bytes));
+                return new Ipv6AddrData(Inet6Address.getByAddress(null, bytes, -1));
             }
             catch (UnknownHostException e) {
                 // Thrown if bytes is an invalid length, which is already handled

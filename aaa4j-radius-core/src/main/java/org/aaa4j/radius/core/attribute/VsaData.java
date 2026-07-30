@@ -46,9 +46,17 @@ public class VsaData extends ContainerData {
             throw new IllegalArgumentException("Vendor type must be in range [0, 255]");
         }
 
+        Objects.requireNonNull(vsaData);
+
+        // The vendor data shares a 255-byte attribute with the attribute header (2), the vendor identifier (4), the
+        // vendor type (1) and the vendor length (1)
+        if (vsaData.length > 247) {
+            throw new IllegalArgumentException("Vendor data length must be in range [0, 247]");
+        }
+
         this.vendorId = vendorId;
         this.vendorType = vendorType;
-        this.vsaData = Objects.requireNonNull(vsaData);
+        this.vsaData = vsaData;
     }
 
     @Override
@@ -107,7 +115,7 @@ public class VsaData extends ContainerData {
             int vendorId = (bytes[0] & 0xff) << 24
                     | (bytes[1] & 0xff) << 16
                     | (bytes[2] & 0xff) << 8
-                    | bytes[3] & 0xff;
+                    | (bytes[3] & 0xff);
 
             int vendorType = bytes[4] & 0xff;
             int vsaDataLength = bytes[5] & 0xff;

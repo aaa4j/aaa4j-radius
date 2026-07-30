@@ -17,6 +17,8 @@
 package org.aaa4j.radius.core.attribute;
 
 import org.aaa4j.radius.core.attribute.TlvData.Tlv;
+import org.aaa4j.radius.core.dictionary.Dictionary;
+import org.aaa4j.radius.core.dictionary.TlvDefinition;
 import org.aaa4j.radius.core.dictionary.dictionaries.StandardDictionary;
 import org.aaa4j.radius.core.util.SecureRandomProvider;
 import org.junit.jupiter.api.DisplayName;
@@ -35,6 +37,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @DisplayName("TlvData")
 class TlvDataTest {
@@ -55,6 +59,16 @@ class TlvDataTest {
         assertThrows(IllegalArgumentException.class, () -> {
             // TLV data length is too long
             new TlvData(List.of(new Tlv(10, new StringData(new byte[256]))));
+        });
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            // TLV data is empty
+            new TlvData(List.of(new Tlv(10, new StringData(new byte[0]))));
+        });
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            // A tlv attribute must contain at least one TLV
+            new TlvData(List.of());
         });
     }
 
@@ -199,6 +213,64 @@ class TlvDataTest {
     }
 
     @Test
+    @DisplayName("tlv data with a length above 127 round trips successfully")
+    void testLongTlv() {
+        // A TLV carrying 200 bytes of data has a TLV-Length of 202, which sets the high bit of the length byte
+        byte[] localId = new byte[200];
+
+        for (int i = 0; i < localId.length; i++) {
+            localId[i] = (byte) i;
+        }
+
+        CodecContext codecContext = new CodecContext(new StandardDictionary(), new byte[32], new byte[16],
+                new SecureRandomProvider());
+
+        // IP-Port-Local-Id (241.6.11) carries string data
+        TlvData tlvData = new TlvData(List.of(new Tlv(11, new StringData(localId))));
+
+        byte[] encoded = TlvData.Codec.INSTANCE.encode(codecContext, new AttributeType(241, 6), tlvData);
+
+        assertEquals(202, encoded.length);
+        assertEquals(0x0b, encoded[0] & 0xff);
+        assertEquals(0xca, encoded[1] & 0xff);
+
+        TlvData decoded = TlvData.Codec.INSTANCE.decode(codecContext, new AttributeType(241, 6), encoded);
+
+        assertNotNull(decoded);
+        assertEquals(1, decoded.getTlvs().size());
+        assertEquals(11, decoded.getTlvs().get(0).getType());
+        assertThat(decoded.getTlvs().get(0).getData(), instanceOf(StringData.class));
+        assertEquals(toHex(localId), toHex(((StringData) decoded.getTlvs().get(0).getData()).getValue()));
+    }
+
+    @Test
+    @DisplayName("tlv data with a type above 127 is decoded successfully")
+    void testDecodeHighTlvType() {
+        AttributeType tlvAttributeType = new AttributeType(241, 6, 200);
+
+        Dictionary mockedDictionary = mock(Dictionary.class);
+
+        when(mockedDictionary.getTlvDefinition(tlvAttributeType))
+                .thenReturn(new TlvDefinition(tlvAttributeType, "Test-Tlv", StringData.Codec.INSTANCE));
+
+        CodecContext codecContext = new CodecContext(mockedDictionary, new byte[32], new byte[16],
+                new SecureRandomProvider());
+
+        byte[] encoded = fromHex("c804abcd");
+
+        TlvData tlvData = TlvData.Codec.INSTANCE.decode(codecContext, new AttributeType(241, 6), encoded);
+
+        assertNotNull(tlvData);
+
+        List<Tlv> tlvs = tlvData.getTlvs();
+
+        assertEquals(1, tlvs.size());
+        assertEquals(200, tlvs.get(0).getType());
+        assertThat(tlvs.get(0).getData(), instanceOf(StringData.class));
+        assertEquals("abcd", toHex(((StringData) tlvs.get(0).getData()).getValue()));
+    }
+
+    @Test
     @DisplayName("Invalid tlv data is decoded into null")
     void testDecodeInvalid() {
         CodecContext codecContext = new CodecContext(new StandardDictionary(), new byte[32], new byte[16],
@@ -231,6 +303,14 @@ class TlvDataTest {
                     "0f050000000410060000001811060009e678");
 
             TlvData tlvData = TlvData.Codec.INSTANCE.decode(codecContext, new AttributeType(241, 9), encoded);
+
+            assertNull(tlvData);
+        }
+        {
+            // TLV length below the minimum of 3
+            byte[] encoded = fromHex("0b0200");
+
+            TlvData tlvData = TlvData.Codec.INSTANCE.decode(codecContext, new AttributeType(241, 6), encoded);
 
             assertNull(tlvData);
         }

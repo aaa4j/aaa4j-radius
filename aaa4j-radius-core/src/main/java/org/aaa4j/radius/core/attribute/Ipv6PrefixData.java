@@ -33,11 +33,11 @@ public final class Ipv6PrefixData extends Data {
     private final Inet6Address prefixAddress;
 
     /**
-     * Constructs ipv6prefix data from a given prefix length and prefix bytes. The prefix bytes may be longer than
+     * Constructs ipv6prefix data from a given prefix length and prefix bytes. The prefix bytes may be longer than the
      * prefix length allows but must contain zero bits outside of the prefix length.
      *
      * @param prefixLength the prefix length (int in range [0, 128])
-     * @param prefixBytes the prefix byte array
+     * @param prefixBytes the prefix byte array (length in range [0, 16])
      */
     public Ipv6PrefixData(int prefixLength, byte[] prefixBytes) {
         if (prefixLength > 128 || prefixLength < 0) {
@@ -50,6 +50,10 @@ public final class Ipv6PrefixData extends Data {
             throw new IllegalArgumentException("Prefix bytes is not large enough to contain the prefix length");
         }
 
+        if (prefixBytes.length > 16) {
+            throw new IllegalArgumentException("Prefix bytes must have length in range [0, 16]");
+        }
+
         byte[] maskedPrefixBytes = mask(prefixLength, prefixBytes);
 
         for (int i = 0; i < prefixBytes.length; i++) {
@@ -60,10 +64,13 @@ public final class Ipv6PrefixData extends Data {
         }
 
         this.prefixLength = prefixLength;
+
+        // The caller's length is preserved rather than trimmed to what the prefix length needs: a decoded prefix
+        // then re-encodes to the octets it arrived as, which matters when proxying
         this.prefixBytes = Arrays.copyOf(maskedPrefixBytes, prefixBytes.length);
 
         try {
-            this.prefixAddress = (Inet6Address) Inet6Address.getByAddress(maskedPrefixBytes);
+            this.prefixAddress = Inet6Address.getByAddress(null, maskedPrefixBytes, -1);
         }
         catch (UnknownHostException e) {
             // Thrown if bytes is an invalid length, which shouldn't happen
@@ -100,7 +107,7 @@ public final class Ipv6PrefixData extends Data {
         this.prefixBytes = Arrays.copyOf(maskedPrefixBytes, ((prefixLength + 7) / 8));
 
         try {
-            this.prefixAddress = (Inet6Address) Inet6Address.getByAddress(maskedPrefixBytes);
+            this.prefixAddress = Inet6Address.getByAddress(null, maskedPrefixBytes, -1);
         }
         catch (UnknownHostException e) {
             // Thrown if bytes is an invalid length, which shouldn't happen

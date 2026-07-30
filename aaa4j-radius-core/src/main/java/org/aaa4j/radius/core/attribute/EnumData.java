@@ -66,7 +66,7 @@ public final class EnumData extends Data {
             int value = (bytes[0] & 0xff) << 24
                     | (bytes[1] & 0xff) << 16
                     | (bytes[2] & 0xff) << 8
-                    | bytes[3] & 0xff;
+                    | (bytes[3] & 0xff);
 
             return new EnumData(value);
         }

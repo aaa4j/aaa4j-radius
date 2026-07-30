@@ -35,6 +35,15 @@ class VsaDataTest {
         assertThrows(NullPointerException.class, () -> {
             new VsaData(32473, 58, null);
         });
+
+        // The largest vendor data that fits in an attribute alongside its header, vendor id, vendor type and
+        // vendor length
+        assertEquals(253, new VsaData(32473, 58, new byte[247]).length());
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            // One byte more would wrap the vendor length field
+            new VsaData(32473, 58, new byte[248]);
+        });
     }
 
     @Test

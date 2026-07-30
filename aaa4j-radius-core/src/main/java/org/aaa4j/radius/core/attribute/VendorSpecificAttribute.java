@@ -52,8 +52,8 @@ public class VendorSpecificAttribute<D extends Data> extends Attribute<D> {
             throw new IllegalArgumentException("Vendor type must be in range [0, 255]");
         }
 
-        if (data.length() > 248) {
-            throw new IllegalArgumentException("Data length must be in range [0, 248]");
+        if (data.length() > 247) {
+            throw new IllegalArgumentException("Data length must be in range [0, 247]");
         }
 
         this.vendorId = vendorId;

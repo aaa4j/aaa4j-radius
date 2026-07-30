@@ -50,6 +50,30 @@ class Ipv6AddrDataTest {
     }
 
     @Test
+    @DisplayName("Scope identifier is discarded on construction")
+    void testScopeIdDiscarded() throws UnknownHostException {
+        byte[] linkLocal = fromHex("fe800000000000000000000000000001");
+
+        {
+            Ipv6AddrData ipv6AddrData = new Ipv6AddrData(Inet6Address.getByAddress(null, linkLocal, 3));
+
+            // The wire form has no scope field, so getValue() must not claim one
+            assertEquals(0, ipv6AddrData.getValue().getScopeId());
+            assertEquals("fe800000000000000000000000000001",
+                    toHex(Ipv6AddrData.Codec.INSTANCE.encode(null, null, ipv6AddrData)));
+        }
+        {
+            // An IPv4-mapped address still keeps all 16 octets through the rebuild
+            Ipv6AddrData ipv6AddrData = new Ipv6AddrData(
+                    Inet6Address.getByAddress(null, fromHex("00000000000000000000ffff01020304"), 7));
+
+            assertEquals(0, ipv6AddrData.getValue().getScopeId());
+            assertEquals("00000000000000000000ffff01020304",
+                    toHex(Ipv6AddrData.Codec.INSTANCE.encode(null, null, ipv6AddrData)));
+        }
+    }
+
+    @Test
     @DisplayName("ipv6addr data is decoded successfully")
     void testDecode() throws UnknownHostException {
         byte[] encoded = fromHex("20010db800000000000000000000002a");
@@ -58,6 +82,32 @@ class Ipv6AddrDataTest {
 
         assertNotNull(ipv6AddrData);
         assertEquals(Inet6Address.getByName("2001:db8::2a"), ipv6AddrData.getValue());
+    }
+
+    @Test
+    @DisplayName("IPv4-mapped and IPv4-compatible addresses round trip")
+    void testIpv4MappedAddresses() {
+        {
+            // ::ffff:1.2.3.4 is a valid IPv6 address, but InetAddress.getByAddress(byte[]) hands back an
+            // Inet4Address for these 16 octets
+            byte[] encoded = fromHex("00000000000000000000ffff01020304");
+
+            Ipv6AddrData ipv6AddrData = Ipv6AddrData.Codec.INSTANCE.decode(null, null, encoded);
+
+            assertNotNull(ipv6AddrData);
+            assertEquals("00000000000000000000ffff01020304",
+                    toHex(Ipv6AddrData.Codec.INSTANCE.encode(null, null, ipv6AddrData)));
+        }
+        {
+            // ::1.2.3.4, the IPv4-compatible form
+            byte[] encoded = fromHex("00000000000000000000000001020304");
+
+            Ipv6AddrData ipv6AddrData = Ipv6AddrData.Codec.INSTANCE.decode(null, null, encoded);
+
+            assertNotNull(ipv6AddrData);
+            assertEquals("00000000000000000000000001020304",
+                    toHex(Ipv6AddrData.Codec.INSTANCE.encode(null, null, ipv6AddrData)));
+        }
     }
 
     @Test

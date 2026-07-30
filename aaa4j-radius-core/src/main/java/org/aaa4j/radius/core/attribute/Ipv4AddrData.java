@@ -28,12 +28,21 @@ public final class Ipv4AddrData extends Data {
     private final Inet4Address value;
 
     /**
-     * Constructs ipv4addr data from a given {@link Inet4Address} object.
+     * Constructs ipv4addr data from a given {@link Inet4Address} object. Only the four address octets are kept: a
+     * hostname carried by the given address has no wire representation and is discarded.
      *
      * @param value the Inet4Address object
      */
     public Ipv4AddrData(Inet4Address value) {
-        this.value = Objects.requireNonNull(value);
+        Objects.requireNonNull(value);
+
+        try {
+            this.value = (Inet4Address) Inet4Address.getByAddress(value.getAddress());
+        }
+        catch (UnknownHostException e) {
+            // Thrown if the address is an invalid length, which can't happen for an Inet4Address
+            throw new AssertionError(e);
+        }
     }
 
     @Override

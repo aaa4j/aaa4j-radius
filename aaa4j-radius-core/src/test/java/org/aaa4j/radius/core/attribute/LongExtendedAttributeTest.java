@@ -87,6 +87,11 @@ class LongExtendedAttributeTest {
         assertThrows(IllegalArgumentException.class, () -> {
             new LongExtendedAttribute<>(241, 256, new IntegerData(256));
         });
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            // Empty data produces no fragments at all, so the attribute would vanish from the packet
+            new LongExtendedAttribute<>(245, 1, new StringData(new byte[0]));
+        });
     }
 
     @Test
