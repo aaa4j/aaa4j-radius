@@ -44,6 +44,11 @@ class EvsDataTest {
         assertThrows(NullPointerException.class, () -> {
             new EvsData(32473, 10, null);
         });
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            // The vendor data field must carry at least one byte
+            new EvsData(32473, 10, new byte[0]);
+        });
     }
 
     @Test
@@ -72,6 +77,33 @@ class EvsDataTest {
     }
 
     @Test
+    @DisplayName("evs data with a high vendor type is decoded successfully")
+    void testDecodeHighVendorType() {
+        {
+            // Vendor type 128, the lowest vendor type with the high bit set
+            byte[] encoded = fromHex("00007ed980e1273a01729a");
+
+            EvsData evsData = EvsData.Codec.INSTANCE.decode(null, null, encoded);
+
+            assertNotNull(evsData);
+            assertEquals(32473, evsData.getVendorId());
+            assertEquals(128, evsData.getVendorType());
+            assertEquals("e1273a01729a", toHex(evsData.getEvsData()));
+        }
+        {
+            // Vendor type 255, the highest vendor type
+            byte[] encoded = fromHex("00007ed9ffe1273a01729a");
+
+            EvsData evsData = EvsData.Codec.INSTANCE.decode(null, null, encoded);
+
+            assertNotNull(evsData);
+            assertEquals(32473, evsData.getVendorId());
+            assertEquals(255, evsData.getVendorType());
+            assertEquals("e1273a01729a", toHex(evsData.getEvsData()));
+        }
+    }
+
+    @Test
     @DisplayName("evs data is encoded successfully")
     void testEncode() {
         EvsData evsData = new EvsData(32473, 10, fromHex("e1273a01729a"));
@@ -81,11 +113,27 @@ class EvsDataTest {
     }
 
     @Test
+    @DisplayName("evs data with a high vendor type is encoded successfully")
+    void testEncodeHighVendorType() {
+        EvsData evsData = new EvsData(32473, 255, fromHex("e1273a01729a"));
+        byte[] encoded = EvsData.Codec.INSTANCE.encode(null, null, evsData);
+
+        assertEquals("00007ed9ffe1273a01729a", toHex(encoded));
+    }
+
+    @Test
     @DisplayName("Invalid evs data is decoded into null")
     void testDecodeInvalid() {
         {
             // Too few bytes
             byte[] encoded = fromHex("00007ed9");
+            EvsData evsData = EvsData.Codec.INSTANCE.decode(null, null, encoded);
+
+            assertNull(evsData);
+        }
+        {
+            // Vendor id and vendor type but no vendor data
+            byte[] encoded = fromHex("00007ed90a");
             EvsData evsData = EvsData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(evsData);

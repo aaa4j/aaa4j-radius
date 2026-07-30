@@ -44,6 +44,11 @@ class ExtendedDataTest {
         assertThrows(IllegalArgumentException.class, () -> {
             new ExtendedData(256, new byte[] { 0x00, 0x01 });
         });
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            // The value field must carry at least one byte
+            new ExtendedData(3, new byte[0]);
+        });
     }
 
     @Test
@@ -83,11 +88,20 @@ class ExtendedDataTest {
     @Test
     @DisplayName("Invalid extended data is decoded into null")
     void testDecodeInvalid() {
-        // Too few bytes
-        byte[] encoded = fromHex("");
-        ExtendedData extendedData = ExtendedData.Codec.INSTANCE.decode(null, null, encoded);
+        {
+            // Too few bytes
+            byte[] encoded = fromHex("");
+            ExtendedData extendedData = ExtendedData.Codec.INSTANCE.decode(null, null, encoded);
 
-        assertNull(extendedData);
+            assertNull(extendedData);
+        }
+        {
+            // Extended type but no value
+            byte[] encoded = fromHex("03");
+            ExtendedData extendedData = ExtendedData.Codec.INSTANCE.decode(null, null, encoded);
+
+            assertNull(extendedData);
+        }
     }
 
 }

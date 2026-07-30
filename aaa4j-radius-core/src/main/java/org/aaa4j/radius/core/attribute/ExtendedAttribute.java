@@ -43,8 +43,8 @@ public class ExtendedAttribute<D extends Data> extends Attribute<D> {
             throw new IllegalArgumentException("Extended type must be in range [0, 255]");
         }
 
-        if (data.length() > 252) {
-            throw new IllegalArgumentException("Data length must be in range [0, 252]");
+        if (data.length() < 1 || data.length() > 252) {
+            throw new IllegalArgumentException("Data length must be in range [1, 252]");
         }
 
         this.extendedType = extendedType;

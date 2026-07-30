@@ -47,6 +47,12 @@ public class LongExtendedAttribute<D extends Data> extends Attribute<D> {
             throw new IllegalArgumentException("Extended type must be in range [0, 255]");
         }
 
+        // Data is fragmented across as many attributes as it needs, so there's no upper bound here, but empty data
+        // would produce no fragments at all and the attribute would silently disappear from the packet
+        if (data.length() < 1) {
+            throw new IllegalArgumentException("Data length must be at least 1");
+        }
+
         this.extendedType = extendedType;
     }
 

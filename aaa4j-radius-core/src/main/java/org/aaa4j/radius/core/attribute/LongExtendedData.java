@@ -48,6 +48,10 @@ public class LongExtendedData extends ContainerData {
 
         Objects.requireNonNull(extData);
 
+        if (extData.length < 1) {
+            throw new IllegalArgumentException("Extended data length must be in range [1, 251]");
+        }
+
         this.extendedType = extendedType;
         this.extData = extData;
         this.more = more;
@@ -112,7 +116,8 @@ public class LongExtendedData extends ContainerData {
 
         @Override
         public LongExtendedData decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
-            if (bytes.length < 2) {
+            if (bytes.length < 3) {
+                // The value field must contain at least one byte
                 return null;
             }
 

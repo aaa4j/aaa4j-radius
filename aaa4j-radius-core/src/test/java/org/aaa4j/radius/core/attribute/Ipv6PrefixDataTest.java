@@ -60,6 +60,11 @@ class Ipv6PrefixDataTest {
             new Ipv6PrefixData(64, new byte[] {});
         });
 
+        assertThrows(IllegalArgumentException.class, () -> {
+            // More prefix bytes than an IPv6 address has
+            new Ipv6PrefixData(64, fromHex("20010db800000000000000000000000000"));
+        });
+
         assertThrows(NullPointerException.class, () -> {
             // Prefix address is null
             new Ipv6PrefixData(128, (Inet6Address) null);
@@ -83,6 +88,7 @@ class Ipv6PrefixDataTest {
             assertEquals(Inet6Address.getByName("::"), ipv6PrefixData.getPrefixAddress());
         }
         {
+            // More prefix bytes than the prefix length needs: preserved as given
             Ipv6PrefixData ipv6PrefixData = new Ipv6PrefixData(32, fromHex("20010db8000000000000000000000000"));
 
             assertEquals(18, ipv6PrefixData.length());
@@ -125,9 +131,31 @@ class Ipv6PrefixDataTest {
     }
 
     @Test
+    @DisplayName("The byte array constructor preserves length, the address constructor minimises it")
+    void testConstructorLengthContract() throws UnknownHostException {
+        // A byte array carries a length the caller chose, so it is kept and re-encoded as given
+        Ipv6PrefixData fromBytes = new Ipv6PrefixData(32, fromHex("20010db8000000000000000000000000"));
+
+        assertEquals(16, fromBytes.getPrefixBytes().length);
+        assertEquals("002020010db8000000000000000000000000",
+                toHex(Ipv6PrefixData.Codec.INSTANCE.encode(null, null, fromBytes)));
+
+        // An Inet6Address is always 16 octets and carries no length to preserve, so it is minimised
+        Ipv6PrefixData fromAddress = new Ipv6PrefixData(32, (Inet6Address) Inet6Address.getByName("2001:db8::"));
+
+        assertEquals(4, fromAddress.getPrefixBytes().length);
+        assertEquals("002020010db8", toHex(Ipv6PrefixData.Codec.INSTANCE.encode(null, null, fromAddress)));
+
+        // Both describe the same prefix
+        assertEquals(fromAddress.getPrefixAddress(), fromBytes.getPrefixAddress());
+        assertEquals(fromAddress.getPrefixLength(), fromBytes.getPrefixLength());
+    }
+
+    @Test
     @DisplayName("ipv6prefix data is decoded successfully")
     void testDecode() throws UnknownHostException {
         {
+            // Legal but longer than necessary on the wire; the octets received are kept
             byte[] encoded = fromHex("002020010db8000000000000000000000000");
 
             Ipv6PrefixData ipv6PrefixData = Ipv6PrefixData.Codec.INSTANCE.decode(null, null, encoded);
@@ -180,9 +208,37 @@ class Ipv6PrefixDataTest {
     }
 
     @Test
+    @DisplayName("IPv4-mapped prefixes round trip")
+    void testIpv4MappedPrefix() {
+        {
+            // ::ffff:0:0/96, whose masked octets are an IPv4-mapped address
+            byte[] encoded = fromHex("006000000000000000000000ffff0000");
+
+            Ipv6PrefixData ipv6PrefixData = Ipv6PrefixData.Codec.INSTANCE.decode(null, null, encoded);
+
+            assertNotNull(ipv6PrefixData);
+            assertEquals(96, ipv6PrefixData.getPrefixLength());
+            assertEquals("006000000000000000000000ffff0000",
+                    toHex(Ipv6PrefixData.Codec.INSTANCE.encode(null, null, ipv6PrefixData)));
+        }
+        {
+            // A /128 host route to ::ffff:1.2.3.4
+            byte[] encoded = fromHex("008000000000000000000000ffff01020304");
+
+            Ipv6PrefixData ipv6PrefixData = Ipv6PrefixData.Codec.INSTANCE.decode(null, null, encoded);
+
+            assertNotNull(ipv6PrefixData);
+            assertEquals(128, ipv6PrefixData.getPrefixLength());
+            assertEquals("008000000000000000000000ffff01020304",
+                    toHex(Ipv6PrefixData.Codec.INSTANCE.encode(null, null, ipv6PrefixData)));
+        }
+    }
+
+    @Test
     @DisplayName("ipv6prefix data is encoded successfully")
     void testEncode() {
         {
+            // Trailing zero octets beyond the prefix length are emitted as given
             Ipv6PrefixData ipv6PrefixData = new Ipv6PrefixData(32, fromHex("20010db8000000000000000000000000"));
             byte[] encoded = Ipv6PrefixData.Codec.INSTANCE.encode(null, null, ipv6PrefixData);
 

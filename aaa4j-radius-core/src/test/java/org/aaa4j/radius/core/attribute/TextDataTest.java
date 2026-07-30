@@ -23,6 +23,7 @@ import static org.aaa4j.radius.core.Utils.fromHex;
 import static org.aaa4j.radius.core.Utils.toHex;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("TextData")
@@ -34,6 +35,19 @@ class TextDataTest {
         assertThrows(NullPointerException.class, () -> {
             new TextData(null);
         });
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            // A high surrogate with no low surrogate following it can't be encoded as UTF-8
+            new TextData(String.valueOf((char) 0xd800));
+        });
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            // A low surrogate on its own can't be encoded as UTF-8 either
+            new TextData(String.valueOf((char) 0xdc00));
+        });
+
+        // A complete surrogate pair is an ordinary four-byte code point
+        assertEquals(4, new TextData(new String(new char[] { (char) 0xd83d, (char) 0xde00 })).length());
     }
 
     @Test
@@ -71,6 +85,92 @@ class TextDataTest {
 
             assertNotNull(textData);
             assertEquals("你好，世界", textData.getValue());
+        }
+    }
+
+    @Test
+    @DisplayName("Invalid UTF-8 text data is decoded into null")
+    void testDecodeInvalidUtf8() {
+        {
+            // Lone continuation byte
+            byte[] encoded = fromHex("ff");
+
+            assertNull(TextData.Codec.INSTANCE.decode(null, null, encoded));
+        }
+        {
+            // Two-byte sequence introducer followed by a byte that isn't a continuation byte
+            byte[] encoded = fromHex("c328");
+
+            assertNull(TextData.Codec.INSTANCE.decode(null, null, encoded));
+        }
+        {
+            // Truncated three-byte sequence: "你好，世界" missing its final byte
+            byte[] encoded = fromHex("e4bda0e5a5bdefbc8ce4b896e795");
+
+            assertNull(TextData.Codec.INSTANCE.decode(null, null, encoded));
+        }
+        {
+            // Surrogate half encoded as UTF-8 (CESU-8), which is not valid UTF-8
+            byte[] encoded = fromHex("eda080");
+
+            assertNull(TextData.Codec.INSTANCE.decode(null, null, encoded));
+        }
+        {
+            // Overlong encoding of "/"
+            byte[] encoded = fromHex("c0af");
+
+            assertNull(TextData.Codec.INSTANCE.decode(null, null, encoded));
+        }
+    }
+
+    @Test
+    @DisplayName("text data round trips unchanged")
+    void testDecodeIsLossless() {
+        {
+            // Empty
+            byte[] encoded = fromHex("");
+
+            TextData textData = TextData.Codec.INSTANCE.decode(null, null, encoded);
+
+            assertNotNull(textData);
+            assertEquals("", toHex(TextData.Codec.INSTANCE.encode(null, null, textData)));
+        }
+        {
+            // NUL, a valid one-byte code point that terminates a string in some languages
+            byte[] encoded = fromHex("00");
+
+            TextData textData = TextData.Codec.INSTANCE.decode(null, null, encoded);
+
+            assertNotNull(textData);
+            assertEquals("00", toHex(TextData.Codec.INSTANCE.encode(null, null, textData)));
+        }
+        {
+            // The highest one-byte code point
+            byte[] encoded = fromHex("7f");
+
+            TextData textData = TextData.Codec.INSTANCE.decode(null, null, encoded);
+
+            assertNotNull(textData);
+            assertEquals("7f", toHex(TextData.Codec.INSTANCE.encode(null, null, textData)));
+        }
+        {
+            // Two-byte code point: £
+            byte[] encoded = fromHex("c2a3");
+
+            TextData textData = TextData.Codec.INSTANCE.decode(null, null, encoded);
+
+            assertNotNull(textData);
+            assertEquals("c2a3", toHex(TextData.Codec.INSTANCE.encode(null, null, textData)));
+        }
+        {
+            // Four-byte code point, held as a surrogate pair in the Java string
+            byte[] encoded = fromHex("f09f9880");
+
+            TextData textData = TextData.Codec.INSTANCE.decode(null, null, encoded);
+
+            assertNotNull(textData);
+            assertEquals(2, textData.getValue().length());
+            assertEquals("f09f9880", toHex(TextData.Codec.INSTANCE.encode(null, null, textData)));
         }
     }
 

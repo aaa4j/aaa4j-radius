@@ -87,6 +87,16 @@ class ExtendedAttributeTest {
         assertThrows(IllegalArgumentException.class, () -> {
             new ExtendedAttribute<>(241, 256, new IntegerData(256));
         });
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            // An extended attribute must carry at least one byte of data
+            new ExtendedAttribute<>(241, 1, new StringData(new byte[0]));
+        });
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            // One byte more than fits alongside the type, length and extended type fields
+            new ExtendedAttribute<>(241, 1, new StringData(new byte[253]));
+        });
     }
 
     @Test

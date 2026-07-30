@@ -42,9 +42,15 @@ public final class EvsData extends ContainerData {
             throw new IllegalArgumentException("Vendor type must be in range [0, 255]");
         }
 
+        Objects.requireNonNull(evsData);
+
+        if (evsData.length < 1) {
+            throw new IllegalArgumentException("Vendor data length must be at least 1");
+        }
+
         this.vendorId = vendorId;
         this.vendorType = vendorType;
-        this.evsData = Objects.requireNonNull(evsData);
+        this.evsData = evsData;
     }
 
     @Override
@@ -96,16 +102,17 @@ public final class EvsData extends ContainerData {
 
         @Override
         public EvsData decode(CodecContext codecContext, AttributeType parentAttributeType, byte[] bytes) {
-            if (bytes.length < 5) {
+            if (bytes.length < 6) {
+                // The vendor data field must contain at least one byte
                 return null;
             }
 
             int vendorId = (bytes[0] & 0xff) << 24
                     | (bytes[1] & 0xff) << 16
                     | (bytes[2] & 0xff) << 8
-                    | bytes[3] & 0xff;
+                    | (bytes[3] & 0xff);
 
-            int vendorType = bytes[4];
+            int vendorType = bytes[4] & 0xff;
 
             byte[] evsData = Arrays.copyOfRange(bytes, 5, bytes.length);
 

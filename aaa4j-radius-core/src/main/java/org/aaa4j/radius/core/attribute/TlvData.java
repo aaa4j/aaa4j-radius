@@ -36,7 +36,13 @@ public final class TlvData extends Data {
      * @param tlvs the list of TLVs
      */
     public TlvData(List<Tlv> tlvs) {
-        this.tlvs = Objects.requireNonNull(tlvs);
+        Objects.requireNonNull(tlvs);
+
+        if (tlvs.isEmpty()) {
+            throw new IllegalArgumentException("At least one TLV is required");
+        }
+
+        this.tlvs = tlvs;
     }
 
     @Override
@@ -68,7 +74,7 @@ public final class TlvData extends Data {
          * Constructs a TLV with the given type and data.
          *
          * @param type the type (int in range [0, 255] in the TLV
-         * @param data the data in the TLV (length of data must be in range [0, 253])
+         * @param data the data in the TLV (length of data must be in range [1, 253])
          */
         public Tlv(int type, Data data) {
             if (type < 0 || type > 255) {
@@ -78,8 +84,8 @@ public final class TlvData extends Data {
             this.type = type;
             this.data = Objects.requireNonNull(data);
 
-            if (data.length() > 253) {
-                throw new IllegalArgumentException("Data length must be in range [0, 253]");
+            if (data.length() < 1 || data.length() > 253) {
+                throw new IllegalArgumentException("Data length must be in range [1, 253]");
             }
         }
 
@@ -129,11 +135,11 @@ public final class TlvData extends Data {
                     return null;
                 }
 
-                int tlvType = bytes[position];
-                int tlvLength = bytes[position + 1];
+                int tlvType = bytes[position] & 0xff;
+                int tlvLength = bytes[position + 1] & 0xff;
 
-                if (tlvLength < 2) {
-                    // TLV length is invalid
+                if (tlvLength < 3) {
+                    // TLV length is invalid: it covers the type and length fields plus at least one data byte
                     return null;
                 }
 

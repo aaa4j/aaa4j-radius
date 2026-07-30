@@ -16,6 +16,9 @@
 
 package org.aaa4j.radius.core.attribute;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
@@ -29,10 +32,18 @@ public class TextData extends Data {
     /**
      * Constructs text data from a given String.
      *
-     * @param value the string
+     * @param value the string (must be encodable as UTF-8)
      */
     public TextData(String value) {
-        this.value = Objects.requireNonNull(value);
+        Objects.requireNonNull(value);
+
+        // A new encoder each time: encoders are stateful, and an unpaired surrogate is the one thing a Java string
+        // can hold that UTF-8 cannot represent
+        if (!StandardCharsets.UTF_8.newEncoder().canEncode(value)) {
+            throw new IllegalArgumentException("Text must be encodable as UTF-8");
+        }
+
+        this.value = value;
     }
 
     @Override
@@ -87,7 +98,22 @@ public class TextData extends Data {
                 }
             }
 
-            return new TextData(new String(bytes, StandardCharsets.UTF_8));
+            String value;
+
+            try {
+                // A new decoder each time: decoders are stateful, and this codec instance is shared
+                value = StandardCharsets.UTF_8.newDecoder()
+                        .onMalformedInput(CodingErrorAction.REPORT)
+                        .onUnmappableCharacter(CodingErrorAction.REPORT)
+                        .decode(ByteBuffer.wrap(bytes))
+                        .toString();
+            }
+            catch (CharacterCodingException e) {
+                // Not valid UTF-8, so not text
+                return null;
+            }
+
+            return new TextData(value);
         }
 
         @Override
