@@ -47,6 +47,8 @@ public final class PacketCodec {
 
     private static final int ACCOUNTING_REQUEST_CODE = 4;
 
+    private static final int MAX_PACKET_LENGTH = 4096;
+
     private static final int MESSAGE_AUTHENTICATOR_TYPE = 80;
 
     private final Dictionary dictionary;
@@ -141,6 +143,11 @@ public final class PacketCodec {
 
         int packetLength = 20 + attributesLength;
 
+        if (packetLength > MAX_PACKET_LENGTH) {
+            throw new PacketCodecException(
+                    "Packet length " + packetLength + " exceeds the maximum length " + MAX_PACKET_LENGTH);
+        }
+
         byte[] bytes = new byte[packetLength];
 
         int identifier = packetIdGenerator.nextId();
@@ -231,6 +238,11 @@ public final class PacketCodec {
         }
 
         int packetLength = 20 + attributesLength;
+
+        if (packetLength > MAX_PACKET_LENGTH) {
+            throw new PacketCodecException(
+                    "Packet length " + packetLength + " exceeds the maximum length " + MAX_PACKET_LENGTH);
+        }
 
         byte[] bytes = new byte[packetLength];
 

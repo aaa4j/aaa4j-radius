@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * A "concat" attribute that's concatenated from multiple attributes transmit more than 253 octets in the standard
+ * A "concat" attribute that's concatenated from multiple attributes to transmit more than 253 octets in the standard
  * attribute space.
  */
 public class ConcatAttribute extends Attribute<ConcatData> {
@@ -46,7 +46,7 @@ public class ConcatAttribute extends Attribute<ConcatData> {
         private final Factory factory;
 
         /**
-         * Constructs a codec for a {@link StandardAttribute} using the attribute instance factory.
+         * Constructs a codec for a {@link ConcatAttribute} using the attribute instance factory.
          *
          * @param factory the attribute instance factory
          */
@@ -59,11 +59,31 @@ public class ConcatAttribute extends Attribute<ConcatData> {
             RawAttribute rawAttribute = (RawAttribute) attributeStack.removeFirst();
             AttributeType type = rawAttribute.getType();
 
-            List<byte[]> fragments = new ArrayList<>();
-            fragments.add(rawAttribute.getData().getValue());
+            List<RawAttribute> rawAttributes = new ArrayList<>();
+            rawAttributes.add(rawAttribute);
 
             while (attributeStack.size() > 0 && attributeStack.peekFirst().getType().equals(type)) {
-                fragments.add(((RawAttribute) attributeStack.removeFirst()).getData().getValue());
+                rawAttributes.add((RawAttribute) attributeStack.removeFirst());
+            }
+
+            List<byte[]> fragments = new ArrayList<>();
+
+            for (RawAttribute fragment : rawAttributes) {
+                fragments.add(fragment.getData().getValue());
+            }
+
+            for (byte[] fragment : fragments) {
+                if (fragment.length == 0) {
+                    // A zero-length fragment makes the attribute invalid, so the fragments are left undecoded
+                    // rather than interpreted; their bytes survive and re-encode as they arrived
+                    ListIterator<RawAttribute> iterator = rawAttributes.listIterator(rawAttributes.size());
+
+                    while (iterator.hasPrevious()) {
+                        attributeStack.addFirst(iterator.previous());
+                    }
+
+                    return rawAttributes.size();
+                }
             }
 
             ConcatAttribute concatAttribute = factory.build(type.head(), new ConcatData(fragments));
