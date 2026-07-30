@@ -36,6 +36,7 @@ import static org.aaa4j.radius.core.Utils.toHex;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
@@ -193,6 +194,85 @@ class ConcatAttributeTest {
                 "aabbccddeeff";
 
         assertEquals(expected, toHex(eapMessage.getData().getData()));
+    }
+
+    @Test
+    @DisplayName("Concat attribute with a zero-length fragment is left undecoded")
+    void decodeRequestConcatAttributeZeroLengthFragment() throws PacketCodecException {
+        when(mockedPacketIdGenerator.nextId()).thenReturn(5);
+
+        {
+            // EAP-Message (79) with no data
+            byte[] encoded = fromHex("01050016f58c0714b19ce47b2e4976e62dd7d6fc4f02");
+
+            Packet requestPacket = packetCodec.decodeRequest(encoded, "abc123".getBytes(US_ASCII));
+
+            assertEquals(1, requestPacket.getAttributes().size());
+            assertThat(requestPacket.getAttributes().get(0), instanceOf(RawAttribute.class));
+
+            // The bytes survive a round trip exactly as they arrived
+            byte[] reencoded = packetCodec.encodeRequest(requestPacket, "abc123".getBytes(US_ASCII),
+                    requestPacket.getReceivedFields().getAuthenticator());
+
+            assertEquals(toHex(encoded), toHex(reencoded));
+        }
+        {
+            // A valid fragment followed by a zero-length one: the whole run is left undecoded
+            byte[] encoded = fromHex("01050019f58c0714b19ce47b2e4976e62dd7d6fc4f03aa4f02");
+
+            Packet requestPacket = packetCodec.decodeRequest(encoded, "abc123".getBytes(US_ASCII));
+
+            assertEquals(2, requestPacket.getAttributes().size());
+            assertThat(requestPacket.getAttributes().get(0), instanceOf(RawAttribute.class));
+            assertThat(requestPacket.getAttributes().get(1), instanceOf(RawAttribute.class));
+
+            byte[] reencoded = packetCodec.encodeRequest(requestPacket, "abc123".getBytes(US_ASCII),
+                    requestPacket.getReceivedFields().getAuthenticator());
+
+            assertEquals(toHex(encoded), toHex(reencoded));
+        }
+    }
+
+    @Test
+    @DisplayName("Concat attribute filling the packet to the maximum length is encoded successfully")
+    void encodeRequestConcatAttributeAtMaximumPacketLength() throws PacketCodecException {
+        when(mockedPacketIdGenerator.nextId()).thenReturn(5);
+
+        // 4044 bytes fragment into 15 * 253 + 249, so the attributes take 16 * 2 + 4044 = 4076 bytes and the packet
+        // is exactly the 4096 byte maximum
+        Packet requestPacket = new Packet(1, List.of(new EapMessage(new ConcatData(new byte[4044]))));
+
+        byte[] actual = packetCodec.encodeRequest(requestPacket, "abc123".getBytes(US_ASCII),
+                fromHex("f58c0714b19ce47b2e4976e62dd7d6fc"));
+
+        assertEquals(4096, actual.length);
+    }
+
+    @Test
+    @DisplayName("Concat attribute exceeding the maximum packet length throws codec exception")
+    void encodeRequestConcatAttributeExceedingMaximumPacketLength() {
+        when(mockedPacketIdGenerator.nextId()).thenReturn(5);
+
+        // One byte more than the case above needs a 4097 byte packet, which RFC 2865 forbids and which would
+        // eventually silently wrap the two byte length field
+        Packet requestPacket = new Packet(1, List.of(new EapMessage(new ConcatData(new byte[4045]))));
+
+        assertThrows(PacketCodecException.class, () -> {
+            packetCodec.encodeRequest(requestPacket, "abc123".getBytes(US_ASCII),
+                    fromHex("f58c0714b19ce47b2e4976e62dd7d6fc"));
+        });
+    }
+
+    @Test
+    @DisplayName("Concat attribute exceeding the maximum packet length in a response packet throws codec exception")
+    void encodeResponseConcatAttributeExceedingMaximumPacketLength() {
+        // Same arithmetic as the request-side guard; this pins the guard in encodeResponse
+        Packet responsePacket = new Packet(2, List.of(new EapMessage(new ConcatData(new byte[4045]))));
+
+        assertThrows(PacketCodecException.class, () -> {
+            packetCodec.encodeResponse(responsePacket, "abc123".getBytes(US_ASCII), 5,
+                    fromHex("f58c0714b19ce47b2e4976e62dd7d6fc"));
+        });
     }
 
 }

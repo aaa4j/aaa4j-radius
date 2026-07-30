@@ -77,6 +77,10 @@ public final class ConcatData extends Data {
     public ConcatData(List<byte[]> fragments) {
         Objects.requireNonNull(fragments);
 
+        if (fragments.isEmpty()) {
+            throw new IllegalArgumentException("At least one fragment is required");
+        }
+
         int dataLength = 0;
 
         for (byte[] fragment : fragments) {
