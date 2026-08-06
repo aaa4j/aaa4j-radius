@@ -155,19 +155,22 @@ public final class TlvData extends Data {
 
                 TlvDefinition tlvDefinition = codecContext.getDictionary().getTlvDefinition(tlvAttributeType);
 
-                if (tlvDefinition == null) {
-                    // We can't decode the TLV if we have no definition for it
-                    return null;
+                Data data = null;
+
+                if (tlvDefinition != null) {
+                    data = tlvDefinition.getDataCodec().decode(codecContext, tlvAttributeType, tlvData);
                 }
 
-                Data data = tlvDefinition.getDataCodec().decode(codecContext, tlvAttributeType, tlvData);
+                Tlv tlv;
 
                 if (data == null) {
-                    // The data codec couldn't decode the TLV data
-                    return null;
+                    // An unknown or undecodable TLV is an invalid attribute, but the TLV containing it is not, so
+                    // the octets are kept rather than rejecting the well-formed TLVs alongside it
+                    tlv = new Tlv(tlvType, new RawData(tlvData));
                 }
-
-                Tlv tlv = new Tlv(tlvType, data);
+                else {
+                    tlv = new Tlv(tlvType, data);
+                }
 
                 tlvs.add(tlv);
 
@@ -181,31 +184,50 @@ public final class TlvData extends Data {
         public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
             TlvData tlvData = (TlvData) data;
 
-            byte[] bytes = new byte[data.length()];
+            byte[][] encodedTlvs = new byte[tlvData.tlvs.size()][];
+
+            int length = 0;
+
+            for (int i = 0; i < tlvData.tlvs.size(); i++) {
+                Tlv tlv = tlvData.tlvs.get(i);
+
+                AttributeType tlvAttributeType = new AttributeType(parentAttributeType, tlv.type);
+
+                if (tlv.data instanceof RawData) {
+                    // Written back exactly as received; the dictionary may still have no definition for it
+                    encodedTlvs[i] = ((RawData) tlv.data).getValue();
+                }
+                else {
+                    TlvDefinition tlvDefinition = codecContext.getDictionary().getTlvDefinition(tlvAttributeType);
+
+                    if (tlvDefinition == null) {
+                        // We can't encode the TLV if we have no definition for it
+                        throw new IllegalArgumentException("Missing TLV dictionary definition for "
+                                + tlvAttributeType);
+                    }
+
+                    encodedTlvs[i] = tlvDefinition.getDataCodec().encode(codecContext, tlvAttributeType, tlv.data);
+                }
+
+                if (encodedTlvs[i].length < 1 || encodedTlvs[i].length > 253) {
+                    throw new IllegalArgumentException("Encoded TLV data length must be in range [1, 253] for "
+                            + tlvAttributeType);
+                }
+
+                length = length + 2 + encodedTlvs[i].length;
+            }
+
+            byte[] bytes = new byte[length];
 
             int position = 0;
 
-            for (Tlv tlv : tlvData.tlvs) {
-                int tlvType = tlv.type;
-                int tlvLength = 2 + tlv.data.length();
+            for (int i = 0; i < encodedTlvs.length; i++) {
+                bytes[position] = (byte) tlvData.tlvs.get(i).type;
+                bytes[position + 1] = (byte) (2 + encodedTlvs[i].length);
 
-                bytes[position] = (byte) tlvType;
-                bytes[position + 1] = (byte) tlvLength;
+                System.arraycopy(encodedTlvs[i], 0, bytes, position + 2, encodedTlvs[i].length);
 
-                AttributeType tlvAttributeType = new AttributeType(parentAttributeType, tlvType);
-
-                TlvDefinition tlvDefinition = codecContext.getDictionary().getTlvDefinition(tlvAttributeType);
-
-                if (tlvDefinition == null) {
-                    // We can't decode the TLV if we have no definition for it
-                    throw new IllegalArgumentException("Missing TLV dictionary definition for " + tlvAttributeType);
-                }
-
-                byte[] tlvDataBytes = tlvDefinition.getDataCodec().encode(codecContext, tlvAttributeType, tlv.data);
-
-                System.arraycopy(tlvDataBytes, 0, bytes, position + 2, tlvDataBytes.length);
-
-                position = position + 2 + tlvDataBytes.length;
+                position = position + 2 + encodedTlvs[i].length;
             }
 
             return bytes;

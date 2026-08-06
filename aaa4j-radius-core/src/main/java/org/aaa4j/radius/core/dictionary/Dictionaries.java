@@ -115,6 +115,19 @@ public final class Dictionaries {
             return null;
         }
 
+        @Override
+        public VendorSpecificGroupFactory getVendorSpecificGroupFactory(AttributeType type) {
+            for (Dictionary dictionary : dictionaries) {
+                VendorSpecificGroupFactory factory = dictionary.getVendorSpecificGroupFactory(type);
+
+                if (factory != null) {
+                    return factory;
+                }
+            }
+
+            return null;
+        }
+
     }
 
 }

@@ -16,6 +16,8 @@
 
 package org.aaa4j.radius.core.attribute;
 
+import org.aaa4j.radius.core.dictionary.TlvDefinition;
+
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -28,34 +30,32 @@ public final class EvsData extends ContainerData {
 
     private final int vendorType;
 
-    private final byte[] evsData;
+    private final Data data;
 
     /**
      * Constructs evs data from a given vendor identifier, vendor type, and vendor data.
      *
      * @param vendorId the vendor identifier
      * @param vendorType the vendor type (int in range [0, 255])
-     * @param evsData the vendor data
+     * @param data the vendor data (length of data must be at least 1)
      */
-    public EvsData(int vendorId, int vendorType, byte[] evsData) {
+    public EvsData(int vendorId, int vendorType, Data data) {
         if (vendorType < 0 || vendorType > 255) {
             throw new IllegalArgumentException("Vendor type must be in range [0, 255]");
         }
 
-        Objects.requireNonNull(evsData);
-
-        if (evsData.length < 1) {
-            throw new IllegalArgumentException("Vendor data length must be at least 1");
-        }
-
         this.vendorId = vendorId;
         this.vendorType = vendorType;
-        this.evsData = evsData;
+        this.data = Objects.requireNonNull(data);
+
+        if (data.length() < 1) {
+            throw new IllegalArgumentException("Vendor data length must be at least 1");
+        }
     }
 
     @Override
     public int length() {
-        return 5 + evsData.length;
+        return 5 + data.length();
     }
 
     @Override
@@ -86,8 +86,8 @@ public final class EvsData extends ContainerData {
      *
      * @return the extended vendor data
      */
-    public byte[] getEvsData() {
-        return evsData;
+    public Data getData() {
+        return data;
     }
 
     /**
@@ -116,14 +116,50 @@ public final class EvsData extends ContainerData {
 
             byte[] evsData = Arrays.copyOfRange(bytes, 5, bytes.length);
 
-            return new EvsData(vendorId, vendorType, evsData);
+            AttributeType evsAttributeType = new AttributeType(new AttributeType(parentAttributeType, vendorId),
+                    vendorType);
+
+            TlvDefinition tlvDefinition = codecContext.getDictionary().getTlvDefinition(evsAttributeType);
+
+            Data data = null;
+
+            if (tlvDefinition != null) {
+                data = tlvDefinition.getDataCodec().decode(codecContext, evsAttributeType, evsData);
+            }
+
+            if (data == null) {
+                // An unknown or undecodable contained attribute is an invalid attribute; the octets are kept
+                data = new RawData(evsData);
+            }
+
+            return new EvsData(vendorId, vendorType, data);
         }
 
         @Override
         public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
             EvsData evsData = (EvsData) data;
 
-            byte[] bytes = new byte[5 + evsData.evsData.length];
+            AttributeType evsAttributeType = new AttributeType(new AttributeType(parentAttributeType,
+                    evsData.vendorId), evsData.vendorType);
+
+            byte[] vendorData;
+
+            if (evsData.data instanceof RawData) {
+                // Written back exactly as received; the dictionary may still have no definition for it
+                vendorData = ((RawData) evsData.data).getValue();
+            }
+            else {
+                TlvDefinition tlvDefinition = codecContext.getDictionary().getTlvDefinition(evsAttributeType);
+
+                if (tlvDefinition == null) {
+                    // We can't encode the contained data if we have no definition for it
+                    throw new IllegalArgumentException("Missing TLV dictionary definition for " + evsAttributeType);
+                }
+
+                vendorData = tlvDefinition.getDataCodec().encode(codecContext, evsAttributeType, evsData.data);
+            }
+
+            byte[] bytes = new byte[5 + vendorData.length];
 
             bytes[0] = (byte) ((evsData.vendorId & 0xff000000) >>> 24);
             bytes[1] = (byte) ((evsData.vendorId & 0x00ff0000) >>> 16);
@@ -131,7 +167,7 @@ public final class EvsData extends ContainerData {
             bytes[3] = (byte) (evsData.vendorId & 0x000000ff);
             bytes[4] = (byte) evsData.vendorType;
 
-            System.arraycopy(evsData.evsData, 0, bytes, 5, evsData.evsData.length);
+            System.arraycopy(vendorData, 0, bytes, 5, vendorData.length);
 
             return bytes;
         }

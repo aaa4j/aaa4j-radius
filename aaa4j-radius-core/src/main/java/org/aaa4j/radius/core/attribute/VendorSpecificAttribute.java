@@ -110,20 +110,23 @@ public class VendorSpecificAttribute<D extends Data> extends Attribute<D> {
 
             int type = attribute.getType().head();
             int vendorId = attribute.getData().getVendorId();
-            int vendorType = attribute.getData().getVendorType();
-            byte[] vsaData = attribute.getData().getVsaData();
 
-            D data = dataCodec.decode(codecContext,
-                    new AttributeType(attribute.getType(), vendorId).with(vendorType), vsaData);
+            // The attribute is routed here only when the vsa data has a single contained type
+            VsaData.Vsa vsa = attribute.getData().getVsas().get(0);
 
-            if (data == null) {
+            if (vsa.getData() instanceof RawData) {
+                // The sub-attribute couldn't be decoded, so the attribute is left as it is
                 attributeStack.addFirst(attribute);
 
                 // Inform the caller that this attribute shouldn't be processed anymore
                 return 1;
             }
 
-            VendorSpecificAttribute<D> vendorSpecificAttribute = factory.build(type, vendorId, vendorType, data);
+            @SuppressWarnings("unchecked")
+            D data = (D) vsa.getData();
+
+            VendorSpecificAttribute<D> vendorSpecificAttribute = factory.build(type, vendorId, vsa.getVendorType(),
+                    data);
 
             attributeStack.addFirst(vendorSpecificAttribute);
 
@@ -136,12 +139,9 @@ public class VendorSpecificAttribute<D extends Data> extends Attribute<D> {
             VendorSpecificAttribute<D> vendorSpecificAttribute = (VendorSpecificAttribute<D>) attributeStack
                     .removeFirst();
 
-            int vendorId = vendorSpecificAttribute.vendorId;
-            int vendorType = vendorSpecificAttribute.vendorType;
-            byte[] data = dataCodec.encode(codecContext, vendorSpecificAttribute.getType(),
+            // The data is encoded by the vsa data codec using the dictionary's data codec for the sub-attribute
+            VsaData vsaData = new VsaData(vendorSpecificAttribute.vendorId, vendorSpecificAttribute.vendorType,
                     vendorSpecificAttribute.getData());
-
-            VsaData vsaData = new VsaData(vendorId, vendorType, data);
 
             StandardAttribute<VsaData> attribute = new StandardAttribute<>(vendorSpecificAttribute.getType().head(),
                     vsaData);
