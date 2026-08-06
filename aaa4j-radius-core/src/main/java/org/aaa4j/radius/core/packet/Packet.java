@@ -17,12 +17,14 @@
 package org.aaa4j.radius.core.packet;
 
 import org.aaa4j.radius.core.attribute.Attribute;
+import org.aaa4j.radius.core.attribute.AttributeGroup;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A packet. A packet may be a request to a server or a response to a client. A packet will contain extra fields
@@ -106,6 +108,7 @@ public class Packet {
      */
     public <A extends Attribute<?>> Optional<A> getAttribute(Class<A> aClass) {
         return attributes.stream()
+                .flatMap(Packet::flatten)
                 .filter(aClass::isInstance)
                 .findFirst()
                 .map(aClass::cast);
@@ -121,9 +124,19 @@ public class Packet {
      */
     public <A extends Attribute<?>> List<A> getAttributes(Class<A> aClass) {
         return attributes.stream()
+                .flatMap(Packet::flatten)
                 .filter(aClass::isInstance)
                 .map(aClass::cast)
                 .collect(Collectors.toList());
+    }
+
+    private static Stream<Attribute<?>> flatten(Attribute<?> attribute) {
+        if (attribute instanceof AttributeGroup) {
+            return Stream.concat(Stream.of(attribute),
+                    ((AttributeGroup) attribute).getGroupedAttributes().stream().flatMap(Packet::flatten));
+        }
+
+        return Stream.of(attribute);
     }
 
     /**

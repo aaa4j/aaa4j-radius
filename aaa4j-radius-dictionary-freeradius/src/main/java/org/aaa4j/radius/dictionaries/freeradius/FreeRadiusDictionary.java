@@ -547,6 +547,10 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    tlvDefinitionsMap.put(attributeType, new TlvDefinition(
+                                                            attributeType,
+                                                            fullName,
+                                                            EnumData.Codec.INSTANCE));
                                                     break;
                                                 }
                                                 case EVS:
@@ -575,6 +579,10 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    tlvDefinitionsMap.put(attributeType, new TlvDefinition(
+                                                            attributeType,
+                                                            fullName,
+                                                            IfidData.Codec.INSTANCE));
                                                     break;
                                                 }
                                                 case INTEGER_64: {
@@ -599,6 +607,10 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    tlvDefinitionsMap.put(attributeType, new TlvDefinition(
+                                                            attributeType,
+                                                            fullName,
+                                                            Integer64Data.Codec.INSTANCE));
                                                     break;
                                                 }
                                                 case INTEGER: {
@@ -630,6 +642,10 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    tlvDefinitionsMap.put(attributeType, new TlvDefinition(
+                                                            attributeType,
+                                                            fullName,
+                                                            dataCodec));
                                                     break;
                                                 }
                                                 case IPV4_ADDR: {
@@ -661,6 +677,10 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    tlvDefinitionsMap.put(attributeType, new TlvDefinition(
+                                                            attributeType,
+                                                            fullName,
+                                                            dataCodec));
                                                     break;
                                                 }
                                                 case IPV4_PREFIX: {
@@ -685,6 +705,10 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    tlvDefinitionsMap.put(attributeType, new TlvDefinition(
+                                                            attributeType,
+                                                            fullName,
+                                                            Ipv4PrefixData.Codec.INSTANCE));
                                                     break;
                                                 }
                                                 case IPV6_ADDR: {
@@ -709,6 +733,10 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    tlvDefinitionsMap.put(attributeType, new TlvDefinition(
+                                                            attributeType,
+                                                            fullName,
+                                                            Ipv6AddrData.Codec.INSTANCE));
                                                     break;
                                                 }
                                                 case IPV6_PREFIX: {
@@ -733,6 +761,10 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    tlvDefinitionsMap.put(attributeType, new TlvDefinition(
+                                                            attributeType,
+                                                            fullName,
+                                                            Ipv6PrefixData.Codec.INSTANCE));
                                                     break;
                                                 }
                                                 case LONG_EXTENDED:
@@ -771,6 +803,10 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    tlvDefinitionsMap.put(attributeType, new TlvDefinition(
+                                                            attributeType,
+                                                            fullName,
+                                                            dataCodec));
                                                     break;
                                                 }
                                                 case OPTIONAL_TAGGED_TEXT: {
@@ -807,6 +843,10 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    tlvDefinitionsMap.put(attributeType, new TlvDefinition(
+                                                            attributeType,
+                                                            fullName,
+                                                            dataCodec));
                                                     break;
                                                 }
                                                 case STRING: {
@@ -843,6 +883,10 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    tlvDefinitionsMap.put(attributeType, new TlvDefinition(
+                                                            attributeType,
+                                                            fullName,
+                                                            dataCodec));
                                                     break;
                                                 }
                                                 case TAGGED_INTEGER: {
@@ -867,6 +911,10 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    tlvDefinitionsMap.put(attributeType, new TlvDefinition(
+                                                            attributeType,
+                                                            fullName,
+                                                            TaggedIntegerData.Codec.INSTANCE));
                                                     break;
                                                 }
                                                 case TAGGED_STRING: {
@@ -903,6 +951,10 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    tlvDefinitionsMap.put(attributeType, new TlvDefinition(
+                                                            attributeType,
+                                                            fullName,
+                                                            dataCodec));
                                                     break;
                                                 }
                                                 case TAGGED_TEXT: {
@@ -939,6 +991,10 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    tlvDefinitionsMap.put(attributeType, new TlvDefinition(
+                                                            attributeType,
+                                                            fullName,
+                                                            dataCodec));
                                                     break;
                                                 }
                                                 case TEXT: {
@@ -974,6 +1030,10 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
                                                     nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
                                                             attributeDefinition);
+                                                    tlvDefinitionsMap.put(attributeType, new TlvDefinition(
+                                                            attributeType,
+                                                            fullName,
+                                                            dataCodec));
                                                     break;
                                                 }
                                                 case TIME:

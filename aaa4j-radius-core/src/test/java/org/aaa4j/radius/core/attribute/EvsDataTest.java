@@ -16,29 +16,48 @@
 
 package org.aaa4j.radius.core.attribute;
 
+import org.aaa4j.radius.core.dictionary.Dictionary;
+import org.aaa4j.radius.core.dictionary.TlvDefinition;
+import org.aaa4j.radius.core.util.SecureRandomProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.aaa4j.radius.core.Utils.fromHex;
 import static org.aaa4j.radius.core.Utils.toHex;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @DisplayName("EvsData")
 class EvsDataTest {
+
+    private static CodecContext codecContext() {
+        Dictionary mockedDictionary = mock(Dictionary.class);
+
+        when(mockedDictionary.getTlvDefinition(new AttributeType(241, 26, 32473, 1)))
+                .thenReturn(new TlvDefinition(
+                        new AttributeType(241, 26, 32473, 1),
+                        "Test-Integer",
+                        IntegerData.Codec.INSTANCE));
+
+        return new CodecContext(mockedDictionary, new byte[32], new byte[16], new SecureRandomProvider());
+    }
 
     @Test
     @DisplayName("Constructor validates arguments")
     void testConstructor() {
         assertThrows(IllegalArgumentException.class, () -> {
-            new EvsData(32473, -1, fromHex("abcd"));
+            new EvsData(32473, -1, new StringData(fromHex("abcd")));
         });
 
         assertThrows(IllegalArgumentException.class, () -> {
-            new EvsData(32473, 256, fromHex("abcd"));
+            new EvsData(32473, 256, new StringData(fromHex("abcd")));
         });
 
         assertThrows(NullPointerException.class, () -> {
@@ -47,96 +66,124 @@ class EvsDataTest {
 
         assertThrows(IllegalArgumentException.class, () -> {
             // The vendor data field must carry at least one byte
-            new EvsData(32473, 10, new byte[0]);
+            new EvsData(32473, 10, new StringData(new byte[0]));
         });
     }
 
     @Test
     @DisplayName("Getters return the correct values")
     void testGetters() {
-        EvsData evsData = new EvsData(32473, 10, fromHex("e1273a01729a"));
+        StringData data = new StringData(fromHex("e1273a01729a"));
+
+        EvsData evsData = new EvsData(32473, 10, data);
 
         assertEquals(11, evsData.length());
         assertArrayEquals(new int[] { 32473, 10 }, evsData.getContainedType());
         assertEquals(32473, evsData.getVendorId());
         assertEquals(10, evsData.getVendorType());
-        assertEquals("e1273a01729a", toHex(evsData.getEvsData()));
+        assertEquals(data, evsData.getData());
     }
 
     @Test
     @DisplayName("evs data is decoded successfully")
     void testDecode() {
-        byte[] encoded = fromHex("00007ed90ae1273a01729a");
+        CodecContext codecContext = codecContext();
 
-        EvsData evsData = EvsData.Codec.INSTANCE.decode(null, null, encoded);
+        // Vendor type 1 has a dictionary definition with integer data
+        byte[] encoded = fromHex("00007ed90100000005");
+
+        EvsData evsData = EvsData.Codec.INSTANCE.decode(codecContext, new AttributeType(241, 26), encoded);
 
         assertNotNull(evsData);
         assertEquals(32473, evsData.getVendorId());
-        assertEquals(10, evsData.getVendorType());
-        assertEquals("e1273a01729a", toHex(evsData.getEvsData()));
+        assertEquals(1, evsData.getVendorType());
+        assertThat(evsData.getData(), instanceOf(IntegerData.class));
+        assertEquals(5, ((IntegerData) evsData.getData()).getValue());
+
+        assertEquals(toHex(encoded),
+                toHex(EvsData.Codec.INSTANCE.encode(codecContext, new AttributeType(241, 26), evsData)));
     }
 
     @Test
-    @DisplayName("evs data with a high vendor type is decoded successfully")
+    @DisplayName("evs data with a high vendor type is decoded into raw TLV data")
     void testDecodeHighVendorType() {
+        CodecContext codecContext = codecContext();
+
         {
-            // Vendor type 128, the lowest vendor type with the high bit set
+            // Vendor type 128, the lowest vendor type with the high bit set; no dictionary definition
             byte[] encoded = fromHex("00007ed980e1273a01729a");
 
-            EvsData evsData = EvsData.Codec.INSTANCE.decode(null, null, encoded);
+            EvsData evsData = EvsData.Codec.INSTANCE.decode(codecContext, new AttributeType(241, 26), encoded);
 
             assertNotNull(evsData);
             assertEquals(32473, evsData.getVendorId());
             assertEquals(128, evsData.getVendorType());
-            assertEquals("e1273a01729a", toHex(evsData.getEvsData()));
+            assertThat(evsData.getData(), instanceOf(RawData.class));
+            assertEquals("e1273a01729a", toHex(((RawData) evsData.getData()).getValue()));
+
+            assertEquals(toHex(encoded),
+                    toHex(EvsData.Codec.INSTANCE.encode(codecContext, new AttributeType(241, 26), evsData)));
         }
         {
             // Vendor type 255, the highest vendor type
             byte[] encoded = fromHex("00007ed9ffe1273a01729a");
 
-            EvsData evsData = EvsData.Codec.INSTANCE.decode(null, null, encoded);
+            EvsData evsData = EvsData.Codec.INSTANCE.decode(codecContext, new AttributeType(241, 26), encoded);
 
             assertNotNull(evsData);
-            assertEquals(32473, evsData.getVendorId());
             assertEquals(255, evsData.getVendorType());
-            assertEquals("e1273a01729a", toHex(evsData.getEvsData()));
+            assertThat(evsData.getData(), instanceOf(RawData.class));
+
+            assertEquals(toHex(encoded),
+                    toHex(EvsData.Codec.INSTANCE.encode(codecContext, new AttributeType(241, 26), evsData)));
         }
     }
 
     @Test
     @DisplayName("evs data is encoded successfully")
     void testEncode() {
-        EvsData evsData = new EvsData(32473, 10, fromHex("e1273a01729a"));
-        byte[] encoded = EvsData.Codec.INSTANCE.encode(null, null, evsData);
+        CodecContext codecContext = codecContext();
 
-        assertEquals("00007ed90ae1273a01729a", toHex(encoded));
+        EvsData evsData = new EvsData(32473, 1, new IntegerData(5));
+
+        assertEquals("00007ed90100000005",
+                toHex(EvsData.Codec.INSTANCE.encode(codecContext, new AttributeType(241, 26), evsData)));
     }
 
     @Test
-    @DisplayName("evs data with a high vendor type is encoded successfully")
-    void testEncodeHighVendorType() {
-        EvsData evsData = new EvsData(32473, 255, fromHex("e1273a01729a"));
-        byte[] encoded = EvsData.Codec.INSTANCE.encode(null, null, evsData);
+    @DisplayName("Encoding vendor data without a dictionary definition throws")
+    void testEncodeUnknown() {
+        CodecContext codecContext = codecContext();
 
-        assertEquals("00007ed9ffe1273a01729a", toHex(encoded));
+        assertThrows(IllegalArgumentException.class, () -> {
+            EvsData evsData = new EvsData(32473, 99, new IntegerData(5));
+
+            EvsData.Codec.INSTANCE.encode(codecContext, new AttributeType(241, 26), evsData);
+        });
+
+        // Raw TLV data carries its own octets and doesn't need a definition
+        EvsData evsData = new EvsData(32473, 99, new RawData(fromHex("aabbcc")));
+
+        assertEquals("00007ed963aabbcc",
+                toHex(EvsData.Codec.INSTANCE.encode(codecContext, new AttributeType(241, 26), evsData)));
     }
 
     @Test
     @DisplayName("Invalid evs data is decoded into null")
     void testDecodeInvalid() {
+        CodecContext codecContext = codecContext();
+
         {
             // Too few bytes
             byte[] encoded = fromHex("00007ed9");
-            EvsData evsData = EvsData.Codec.INSTANCE.decode(null, null, encoded);
 
-            assertNull(evsData);
+            assertNull(EvsData.Codec.INSTANCE.decode(codecContext, new AttributeType(241, 26), encoded));
         }
         {
             // Vendor id and vendor type but no vendor data
             byte[] encoded = fromHex("00007ed90a");
-            EvsData evsData = EvsData.Codec.INSTANCE.decode(null, null, encoded);
 
-            assertNull(evsData);
+            assertNull(EvsData.Codec.INSTANCE.decode(codecContext, new AttributeType(241, 26), encoded));
         }
     }
 

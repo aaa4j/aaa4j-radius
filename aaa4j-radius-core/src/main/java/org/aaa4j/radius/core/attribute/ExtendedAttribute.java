@@ -90,16 +90,17 @@ public class ExtendedAttribute<D extends Data> extends Attribute<D> {
 
             int type = attribute.getType().head();
             int extendedType = attribute.getData().getExtendedType();
-            byte[] extData = attribute.getData().getExtData();
 
-            D data = dataCodec.decode(codecContext, new AttributeType(attribute.getType(), extendedType), extData);
-
-            if (data == null) {
+            if (attribute.getData().getData() instanceof RawData) {
+                // The contained data couldn't be decoded, so the attribute is left as it is
                 attributeStack.addFirst(attribute);
 
                 // Inform the caller that this attribute shouldn't be processed anymore
                 return 1;
             }
+
+            @SuppressWarnings("unchecked")
+            D data = (D) attribute.getData().getData();
 
             ExtendedAttribute<D> extendedAttribute = factory.build(type, extendedType, data);
 
@@ -113,10 +114,9 @@ public class ExtendedAttribute<D extends Data> extends Attribute<D> {
             @SuppressWarnings("unchecked")
             ExtendedAttribute<D> extendedAttribute = (ExtendedAttribute<D>) attributeStack.removeFirst();
 
-            int extendedType = extendedAttribute.extendedType;
-            byte[] extData = dataCodec.encode(codecContext, extendedAttribute.getType(), extendedAttribute.getData());
-
-            ExtendedData extendedData = new ExtendedData(extendedType, extData);
+            // The data is encoded by the extended data codec using the dictionary's data codec
+            ExtendedData extendedData = new ExtendedData(extendedAttribute.extendedType,
+                    extendedAttribute.getData());
 
             StandardAttribute<ExtendedData> attribute = new StandardAttribute<>(extendedAttribute.getType().head(),
                     extendedData);

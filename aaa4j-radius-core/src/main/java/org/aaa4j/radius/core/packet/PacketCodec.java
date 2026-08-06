@@ -592,16 +592,30 @@ public final class PacketCodec {
 
             if (nextAttribute.getData() instanceof ContainerData) {
                 ContainerData containerData = (ContainerData) nextAttribute.getData();
-                AttributeType nextType = nextAttribute.getType().with(containerData.getContainedType());
+                int[] containedType = containerData.getContainedType();
 
-                AttributeDefinition<?, ?> attributeDefinition = dictionary.getAttributeDefinition(nextType);
+                if (containedType != null) {
+                    AttributeType nextType = nextAttribute.getType().with(containedType);
 
-                if (attributeDefinition != null) {
-                    int numComplete = attributeDefinition.getAttributeCodec().decode(codecContext, attributeStack);
+                    AttributeDefinition<?, ?> attributeDefinition = dictionary.getAttributeDefinition(nextType);
 
-                    for (int i = 0; i < numComplete; i++) {
-                        attributes.add(attributeStack.removeFirst());
+                    if (attributeDefinition != null) {
+                        int numComplete = attributeDefinition.getAttributeCodec().decode(codecContext,
+                                attributeStack);
+
+                        for (int i = 0; i < numComplete; i++) {
+                            attributes.add(attributeStack.removeFirst());
+                        }
+
+                        continue;
                     }
+                }
+
+                Attribute<?> builtAttribute = containerData.build(dictionary, nextAttribute.getType().head());
+
+                if (builtAttribute != null) {
+                    attributeStack.removeFirst();
+                    attributes.add(builtAttribute);
 
                     continue;
                 }

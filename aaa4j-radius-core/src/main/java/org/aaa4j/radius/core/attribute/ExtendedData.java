@@ -16,6 +16,8 @@
 
 package org.aaa4j.radius.core.attribute;
 
+import org.aaa4j.radius.core.dictionary.TlvDefinition;
+
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -26,32 +28,30 @@ public class ExtendedData extends ContainerData {
 
     private final int extendedType;
 
-    private final byte[] extData;
+    private final Data data;
 
     /**
-     * Constructs extended data from a given extended attribute type and extended data byte array.
+     * Constructs extended data from a given extended attribute type and contained data.
      *
-     * @param extendedType the extended type
-     * @param extData the extended data
+     * @param extendedType the extended type (int in range [0, 255])
+     * @param data the contained data (length of data must be in range [1, 252])
      */
-    public ExtendedData(int extendedType, byte[] extData) {
+    public ExtendedData(int extendedType, Data data) {
         if (extendedType < 0 || extendedType > 255) {
             throw new IllegalArgumentException("Extended type must be in range [0, 255]");
         }
 
-        Objects.requireNonNull(extData);
-
-        if (extData.length < 1) {
-            throw new IllegalArgumentException("Extended data length must be in range [1, 252]");
-        }
-
         this.extendedType = extendedType;
-        this.extData = Arrays.copyOf(extData, extData.length);
+        this.data = Objects.requireNonNull(data);
+
+        if (data.length() < 1 || data.length() > 252) {
+            throw new IllegalArgumentException("Data length must be in range [1, 252]");
+        }
     }
 
     @Override
     public int length() {
-        return 1 + extData.length;
+        return 1 + data.length();
     }
 
     /**
@@ -65,12 +65,12 @@ public class ExtendedData extends ContainerData {
     }
 
     /**
-     * Gets the extended data.
+     * Gets the contained data.
      *
-     * @return the extended data as a byte array
+     * @return the contained data
      */
-    public byte[] getExtData() {
-        return extData;
+    public Data getData() {
+        return data;
     }
 
     @Override
@@ -96,21 +96,55 @@ public class ExtendedData extends ContainerData {
             }
 
             int extendedType = bytes[0] & 0xff;
-            byte[] extData = new byte[bytes.length - 1];
+            byte[] extData = Arrays.copyOfRange(bytes, 1, bytes.length);
 
-            System.arraycopy(bytes, 1, extData, 0, bytes.length - 1);
+            AttributeType extendedAttributeType = new AttributeType(parentAttributeType, extendedType);
 
-            return new ExtendedData(extendedType, extData);
+            TlvDefinition tlvDefinition = codecContext.getDictionary().getTlvDefinition(extendedAttributeType);
+
+            Data data = null;
+
+            if (tlvDefinition != null) {
+                data = tlvDefinition.getDataCodec().decode(codecContext, extendedAttributeType, extData);
+            }
+
+            if (data == null) {
+                // An unknown or undecodable contained attribute is an invalid attribute; the octets are kept
+                data = new RawData(extData);
+            }
+
+            return new ExtendedData(extendedType, data);
         }
 
         @Override
         public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
             ExtendedData extendedData = (ExtendedData) data;
 
-            byte[] bytes = new byte[extendedData.extData.length + 1];
+            AttributeType extendedAttributeType = new AttributeType(parentAttributeType, extendedData.extendedType);
+
+            byte[] extData;
+
+            if (extendedData.data instanceof RawData) {
+                // Written back exactly as received; the dictionary may still have no definition for it
+                extData = ((RawData) extendedData.data).getValue();
+            }
+            else {
+                TlvDefinition tlvDefinition = codecContext.getDictionary().getTlvDefinition(extendedAttributeType);
+
+                if (tlvDefinition == null) {
+                    // We can't encode the contained data if we have no definition for it
+                    throw new IllegalArgumentException("Missing TLV dictionary definition for "
+                            + extendedAttributeType);
+                }
+
+                extData = tlvDefinition.getDataCodec().encode(codecContext, extendedAttributeType,
+                        extendedData.data);
+            }
+
+            byte[] bytes = new byte[extData.length + 1];
 
             bytes[0] = (byte) extendedData.extendedType;
-            System.arraycopy(extendedData.extData, 0, bytes, 1, extendedData.extData.length);
+            System.arraycopy(extData, 0, bytes, 1, extData.length);
 
             return bytes;
         }

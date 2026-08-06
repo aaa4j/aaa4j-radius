@@ -20,12 +20,12 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * A raw, unprocessed attribute in the standard, top-level attribute space. A raw attribute contains a string of octets
- * ({@link StringData}) as they were received over the wire. An outgoing raw attribute's data is transmitted as is with
- * one exception: a raw attribute with a type of 80 and data length of 16 is treated as a Message-Authenticator
- * attribute and has its contents replaced with a message authentication code calculated for the packet.
+ * A raw, unprocessed attribute in the standard, top-level attribute space. A raw attribute contains octets
+ * ({@link RawData}) as they were received over the wire. An outgoing raw attribute's data is transmitted as is with one
+ * exception: a raw attribute with a type of 80 and data length of 16 is treated as a Message-Authenticator attribute
+ * and has its contents replaced with a message authentication code calculated for the packet.
  */
-public final class RawAttribute extends Attribute<StringData> {
+public final class RawAttribute extends Attribute<RawData> {
 
     /**
      * Constructs a raw attribute from an attribute type and data.
@@ -34,7 +34,7 @@ public final class RawAttribute extends Attribute<StringData> {
      * @param data the attribute data
      */
     public RawAttribute(int type, byte[] data) {
-        super(new AttributeType(type), new StringData(data));
+        super(new AttributeType(type), new RawData(data));
 
         if (data.length > 253) {
             throw new IllegalArgumentException("Data length must be in range [0, 253]");

@@ -2665,6 +2665,82 @@ public final class StandardDictionary implements Dictionary {
     }
 
     static {
+        tlvDefinitionsMap.put(FragStatus.TYPE,
+                new TlvDefinition(
+                        FragStatus.TYPE,
+                        FragStatus.NAME,
+                        IntegerData.Codec.INSTANCE));
+        tlvDefinitionsMap.put(ProxyStateLength.TYPE,
+                new TlvDefinition(
+                        ProxyStateLength.TYPE,
+                        ProxyStateLength.NAME,
+                        IntegerData.Codec.INSTANCE));
+        tlvDefinitionsMap.put(ResponseLength.TYPE,
+                new TlvDefinition(
+                        ResponseLength.TYPE,
+                        ResponseLength.NAME,
+                        IntegerData.Codec.INSTANCE));
+        tlvDefinitionsMap.put(OriginalPacketCode.TYPE,
+                new TlvDefinition(
+                        OriginalPacketCode.TYPE,
+                        OriginalPacketCode.NAME,
+                        IntegerData.Codec.INSTANCE));
+        tlvDefinitionsMap.put(IpPortLimitInfo.TYPE,
+                new TlvDefinition(
+                        IpPortLimitInfo.TYPE,
+                        IpPortLimitInfo.NAME,
+                        TlvData.Codec.INSTANCE));
+        tlvDefinitionsMap.put(IpPortRange.TYPE,
+                new TlvDefinition(
+                        IpPortRange.TYPE,
+                        IpPortRange.NAME,
+                        TlvData.Codec.INSTANCE));
+        tlvDefinitionsMap.put(IpPortForwardingMap.TYPE,
+                new TlvDefinition(
+                        IpPortForwardingMap.TYPE,
+                        IpPortForwardingMap.NAME,
+                        TlvData.Codec.INSTANCE));
+        tlvDefinitionsMap.put(OperatorNasIdentifier.TYPE,
+                new TlvDefinition(
+                        OperatorNasIdentifier.TYPE,
+                        OperatorNasIdentifier.NAME,
+                        StringData.Codec.INSTANCE));
+        tlvDefinitionsMap.put(Softwire46Configuration.TYPE,
+                new TlvDefinition(
+                        Softwire46Configuration.TYPE,
+                        Softwire46Configuration.NAME,
+                        TlvData.Codec.INSTANCE));
+        tlvDefinitionsMap.put(Softwire46Priority.TYPE,
+                new TlvDefinition(
+                        Softwire46Priority.TYPE,
+                        Softwire46Priority.NAME,
+                        TlvData.Codec.INSTANCE));
+        tlvDefinitionsMap.put(Softwire46Multicast.TYPE,
+                new TlvDefinition(
+                        Softwire46Multicast.TYPE,
+                        Softwire46Multicast.NAME,
+                        TlvData.Codec.INSTANCE));
+        tlvDefinitionsMap.put(ExtendedVendorSpecific1.TYPE,
+                new TlvDefinition(
+                        ExtendedVendorSpecific1.TYPE,
+                        ExtendedVendorSpecific1.NAME,
+                        EvsData.Codec.INSTANCE));
+        tlvDefinitionsMap.put(ExtendedVendorSpecific2.TYPE,
+                new TlvDefinition(
+                        ExtendedVendorSpecific2.TYPE,
+                        ExtendedVendorSpecific2.NAME,
+                        EvsData.Codec.INSTANCE));
+        tlvDefinitionsMap.put(ExtendedVendorSpecific3.TYPE,
+                new TlvDefinition(
+                        ExtendedVendorSpecific3.TYPE,
+                        ExtendedVendorSpecific3.NAME,
+                        EvsData.Codec.INSTANCE));
+        tlvDefinitionsMap.put(ExtendedVendorSpecific4.TYPE,
+                new TlvDefinition(
+                        ExtendedVendorSpecific4.TYPE,
+                        ExtendedVendorSpecific4.NAME,
+                        EvsData.Codec.INSTANCE));
+
         tlvDefinitionsMap.put(new AttributeType(173, 1),
                 new TlvDefinition(
                         new AttributeType(173, 1),
@@ -2975,7 +3051,7 @@ public final class StandardDictionary implements Dictionary {
                 new TlvDefinition(
                         new AttributeType(241, 9, 3, 8, 14),
                         "Bind-IPv6-Prefix",
-                        Ipv4AddrData.Codec.INSTANCE));
+                        Ipv6PrefixData.Codec.INSTANCE));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 3, 9),
                 new TlvDefinition(

@@ -72,4 +72,19 @@ public interface Dictionary {
      */
     TlvDefinition getTlvDefinition(AttributeType type);
 
+    /**
+     * Gets a vendor specific group factory for a given attribute identifier. The identifier is the attribute type
+     * followed by the vendor identifier (for example 26.9). A compact Vendor-Specific attribute carrying several
+     * sub-attributes is decoded with the factory registered for its vendor, so that a vendor's own group type is
+     * recovered. A Vendor-Specific attribute carrying a single sub-attribute is decoded into that sub-attribute and
+     * doesn't use a factory.
+     *
+     * @param type an attribute identifier
+     *
+     * @return a vendor specific group factory or null if there's no factory for the attribute type
+     */
+    default VendorSpecificGroupFactory getVendorSpecificGroupFactory(AttributeType type) {
+        return null;
+    }
+
 }
