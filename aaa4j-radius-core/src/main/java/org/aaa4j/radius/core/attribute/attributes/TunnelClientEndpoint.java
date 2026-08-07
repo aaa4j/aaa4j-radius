@@ -17,19 +17,19 @@
 package org.aaa4j.radius.core.attribute.attributes;
 
 import org.aaa4j.radius.core.attribute.AttributeType;
+import org.aaa4j.radius.core.attribute.OptionalTaggedTextData;
 import org.aaa4j.radius.core.attribute.StandardAttribute;
-import org.aaa4j.radius.core.attribute.TextData;
 
 /**
  * Tunnel-Client-Endpoint (66) attribute.
  */
-public final class TunnelClientEndpoint extends StandardAttribute<TextData> {
+public final class TunnelClientEndpoint extends StandardAttribute<OptionalTaggedTextData> {
 
     public static final AttributeType TYPE = new AttributeType(66);
 
     public static final String NAME = "Tunnel-Client-Endpoint";
 
-    public TunnelClientEndpoint(TextData data) {
+    public TunnelClientEndpoint(OptionalTaggedTextData data) {
         super(TYPE.head(), data);
     }
 

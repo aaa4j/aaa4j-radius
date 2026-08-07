@@ -37,7 +37,7 @@ class TaggedIntegerDataTest {
         });
 
         assertThrows(IllegalArgumentException.class, () -> {
-            new TaggedIntegerData(1, 32);
+            new TaggedIntegerData(1, 256);
         });
 
         assertThrows(IllegalArgumentException.class, () -> {
@@ -112,6 +112,38 @@ class TaggedIntegerDataTest {
     }
 
     @Test
+    @DisplayName("Data is re-encoded into the bytes it was decoded from")
+    void testDecodeEncodeRoundTrip() {
+        // The tag octet is always present here, so every tag value has to survive a decode followed by an encode
+        // unchanged, which is what a proxy does when it forwards an attribute it received.
+        for (String wire : new String[] { "0000000d", "0100000d", "1f00000d", "2000000d", "ff00000d" }) {
+            byte[] encoded = fromHex(wire);
+
+            TaggedIntegerData decoded = TaggedIntegerData.Codec.INSTANCE.decode(null, null, encoded);
+
+            assertNotNull(decoded, wire);
+            assertEquals(wire, toHex(TaggedIntegerData.Codec.INSTANCE.encode(null, null, decoded)), wire);
+        }
+    }
+
+    @Test
+    @DisplayName("An out of range tag is kept as received rather than rejected")
+    void testDecodeOutOfRangeTag() {
+        // 0x1f is the highest tag that identifies a tunnel. 0x20 and 0xff don't, but the octet is still kept and
+        // re-encoding reproduces it, so a proxy forwards the attribute unaltered.
+        for (int tag : new int[] { 0x1f, 0x20, 0xff }) {
+            byte[] encoded = fromHex(String.format("%02x00a411", tag));
+
+            TaggedIntegerData data = TaggedIntegerData.Codec.INSTANCE.decode(null, null, encoded);
+
+            assertNotNull(data);
+            assertEquals(tag, data.getTag());
+            assertEquals(42_001, data.getValue());
+            assertEquals(toHex(encoded), toHex(TaggedIntegerData.Codec.INSTANCE.encode(null, null, data)));
+        }
+    }
+
+    @Test
     @DisplayName("Invalid tagged integer data is decoded into null")
     void testDecodeInvalidLength() {
         {
@@ -124,13 +156,6 @@ class TaggedIntegerDataTest {
         {
             // Too many bytes
             byte[] encoded = fromHex("0200a41100");
-            TaggedIntegerData taggedIntegerData = TaggedIntegerData.Codec.INSTANCE.decode(null, null, encoded);
-
-            assertNull(taggedIntegerData);
-        }
-        {
-            // Invalid tag (outside of [0, 31])
-            byte[] encoded = fromHex("ff00a411");
             TaggedIntegerData taggedIntegerData = TaggedIntegerData.Codec.INSTANCE.decode(null, null, encoded);
 
             assertNull(taggedIntegerData);

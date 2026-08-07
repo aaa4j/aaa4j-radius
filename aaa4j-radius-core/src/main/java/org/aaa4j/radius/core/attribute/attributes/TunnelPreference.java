@@ -17,19 +17,19 @@
 package org.aaa4j.radius.core.attribute.attributes;
 
 import org.aaa4j.radius.core.attribute.AttributeType;
-import org.aaa4j.radius.core.attribute.IntegerData;
 import org.aaa4j.radius.core.attribute.StandardAttribute;
+import org.aaa4j.radius.core.attribute.TaggedIntegerData;
 
 /**
  * Tunnel-Preference (83) attribute.
  */
-public final class TunnelPreference extends StandardAttribute<IntegerData> {
+public final class TunnelPreference extends StandardAttribute<TaggedIntegerData> {
 
     public static final AttributeType TYPE = new AttributeType(83);
 
     public static final String NAME = "Tunnel-Preference";
 
-    public TunnelPreference(IntegerData data) {
+    public TunnelPreference(TaggedIntegerData data) {
         super(TYPE.head(), data);
     }
 

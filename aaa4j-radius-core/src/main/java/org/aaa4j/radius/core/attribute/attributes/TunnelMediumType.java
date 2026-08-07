@@ -17,19 +17,19 @@
 package org.aaa4j.radius.core.attribute.attributes;
 
 import org.aaa4j.radius.core.attribute.AttributeType;
-import org.aaa4j.radius.core.attribute.EnumData;
 import org.aaa4j.radius.core.attribute.StandardAttribute;
+import org.aaa4j.radius.core.attribute.TaggedEnumData;
 
 /**
  * Tunnel-Medium-Type (65) attribute.
  */
-public final class TunnelMediumType extends StandardAttribute<EnumData> {
+public final class TunnelMediumType extends StandardAttribute<TaggedEnumData> {
 
     public static final AttributeType TYPE = new AttributeType(65);
 
     public static final String NAME = "Tunnel-Medium-Type";
 
-    public TunnelMediumType(EnumData data) {
+    public TunnelMediumType(TaggedEnumData data) {
         super(TYPE.head(), data);
     }
 

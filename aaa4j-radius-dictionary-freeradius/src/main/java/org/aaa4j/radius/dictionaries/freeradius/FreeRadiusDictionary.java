@@ -18,7 +18,6 @@ package org.aaa4j.radius.dictionaries.freeradius;
 
 import org.aaa4j.radius.core.attribute.AttributeType;
 import org.aaa4j.radius.core.attribute.DataCodec;
-import org.aaa4j.radius.core.attribute.EnumData;
 import org.aaa4j.radius.core.attribute.IfidData;
 import org.aaa4j.radius.core.attribute.Integer64Data;
 import org.aaa4j.radius.core.attribute.IntegerData;
@@ -32,7 +31,6 @@ import org.aaa4j.radius.core.attribute.StandardAttribute;
 import org.aaa4j.radius.core.attribute.StringData;
 import org.aaa4j.radius.core.attribute.TaggedIntegerData;
 import org.aaa4j.radius.core.attribute.TaggedStringData;
-import org.aaa4j.radius.core.attribute.TaggedTextData;
 import org.aaa4j.radius.core.attribute.TextData;
 import org.aaa4j.radius.core.attribute.TunnelPasswordDataFilter;
 import org.aaa4j.radius.core.attribute.UserPasswordDataFilter;
@@ -48,11 +46,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -92,7 +92,20 @@ public class FreeRadiusDictionary implements Dictionary {
 
     private static final Pattern DIGITS_PATTERN = Pattern.compile("^\\d+$");
 
+    private static final Pattern ENCRYPT_PATTERN = Pattern.compile("encrypt=([\\w-]+)");
+
     private static final int VENDOR_SPECIFIC_ATTRIBUTE = 26;
+
+    /**
+     * The data types whose codec accepts a {@link org.aaa4j.radius.core.attribute.DataFilter}. An attribute declaring
+     * encryption with any other data type cannot be honoured, so it is not registered.
+     */
+    private static final EnumSet<DataType> ENCRYPTABLE_DATA_TYPES = EnumSet.of(
+            DataType.INTEGER,
+            DataType.IPV4_ADDR,
+            DataType.STRING,
+            DataType.TAGGED_STRING,
+            DataType.TEXT);
 
     private static final AttributeType VENDOR_SPECIFIC_ATTRIBUTE_TYPE = new AttributeType(VENDOR_SPECIFIC_ATTRIBUTE);
 
@@ -166,13 +179,24 @@ public class FreeRadiusDictionary implements Dictionary {
                                             boolean hasTag = false;
                                             boolean usesUserPasswordEncryption = false;
                                             boolean usesTunnelPasswordEncryption = false;
+                                            boolean usesUnsupportedEncryption = false;
 
                                             if (tokens.length > j + 1) {
                                                 String modifiers = tokens[++j];
 
                                                 hasTag = modifiers.contains("has_tag");
-                                                usesUserPasswordEncryption = modifiers.contains("encrypt=1");
-                                                usesTunnelPasswordEncryption = modifiers.contains("encrypt=2");
+
+                                                Matcher encryptMatcher = ENCRYPT_PATTERN.matcher(modifiers);
+
+                                                if (encryptMatcher.find()) {
+                                                    String scheme = encryptMatcher.group(1);
+
+                                                    usesUserPasswordEncryption = scheme.equals("1");
+                                                    usesTunnelPasswordEncryption = scheme.equals("2");
+
+                                                    usesUnsupportedEncryption = !usesUserPasswordEncryption
+                                                            && !usesTunnelPasswordEncryption;
+                                                }
                                             }
 
                                             boolean usesEncryption = usesUserPasswordEncryption
@@ -183,26 +207,19 @@ public class FreeRadiusDictionary implements Dictionary {
                                             AttributeType attributeType = new AttributeType(intAttributeId);
                                             String fullName = String.format("%s", attributeName);
 
-                                            switch (typeFromString(typeLiteral, hasTag, usesEncryption)) {
+                                            DataType dataType = typeFromString(typeLiteral, hasTag,
+                                                    usesEncryption);
+
+                                            if (usesUnsupportedEncryption
+                                                    || (usesEncryption && !ENCRYPTABLE_DATA_TYPES.contains(dataType))) {
+                                                // Attributes asking for encryption that can't be applied here are
+                                                // left undefined rather than registered unencrypted.
+                                                break tokens;
+                                            }
+
+                                            switch (dataType) {
                                                 case CONCAT:
                                                     break;
-                                                case ENUM: {
-                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
-                                                            attributeType,
-                                                            fullName,
-                                                            VendorSpecificAttribute.class,
-                                                            EnumData.class,
-                                                            new StandardAttribute.Codec<>(
-                                                                    EnumData.Codec.INSTANCE,
-                                                                    StandardAttribute::new),
-                                                            (EnumData data) -> new StandardAttribute<>(intAttributeId,
-                                                                    data));
-
-                                                    typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
-                                                    nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
-                                                            attributeDefinition);
-                                                    break;
-                                                }
                                                 case EVS:
                                                     break;
                                                 case EXTENDED:
@@ -211,7 +228,7 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
                                                             attributeType,
                                                             fullName,
-                                                            VendorSpecificAttribute.class,
+                                                            StandardAttribute.class,
                                                             IfidData.class,
                                                             new StandardAttribute.Codec<>(
                                                                     IfidData.Codec.INSTANCE,
@@ -228,7 +245,7 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
                                                             attributeType,
                                                             fullName,
-                                                            VendorSpecificAttribute.class,
+                                                            StandardAttribute.class,
                                                             Integer64Data.class,
                                                             new StandardAttribute.Codec<>(
                                                                     Integer64Data.Codec.INSTANCE,
@@ -253,7 +270,7 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
                                                             attributeType,
                                                             fullName,
-                                                            VendorSpecificAttribute.class,
+                                                            StandardAttribute.class,
                                                             IntegerData.class,
                                                             new StandardAttribute.Codec<>(
                                                                     dataCodec,
@@ -278,7 +295,7 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
                                                             attributeType,
                                                             fullName,
-                                                            VendorSpecificAttribute.class,
+                                                            StandardAttribute.class,
                                                             Ipv4AddrData.class,
                                                             new StandardAttribute.Codec<>(
                                                                     dataCodec,
@@ -296,7 +313,7 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
                                                             attributeType,
                                                             fullName,
-                                                            VendorSpecificAttribute.class,
+                                                            StandardAttribute.class,
                                                             Ipv4PrefixData.class,
                                                             new StandardAttribute.Codec<>(
                                                                     Ipv4PrefixData.Codec.INSTANCE,
@@ -314,7 +331,7 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
                                                             attributeType,
                                                             fullName,
-                                                            VendorSpecificAttribute.class,
+                                                            StandardAttribute.class,
                                                             Ipv6AddrData.class,
                                                             new StandardAttribute.Codec<>(
                                                                     Ipv6AddrData.Codec.INSTANCE,
@@ -332,7 +349,7 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
                                                             attributeType,
                                                             fullName,
-                                                            VendorSpecificAttribute.class,
+                                                            StandardAttribute.class,
                                                             Ipv6PrefixData.class,
                                                             new StandardAttribute.Codec<>(
                                                                     Ipv6PrefixData.Codec.INSTANCE,
@@ -349,12 +366,42 @@ public class FreeRadiusDictionary implements Dictionary {
                                                 case LONG_EXTENDED:
                                                     break;
                                                 case OPTIONAL_TAGGED_STRING: {
-                                                    break;
+                                                    // Never encrypted: encryption selects the mandatory tagged form.
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            StandardAttribute.class,
+                                                            OptionalTaggedStringData.class,
+                                                            new StandardAttribute.Codec<>(
+                                                                    OptionalTaggedStringData.Codec.INSTANCE,
+                                                                    StandardAttribute::new),
+                                                            (OptionalTaggedStringData data) -> new StandardAttribute<>(
+                                                                    intAttributeId,
+                                                                    data));
 
+                                                    typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
+                                                    nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
+                                                            attributeDefinition);
+                                                    break;
                                                 }
                                                 case OPTIONAL_TAGGED_TEXT: {
-                                                    break;
+                                                    // Never encrypted: encryption selects the mandatory tagged form.
+                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
+                                                            attributeType,
+                                                            fullName,
+                                                            StandardAttribute.class,
+                                                            OptionalTaggedTextData.class,
+                                                            new StandardAttribute.Codec<>(
+                                                                    OptionalTaggedTextData.Codec.INSTANCE,
+                                                                    StandardAttribute::new),
+                                                            (OptionalTaggedTextData data) -> new StandardAttribute<>(
+                                                                    intAttributeId,
+                                                                    data));
 
+                                                    typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
+                                                    nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
+                                                            attributeDefinition);
+                                                    break;
                                                 }
                                                 case STRING: {
                                                     DataCodec<StringData> dataCodec = StringData.Codec.INSTANCE;
@@ -372,7 +419,7 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
                                                             attributeType,
                                                             fullName,
-                                                            VendorSpecificAttribute.class,
+                                                            StandardAttribute.class,
                                                             StringData.class,
                                                             new StandardAttribute.Codec<>(
                                                                     dataCodec,
@@ -389,7 +436,7 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
                                                             attributeType,
                                                             fullName,
-                                                            VendorSpecificAttribute.class,
+                                                            StandardAttribute.class,
                                                             TaggedIntegerData.class,
                                                             new StandardAttribute.Codec<>(
                                                                     TaggedIntegerData.Codec.INSTANCE,
@@ -419,30 +466,12 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
                                                             attributeType,
                                                             fullName,
-                                                            VendorSpecificAttribute.class,
+                                                            StandardAttribute.class,
                                                             TaggedStringData.class,
                                                             new StandardAttribute.Codec<>(
                                                                     dataCodec,
                                                                     StandardAttribute::new),
                                                             (TaggedStringData data) -> new StandardAttribute<>(
-                                                                    intAttributeId,
-                                                                    data));
-
-                                                    typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
-                                                    nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
-                                                            attributeDefinition);
-                                                    break;
-                                                }
-                                                case TAGGED_TEXT: {
-                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
-                                                            attributeType,
-                                                            fullName,
-                                                            VendorSpecificAttribute.class,
-                                                            TaggedTextData.class,
-                                                            new StandardAttribute.Codec<>(
-                                                                    TaggedTextData.Codec.INSTANCE,
-                                                                    StandardAttribute::new),
-                                                            (TaggedTextData data) -> new StandardAttribute<>(
                                                                     intAttributeId,
                                                                     data));
 
@@ -466,7 +495,7 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
                                                             attributeType,
                                                             fullName,
-                                                            VendorSpecificAttribute.class,
+                                                            StandardAttribute.class,
                                                             TextData.class,
                                                             new StandardAttribute.Codec<>(
                                                                     dataCodec,
@@ -498,13 +527,24 @@ public class FreeRadiusDictionary implements Dictionary {
                                             boolean hasTag = false;
                                             boolean usesUserPasswordEncryption = false;
                                             boolean usesTunnelPasswordEncryption = false;
+                                            boolean usesUnsupportedEncryption = false;
 
                                             if (tokens.length > j + 1) {
                                                 String modifiers = tokens[++j];
 
                                                 hasTag = modifiers.contains("has_tag");
-                                                usesUserPasswordEncryption = modifiers.contains("encrypt=1");
-                                                usesTunnelPasswordEncryption = modifiers.contains("encrypt=2");
+
+                                                Matcher encryptMatcher = ENCRYPT_PATTERN.matcher(modifiers);
+
+                                                if (encryptMatcher.find()) {
+                                                    String scheme = encryptMatcher.group(1);
+
+                                                    usesUserPasswordEncryption = scheme.equals("1");
+                                                    usesTunnelPasswordEncryption = scheme.equals("2");
+
+                                                    usesUnsupportedEncryption = !usesUserPasswordEncryption
+                                                            && !usesTunnelPasswordEncryption;
+                                                }
                                             }
 
                                             boolean usesEncryption = usesUserPasswordEncryption
@@ -522,37 +562,19 @@ public class FreeRadiusDictionary implements Dictionary {
                                             String fullName = String.format("%s-%s", currentVendorName, attributeName);
                                             final Integer finalVendorId = currentVendorId;
 
-                                            switch (typeFromString(typeLiteral, hasTag, usesEncryption)) {
+                                            DataType dataType = typeFromString(typeLiteral, hasTag,
+                                                    usesEncryption);
+
+                                            if (usesUnsupportedEncryption
+                                                    || (usesEncryption && !ENCRYPTABLE_DATA_TYPES.contains(dataType))) {
+                                                // Attributes asking for encryption that can't be applied here are
+                                                // left undefined rather than registered unencrypted.
+                                                break tokens;
+                                            }
+
+                                            switch (dataType) {
                                                 case CONCAT:
                                                     break;
-                                                case ENUM: {
-                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
-                                                            attributeType,
-                                                            fullName,
-                                                            VendorSpecificAttribute.class,
-                                                            EnumData.class,
-                                                            new VendorSpecificAttribute.Codec<>(
-                                                                    EnumData.Codec.INSTANCE,
-                                                                    (type, vendorId, vendorType,
-                                                                            data) -> new VendorSpecificAttribute<>(
-                                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                    vendorId,
-                                                                                    vendorType, data)),
-                                                            (EnumData data) -> new VendorSpecificAttribute<>(
-                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                    finalVendorId,
-                                                                    intAttributeId,
-                                                                    data));
-
-                                                    typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
-                                                    nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
-                                                            attributeDefinition);
-                                                    tlvDefinitionsMap.put(attributeType, new TlvDefinition(
-                                                            attributeType,
-                                                            fullName,
-                                                            EnumData.Codec.INSTANCE));
-                                                    break;
-                                                }
                                                 case EVS:
                                                     break;
                                                 case EXTENDED:
@@ -770,17 +792,8 @@ public class FreeRadiusDictionary implements Dictionary {
                                                 case LONG_EXTENDED:
                                                     break;
                                                 case OPTIONAL_TAGGED_STRING: {
+                                                    // Never encrypted: encryption selects the mandatory tagged form.
                                                     DataCodec<OptionalTaggedStringData> dataCodec = OptionalTaggedStringData.Codec.INSTANCE;
-
-                                                    if (usesUserPasswordEncryption) {
-                                                        dataCodec = new OptionalTaggedStringData.Codec(
-                                                                UserPasswordDataFilter.INSTANCE);
-                                                    }
-
-                                                    if (usesTunnelPasswordEncryption) {
-                                                        dataCodec = new OptionalTaggedStringData.Codec(
-                                                                TunnelPasswordDataFilter.INSTANCE);
-                                                    }
 
                                                     AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
                                                             attributeType,
@@ -810,17 +823,8 @@ public class FreeRadiusDictionary implements Dictionary {
                                                     break;
                                                 }
                                                 case OPTIONAL_TAGGED_TEXT: {
+                                                    // Never encrypted: encryption selects the mandatory tagged form.
                                                     DataCodec<OptionalTaggedTextData> dataCodec = OptionalTaggedTextData.Codec.INSTANCE;
-
-                                                    if (usesUserPasswordEncryption) {
-                                                        dataCodec = new OptionalTaggedTextData.Codec(
-                                                                UserPasswordDataFilter.INSTANCE);
-                                                    }
-
-                                                    if (usesTunnelPasswordEncryption) {
-                                                        dataCodec = new OptionalTaggedTextData.Codec(
-                                                                TunnelPasswordDataFilter.INSTANCE);
-                                                    }
 
                                                     AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
                                                             attributeType,
@@ -943,46 +947,6 @@ public class FreeRadiusDictionary implements Dictionary {
                                                                                     vendorId,
                                                                                     vendorType, data)),
                                                             (TaggedStringData data) -> new VendorSpecificAttribute<>(
-                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                    finalVendorId,
-                                                                    intAttributeId,
-                                                                    data));
-
-                                                    typeAttributeDefinitionsMap.put(attributeType, attributeDefinition);
-                                                    nameAttributeDefinitionsMap.put(fullName.toLowerCase(Locale.ROOT),
-                                                            attributeDefinition);
-                                                    tlvDefinitionsMap.put(attributeType, new TlvDefinition(
-                                                            attributeType,
-                                                            fullName,
-                                                            dataCodec));
-                                                    break;
-                                                }
-                                                case TAGGED_TEXT: {
-                                                    DataCodec<TaggedTextData> dataCodec = TaggedTextData.Codec.INSTANCE;
-
-                                                    if (usesUserPasswordEncryption) {
-                                                        dataCodec = new TaggedTextData.Codec(
-                                                                UserPasswordDataFilter.INSTANCE);
-                                                    }
-
-                                                    if (usesTunnelPasswordEncryption) {
-                                                        dataCodec = new TaggedTextData.Codec(
-                                                                TunnelPasswordDataFilter.INSTANCE);
-                                                    }
-
-                                                    AttributeDefinition<?, ?> attributeDefinition = new AttributeDefinition<>(
-                                                            attributeType,
-                                                            fullName,
-                                                            VendorSpecificAttribute.class,
-                                                            TextData.class,
-                                                            new VendorSpecificAttribute.Codec<>(
-                                                                    dataCodec,
-                                                                    (type, vendorId, vendorType,
-                                                                            data) -> new VendorSpecificAttribute<>(
-                                                                                    VENDOR_SPECIFIC_ATTRIBUTE,
-                                                                                    vendorId,
-                                                                                    vendorType, data)),
-                                                            (TextData data) -> new VendorSpecificAttribute<>(
                                                                     VENDOR_SPECIFIC_ATTRIBUTE,
                                                                     finalVendorId,
                                                                     intAttributeId,
@@ -1230,7 +1194,10 @@ public class FreeRadiusDictionary implements Dictionary {
             }
             case TEXT: {
                 if (hasTag) {
-                    dataType = hasEncryption ? DataType.TAGGED_TEXT : DataType.OPTIONAL_TAGGED_TEXT;
+                    // An encrypted tagged attribute carries a password, which is arbitrary octets rather than
+                    // text, so it uses the string form. RFC 8044 gives Tunnel-Password the "string" data type,
+                    // and decoding a password as UTF-8 would be lossy.
+                    dataType = hasEncryption ? DataType.TAGGED_STRING : DataType.OPTIONAL_TAGGED_TEXT;
                 }
                 break;
             }
@@ -1278,7 +1245,6 @@ public class FreeRadiusDictionary implements Dictionary {
 
     private enum DataType {
         CONCAT,
-        ENUM,
         EVS,
         EXTENDED,
         IFID,
@@ -1294,7 +1260,6 @@ public class FreeRadiusDictionary implements Dictionary {
         STRING,
         TAGGED_INTEGER,
         TAGGED_STRING,
-        TAGGED_TEXT,
         TEXT,
         TIME,
         TLV,

@@ -25,7 +25,6 @@ import org.aaa4j.radius.core.attribute.OptionalTaggedTextData;
 import org.aaa4j.radius.core.attribute.StringData;
 import org.aaa4j.radius.core.attribute.TaggedIntegerData;
 import org.aaa4j.radius.core.attribute.TaggedStringData;
-import org.aaa4j.radius.core.attribute.TaggedTextData;
 import org.aaa4j.radius.core.attribute.TextData;
 import org.aaa4j.radius.core.dictionary.AttributeDefinition;
 import org.aaa4j.radius.core.dictionary.AttributeFactory;
@@ -214,19 +213,6 @@ public final class FreeRadiusAttributeFactory {
                 TextData data = new TextData(value);
 
                 AttributeFactory<TextData> attributeFactory = (AttributeFactory<TextData>) attributeDefinition
-                        .getAttributeFactory();
-
-                return attributeFactory.build(data);
-            }
-            catch (IllegalArgumentException e) {
-                throw new ValueFormatException("Value is not a valid text value: " + value);
-            }
-        }
-        else if (attributeDefinition.getDataClass().equals(TaggedTextData.class)) {
-            try {
-                TaggedTextData data = new TaggedTextData(value, 0);
-
-                AttributeFactory<TaggedTextData> attributeFactory = (AttributeFactory<TaggedTextData>) attributeDefinition
                         .getAttributeFactory();
 
                 return attributeFactory.build(data);
