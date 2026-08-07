@@ -32,8 +32,11 @@ import org.aaa4j.radius.core.attribute.Ipv6AddrData;
 import org.aaa4j.radius.core.attribute.Ipv6PrefixData;
 import org.aaa4j.radius.core.attribute.LongExtendedAttribute;
 import org.aaa4j.radius.core.attribute.LongExtendedData;
+import org.aaa4j.radius.core.attribute.OptionalTaggedTextData;
 import org.aaa4j.radius.core.attribute.StandardAttribute;
 import org.aaa4j.radius.core.attribute.StringData;
+import org.aaa4j.radius.core.attribute.TaggedEnumData;
+import org.aaa4j.radius.core.attribute.TaggedIntegerData;
 import org.aaa4j.radius.core.attribute.TaggedStringData;
 import org.aaa4j.radius.core.attribute.TextData;
 import org.aaa4j.radius.core.attribute.TimeData;
@@ -985,9 +988,9 @@ public final class StandardDictionary implements Dictionary {
                         TunnelType.TYPE,
                         TunnelType.NAME,
                         TunnelType.class,
-                        EnumData.class,
+                        TaggedEnumData.class,
                         new StandardAttribute.Codec<>(
-                                EnumData.Codec.INSTANCE,
+                                TaggedEnumData.Codec.INSTANCE,
                                 (type, data) -> new TunnelType(data)),
                         TunnelType::new));
 
@@ -996,9 +999,9 @@ public final class StandardDictionary implements Dictionary {
                         TunnelMediumType.TYPE,
                         TunnelMediumType.NAME,
                         TunnelMediumType.class,
-                        EnumData.class,
+                        TaggedEnumData.class,
                         new StandardAttribute.Codec<>(
-                                EnumData.Codec.INSTANCE,
+                                TaggedEnumData.Codec.INSTANCE,
                                 (type, data) -> new TunnelMediumType(data)),
                         TunnelMediumType::new));
 
@@ -1007,9 +1010,9 @@ public final class StandardDictionary implements Dictionary {
                         TunnelClientEndpoint.TYPE,
                         TunnelClientEndpoint.NAME,
                         TunnelClientEndpoint.class,
-                        TextData.class,
+                        OptionalTaggedTextData.class,
                         new StandardAttribute.Codec<>(
-                                TextData.Codec.INSTANCE,
+                                OptionalTaggedTextData.Codec.INSTANCE,
                                 (type, data) -> new TunnelClientEndpoint(data)),
                         TunnelClientEndpoint::new));
 
@@ -1018,9 +1021,9 @@ public final class StandardDictionary implements Dictionary {
                         TunnelServerEndpoint.TYPE,
                         TunnelServerEndpoint.NAME,
                         TunnelServerEndpoint.class,
-                        TextData.class,
+                        OptionalTaggedTextData.class,
                         new StandardAttribute.Codec<>(
-                                TextData.Codec.INSTANCE,
+                                OptionalTaggedTextData.Codec.INSTANCE,
                                 (type, data) -> new TunnelServerEndpoint(data)),
                         TunnelServerEndpoint::new));
 
@@ -1171,9 +1174,9 @@ public final class StandardDictionary implements Dictionary {
                         TunnelPrivateGroupId.TYPE,
                         TunnelPrivateGroupId.NAME,
                         TunnelPrivateGroupId.class,
-                        TextData.class,
+                        OptionalTaggedTextData.class,
                         new StandardAttribute.Codec<>(
-                                TextData.Codec.INSTANCE,
+                                OptionalTaggedTextData.Codec.INSTANCE,
                                 (type, data) -> new TunnelPrivateGroupId(data)),
                         TunnelPrivateGroupId::new));
 
@@ -1182,9 +1185,9 @@ public final class StandardDictionary implements Dictionary {
                         TunnelAssignmentId.TYPE,
                         TunnelAssignmentId.NAME,
                         TunnelAssignmentId.class,
-                        TextData.class,
+                        OptionalTaggedTextData.class,
                         new StandardAttribute.Codec<>(
-                                TextData.Codec.INSTANCE,
+                                OptionalTaggedTextData.Codec.INSTANCE,
                                 (type, data) -> new TunnelAssignmentId(data)),
                         TunnelAssignmentId::new));
 
@@ -1193,9 +1196,9 @@ public final class StandardDictionary implements Dictionary {
                         TunnelPreference.TYPE,
                         TunnelPreference.NAME,
                         TunnelPreference.class,
-                        IntegerData.class,
+                        TaggedIntegerData.class,
                         new StandardAttribute.Codec<>(
-                                IntegerData.Codec.INSTANCE,
+                                TaggedIntegerData.Codec.INSTANCE,
                                 (type, data) -> new TunnelPreference(data)),
                         TunnelPreference::new));
 
@@ -1270,9 +1273,9 @@ public final class StandardDictionary implements Dictionary {
                         TunnelClientAuthId.TYPE,
                         TunnelClientAuthId.NAME,
                         TunnelClientAuthId.class,
-                        TextData.class,
+                        OptionalTaggedTextData.class,
                         new StandardAttribute.Codec<>(
-                                TextData.Codec.INSTANCE,
+                                OptionalTaggedTextData.Codec.INSTANCE,
                                 (type, data) -> new TunnelClientAuthId(data)),
                         TunnelClientAuthId::new));
 
@@ -1281,9 +1284,9 @@ public final class StandardDictionary implements Dictionary {
                         TunnelServerAuthId.TYPE,
                         TunnelServerAuthId.NAME,
                         TunnelServerAuthId.class,
-                        TextData.class,
+                        OptionalTaggedTextData.class,
                         new StandardAttribute.Codec<>(
-                                TextData.Codec.INSTANCE,
+                                OptionalTaggedTextData.Codec.INSTANCE,
                                 (type, data) -> new TunnelServerAuthId(data)),
                         TunnelServerAuthId::new));
 

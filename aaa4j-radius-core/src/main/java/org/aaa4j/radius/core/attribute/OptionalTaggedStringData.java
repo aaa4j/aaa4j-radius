@@ -23,6 +23,24 @@ import java.util.Optional;
 /**
  * A "string" attribute data type containing an optional 1-byte tag. The string (of octets) data is mapped to a byte
  * array.
+ *
+ * <p>
+ * The tag octet is only present if the sender chose to include one. On decoding, a leading octet in the range [0x00,
+ * 0x1f] is taken to be a tag and anything above that is taken to be the first byte of the string, which is the rule
+ * given in RFC 2868 section 3.3. Whether a tag was present is preserved, so decoding and re-encoding reproduces the
+ * wire form that was received. That matters when proxying, where the form chosen by the original sender should be
+ * passed on unchanged.
+ * </p>
+ *
+ * <p>
+ * Note that this rule cannot disambiguate a value whose own first octet falls in the tag range, which RFC 6158 section
+ * 3.2.2 records as a limitation of the tagging scheme.
+ * </p>
+ *
+ * <p>
+ * When a {@link DataFilter} is used, it applies to the value alone, so the tag travels unfiltered ahead of the filtered
+ * data.
+ * </p>
  */
 public class OptionalTaggedStringData extends Data {
 
@@ -32,6 +50,14 @@ public class OptionalTaggedStringData extends Data {
 
     /**
      * Constructs tagged string data from a given byte array and tag.
+     *
+     * <p>
+     * Use this constructor to group related attributes, giving each attribute in the group the same tag. Passing a tag
+     * of zero is not the same as passing no tag: it puts a zero octet on the wire. Prefer
+     * {@link #OptionalTaggedStringData(byte[])} when the attribute isn't part of a group, since RFC 2868 section 3 says
+     * that the tag field "SHOULD NOT be used" in that case, and a receiver that predates RFC 2868 would read the zero
+     * octet as the first byte of the string.
+     * </p>
      *
      * @param value the byte array
      * @param tag the tag (int in range [0, 31])
@@ -46,7 +72,11 @@ public class OptionalTaggedStringData extends Data {
     }
 
     /**
-     * Constructs tagged string data from a given byte array. No tag is included in the data with this constructor.
+     * Constructs tagged string data from a given byte array. No tag octet is included in the encoded data.
+     *
+     * <p>
+     * This is the constructor to use unless the attribute belongs to a group of related attributes.
+     * </p>
      *
      * @param value the byte array
      */
@@ -110,7 +140,7 @@ public class OptionalTaggedStringData extends Data {
         public OptionalTaggedStringData decode(CodecContext codecContext, AttributeType parentAttributeType,
                 byte[] bytes) {
             if (bytes.length < 1) {
-                return new OptionalTaggedStringData(new byte[] {});
+                return null;
             }
 
             int tag = bytes[0] & 0xff;
@@ -131,10 +161,10 @@ public class OptionalTaggedStringData extends Data {
 
             if (dataFilter != null) {
                 dataBytes = dataFilter.decode(codecContext, dataBytes);
-            }
 
-            if (dataBytes == null) {
-                return null;
+                if (dataBytes == null) {
+                    return null;
+                }
             }
 
             return new OptionalTaggedStringData(dataBytes, tag);
@@ -144,24 +174,23 @@ public class OptionalTaggedStringData extends Data {
         public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
             OptionalTaggedStringData optionalTaggedStringData = (OptionalTaggedStringData) data;
 
-            if (optionalTaggedStringData.tag != null) {
-                byte[] bytes = new byte[1 + optionalTaggedStringData.value.length];
-
-                bytes[0] = optionalTaggedStringData.tag.byteValue();
-                System.arraycopy(optionalTaggedStringData.value, 0, bytes, 1, optionalTaggedStringData.value.length);
-
-                if (dataFilter != null) {
-                    return dataFilter.encode(codecContext, bytes);
-                }
-
-                return bytes;
-            }
+            byte[] stringData = optionalTaggedStringData.value;
 
             if (dataFilter != null) {
-                return dataFilter.encode(codecContext, optionalTaggedStringData.value);
+                stringData = dataFilter.encode(codecContext, stringData);
             }
 
-            return optionalTaggedStringData.value;
+            if (optionalTaggedStringData.tag == null) {
+                return stringData;
+            }
+
+            byte[] bytes = new byte[1 + stringData.length];
+
+            bytes[0] = optionalTaggedStringData.tag.byteValue();
+
+            System.arraycopy(stringData, 0, bytes, 1, stringData.length);
+
+            return bytes;
         }
 
     }

@@ -16,6 +16,9 @@
 
 package org.aaa4j.radius.core.attribute;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
@@ -23,6 +26,24 @@ import java.util.Optional;
 
 /**
  * A "text" attribute data type containing an optional 1-byte tag. The text data is mapped to a {@link String}.
+ *
+ * <p>
+ * The tag octet is only present if the sender chose to include one. On decoding, a leading octet in the range [0x00,
+ * 0x1f] is taken to be a tag and anything above that is taken to be the first byte of the text, which is the rule given
+ * in RFC 2868 section 3.3. Whether a tag was present is preserved, so decoding and re-encoding reproduces the wire form
+ * that was received. That matters when proxying, where the form chosen by the original sender should be passed on
+ * unchanged.
+ * </p>
+ *
+ * <p>
+ * Note that this rule cannot disambiguate a value whose own first octet falls in the tag range, which RFC 6158 section
+ * 3.2.2 records as a limitation of the tagging scheme.
+ * </p>
+ *
+ * <p>
+ * When a {@link DataFilter} is used, it applies to the value alone, so the tag travels unfiltered ahead of the filtered
+ * data.
+ * </p>
  */
 public class OptionalTaggedTextData extends Data {
 
@@ -31,7 +52,15 @@ public class OptionalTaggedTextData extends Data {
     private final Integer tag;
 
     /**
-     * Constructs tagged string data from a given byte array and tag.
+     * Constructs tagged text data from a given string and tag.
+     *
+     * <p>
+     * Use this constructor to group related attributes, giving each attribute in the group the same tag. Passing a tag
+     * of zero is not the same as passing no tag: it puts a zero octet on the wire. Prefer
+     * {@link #OptionalTaggedTextData(String)} when the attribute isn't part of a group, since RFC 2868 section 3 says
+     * that the tag field "SHOULD NOT be used" in that case, and a receiver that predates RFC 2868 would read the zero
+     * octet as the first character of the text.
+     * </p>
      *
      * @param value the string
      * @param tag the tag (int in range [0, 31])
@@ -46,7 +75,11 @@ public class OptionalTaggedTextData extends Data {
     }
 
     /**
-     * Constructs tagged string data from a given string. No tag is included in the data with this constructor.
+     * Constructs tagged text data from a given string. No tag octet is included in the encoded data.
+     *
+     * <p>
+     * This is the constructor to use unless the attribute belongs to a group of related attributes.
+     * </p>
      *
      * @param value the string
      */
@@ -106,11 +139,26 @@ public class OptionalTaggedTextData extends Data {
             this.dataFilter = dataFilter;
         }
 
+        private static String decodeUtf8(byte[] bytes) {
+            try {
+                // A new decoder each time: decoders are stateful, and this codec instance is shared
+                return StandardCharsets.UTF_8.newDecoder()
+                        .onMalformedInput(CodingErrorAction.REPORT)
+                        .onUnmappableCharacter(CodingErrorAction.REPORT)
+                        .decode(ByteBuffer.wrap(bytes))
+                        .toString();
+            }
+            catch (CharacterCodingException e) {
+                // Not valid UTF-8, so not text
+                return null;
+            }
+        }
+
         @Override
         public OptionalTaggedTextData decode(CodecContext codecContext, AttributeType parentAttributeType,
                 byte[] bytes) {
             if (bytes.length < 1) {
-                return new OptionalTaggedTextData("");
+                return null;
             }
 
             int tag = bytes[0] & 0xff;
@@ -124,45 +172,53 @@ public class OptionalTaggedTextData extends Data {
                     }
                 }
 
-                return new OptionalTaggedTextData(new String(bytes, StandardCharsets.UTF_8));
+                String untaggedValue = decodeUtf8(bytes);
+
+                if (untaggedValue == null) {
+                    return null;
+                }
+
+                return new OptionalTaggedTextData(untaggedValue);
             }
 
             byte[] dataBytes = Arrays.copyOfRange(bytes, 1, bytes.length);
 
             if (dataFilter != null) {
                 dataBytes = dataFilter.decode(codecContext, dataBytes);
+
+                if (dataBytes == null) {
+                    return null;
+                }
             }
 
-            if (dataBytes == null) {
+            String value = decodeUtf8(dataBytes);
+
+            if (value == null) {
                 return null;
             }
 
-            return new OptionalTaggedTextData(new String(dataBytes, StandardCharsets.UTF_8), tag);
+            return new OptionalTaggedTextData(value, tag);
         }
 
         @Override
         public byte[] encode(CodecContext codecContext, AttributeType parentAttributeType, Data data) {
             OptionalTaggedTextData optionalTaggedTextData = (OptionalTaggedTextData) data;
 
-            if (optionalTaggedTextData.tag != null) {
-                byte[] bytes = new byte[optionalTaggedTextData.length()];
-                byte[] dataBytes = optionalTaggedTextData.value.getBytes(StandardCharsets.UTF_8);
-
-                dataBytes[0] = optionalTaggedTextData.tag.byteValue();
-                System.arraycopy(dataBytes, 0, bytes, 1, dataBytes.length);
-
-                if (dataFilter != null) {
-                    return dataFilter.encode(codecContext, bytes);
-                }
-
-                return bytes;
-            }
-
-            byte[] bytes = optionalTaggedTextData.value.getBytes(StandardCharsets.UTF_8);
+            byte[] textData = optionalTaggedTextData.value.getBytes(StandardCharsets.UTF_8);
 
             if (dataFilter != null) {
-                return dataFilter.encode(codecContext, bytes);
+                textData = dataFilter.encode(codecContext, textData);
             }
+
+            if (optionalTaggedTextData.tag == null) {
+                return textData;
+            }
+
+            byte[] bytes = new byte[1 + textData.length];
+
+            bytes[0] = optionalTaggedTextData.tag.byteValue();
+
+            System.arraycopy(textData, 0, bytes, 1, textData.length);
 
             return bytes;
         }

@@ -17,19 +17,19 @@
 package org.aaa4j.radius.core.attribute.attributes;
 
 import org.aaa4j.radius.core.attribute.AttributeType;
+import org.aaa4j.radius.core.attribute.OptionalTaggedTextData;
 import org.aaa4j.radius.core.attribute.StandardAttribute;
-import org.aaa4j.radius.core.attribute.TextData;
 
 /**
  * Tunnel-Private-Group-ID (81) attribute.
  */
-public final class TunnelPrivateGroupId extends StandardAttribute<TextData> {
+public final class TunnelPrivateGroupId extends StandardAttribute<OptionalTaggedTextData> {
 
     public static final AttributeType TYPE = new AttributeType(81);
 
     public static final String NAME = "Tunnel-Private-Group-ID";
 
-    public TunnelPrivateGroupId(TextData data) {
+    public TunnelPrivateGroupId(OptionalTaggedTextData data) {
         super(TYPE.head(), data);
     }
 

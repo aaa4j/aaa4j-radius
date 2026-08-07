@@ -17,8 +17,18 @@
 package org.aaa4j.radius.core.attribute;
 
 /**
- * An "integer" attribute data type containing a 1-byte tag. "integer" data is a 32-bit unsigned integer but is
- * represented as a signed Java <code>int</code>.
+ * An "integer" attribute data type containing a 1-byte tag. The value is represented as a signed Java <code>int</code>.
+ *
+ * <p>
+ * The tag occupies the first of the four octets, so the leading octet is never part of the value and a tagged integer
+ * carries values in the range [0, 16777215] rather than the full 32 bits an untagged integer would. RFC 2868 section
+ * 3.8 gives this layout for Tunnel-Preference.
+ * </p>
+ *
+ * <p>
+ * Valid tags are 0x01 through 0x1f, which group related attributes within a packet. Any other value carries no grouping
+ * and is kept as it was received.
+ * </p>
  */
 public final class TaggedIntegerData extends Data {
 
@@ -29,12 +39,12 @@ public final class TaggedIntegerData extends Data {
     /**
      * Constructs tagged integer data from a given integer value and tag.
      *
-     * @param value the byte array
-     * @param tag the tag (int in range [0, 31])
+     * @param value the integer (int in range [0, 16777215])
+     * @param tag the tag (int in range [0, 255])
      */
     public TaggedIntegerData(int value, int tag) {
-        if (tag < 0 || tag > 31) {
-            throw new IllegalArgumentException("Tag must be in range [0, 31]");
+        if (tag < 0 || tag > 255) {
+            throw new IllegalArgumentException("Tag must be in range [0, 255]");
         }
 
         if (value < 0 || value > 16777215) {
@@ -60,9 +70,9 @@ public final class TaggedIntegerData extends Data {
     }
 
     /**
-     * Gets the tag.
+     * Gets the tag. Only 0x01 through 0x1f group related attributes; any other value carries no grouping.
      *
-     * @return the tag (int in range [0, 31])
+     * @return the tag (int in range [0, 255])
      */
     public int getTag() {
         return tag;
@@ -85,10 +95,6 @@ public final class TaggedIntegerData extends Data {
             }
 
             int tag = bytes[0] & 0xff;
-
-            if (tag > 31) {
-                return null;
-            }
 
             int value = (bytes[1] & 0xff) << 16
                     | (bytes[2] & 0xff) << 8
