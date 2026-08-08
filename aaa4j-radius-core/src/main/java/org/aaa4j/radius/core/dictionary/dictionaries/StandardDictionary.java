@@ -68,7 +68,9 @@ import org.aaa4j.radius.core.attribute.attributes.ArapPassword;
 import org.aaa4j.radius.core.attribute.attributes.ArapSecurity;
 import org.aaa4j.radius.core.attribute.attributes.ArapSecurityData;
 import org.aaa4j.radius.core.attribute.attributes.ArapZoneAccess;
+import org.aaa4j.radius.core.attribute.attributes.AsmPrefix64;
 import org.aaa4j.radius.core.attribute.attributes.BasicLocationPolicyRules;
+import org.aaa4j.radius.core.attribute.attributes.BindIpv6Prefix;
 import org.aaa4j.radius.core.attribute.attributes.CallbackId;
 import org.aaa4j.radius.core.attribute.attributes.CallbackNumber;
 import org.aaa4j.radius.core.attribute.attributes.CalledStationId;
@@ -104,12 +106,13 @@ import org.aaa4j.radius.core.attribute.attributes.DigestUri;
 import org.aaa4j.radius.core.attribute.attributes.DigestUsername;
 import org.aaa4j.radius.core.attribute.attributes.DnsServerIpv6Address;
 import org.aaa4j.radius.core.attribute.attributes.DsLiteTunnelName;
+import org.aaa4j.radius.core.attribute.attributes.EaLength;
 import org.aaa4j.radius.core.attribute.attributes.EapKeyName;
 import org.aaa4j.radius.core.attribute.attributes.EapLowerLayer;
 import org.aaa4j.radius.core.attribute.attributes.EapMessage;
-import org.aaa4j.radius.core.attribute.attributes.EapolAnnouncement;
 import org.aaa4j.radius.core.attribute.attributes.EapPeerId;
 import org.aaa4j.radius.core.attribute.attributes.EapServerId;
+import org.aaa4j.radius.core.attribute.attributes.EapolAnnouncement;
 import org.aaa4j.radius.core.attribute.attributes.EgressVlanName;
 import org.aaa4j.radius.core.attribute.attributes.EgressVlanid;
 import org.aaa4j.radius.core.attribute.attributes.ErrorCause;
@@ -153,10 +156,24 @@ import org.aaa4j.radius.core.attribute.attributes.GssAcceptorServiceName;
 import org.aaa4j.radius.core.attribute.attributes.GssAcceptorServiceSpecifics;
 import org.aaa4j.radius.core.attribute.attributes.IdleTimeout;
 import org.aaa4j.radius.core.attribute.attributes.IngressFilters;
+import org.aaa4j.radius.core.attribute.attributes.IpPortAlloc;
+import org.aaa4j.radius.core.attribute.attributes.IpPortExtIpv4Addr;
+import org.aaa4j.radius.core.attribute.attributes.IpPortExtPort;
 import org.aaa4j.radius.core.attribute.attributes.IpPortForwardingMap;
+import org.aaa4j.radius.core.attribute.attributes.IpPortIntIpv4Addr;
+import org.aaa4j.radius.core.attribute.attributes.IpPortIntIpv6Addr;
+import org.aaa4j.radius.core.attribute.attributes.IpPortIntPort;
+import org.aaa4j.radius.core.attribute.attributes.IpPortLimit;
 import org.aaa4j.radius.core.attribute.attributes.IpPortLimitInfo;
+import org.aaa4j.radius.core.attribute.attributes.IpPortLocalId;
 import org.aaa4j.radius.core.attribute.attributes.IpPortRange;
+import org.aaa4j.radius.core.attribute.attributes.IpPortRangeEnd;
+import org.aaa4j.radius.core.attribute.attributes.IpPortRangeStart;
+import org.aaa4j.radius.core.attribute.attributes.IpPortType;
+import org.aaa4j.radius.core.attribute.attributes.Ipv66rdBrIpv4Address;
 import org.aaa4j.radius.core.attribute.attributes.Ipv66rdConfiguration;
+import org.aaa4j.radius.core.attribute.attributes.Ipv66rdIpv4MaskLen;
+import org.aaa4j.radius.core.attribute.attributes.Ipv66rdPrefix;
 import org.aaa4j.radius.core.attribute.attributes.LocationCapable;
 import org.aaa4j.radius.core.attribute.attributes.LocationData;
 import org.aaa4j.radius.core.attribute.attributes.LocationInformation;
@@ -217,19 +234,36 @@ import org.aaa4j.radius.core.attribute.attributes.PreauthTimeout;
 import org.aaa4j.radius.core.attribute.attributes.Prompt;
 import org.aaa4j.radius.core.attribute.attributes.ProxyState;
 import org.aaa4j.radius.core.attribute.attributes.ProxyStateLength;
+import org.aaa4j.radius.core.attribute.attributes.Psid;
+import org.aaa4j.radius.core.attribute.attributes.PsidLen;
+import org.aaa4j.radius.core.attribute.attributes.PsidOffset;
 import org.aaa4j.radius.core.attribute.attributes.ReplyMessage;
 import org.aaa4j.radius.core.attribute.attributes.RequestedLocationInfo;
 import org.aaa4j.radius.core.attribute.attributes.ResponseLength;
 import org.aaa4j.radius.core.attribute.attributes.RouteIpv6Information;
+import org.aaa4j.radius.core.attribute.attributes.RuleIpv4Prefix;
+import org.aaa4j.radius.core.attribute.attributes.RuleIpv6Prefix;
 import org.aaa4j.radius.core.attribute.attributes.SamlAssertion;
 import org.aaa4j.radius.core.attribute.attributes.SamlProtocol;
 import org.aaa4j.radius.core.attribute.attributes.ServiceSelection;
 import org.aaa4j.radius.core.attribute.attributes.ServiceType;
 import org.aaa4j.radius.core.attribute.attributes.SessionTimeout;
 import org.aaa4j.radius.core.attribute.attributes.SipAor;
+import org.aaa4j.radius.core.attribute.attributes.Softwire46Br;
 import org.aaa4j.radius.core.attribute.attributes.Softwire46Configuration;
+import org.aaa4j.radius.core.attribute.attributes.Softwire46Dmr;
+import org.aaa4j.radius.core.attribute.attributes.Softwire46Ipv4Address;
+import org.aaa4j.radius.core.attribute.attributes.Softwire46Lightweight4over6;
+import org.aaa4j.radius.core.attribute.attributes.Softwire46MapE;
+import org.aaa4j.radius.core.attribute.attributes.Softwire46MapT;
 import org.aaa4j.radius.core.attribute.attributes.Softwire46Multicast;
+import org.aaa4j.radius.core.attribute.attributes.Softwire46OptionCode;
+import org.aaa4j.radius.core.attribute.attributes.Softwire46PortParams;
 import org.aaa4j.radius.core.attribute.attributes.Softwire46Priority;
+import org.aaa4j.radius.core.attribute.attributes.Softwire46RuleBmr;
+import org.aaa4j.radius.core.attribute.attributes.Softwire46RuleFmr;
+import org.aaa4j.radius.core.attribute.attributes.Softwire46V4v6Bind;
+import org.aaa4j.radius.core.attribute.attributes.SsmPrefix64;
 import org.aaa4j.radius.core.attribute.attributes.State;
 import org.aaa4j.radius.core.attribute.attributes.StatefulIpv6AddressPool;
 import org.aaa4j.radius.core.attribute.attributes.TerminationAction;
@@ -243,6 +277,7 @@ import org.aaa4j.radius.core.attribute.attributes.TunnelPrivateGroupId;
 import org.aaa4j.radius.core.attribute.attributes.TunnelServerAuthId;
 import org.aaa4j.radius.core.attribute.attributes.TunnelServerEndpoint;
 import org.aaa4j.radius.core.attribute.attributes.TunnelType;
+import org.aaa4j.radius.core.attribute.attributes.UPrefix64;
 import org.aaa4j.radius.core.attribute.attributes.UserName;
 import org.aaa4j.radius.core.attribute.attributes.UserPassword;
 import org.aaa4j.radius.core.attribute.attributes.UserPriorityTable;
@@ -2748,361 +2783,421 @@ public final class StandardDictionary implements Dictionary {
                 new TlvDefinition(
                         new AttributeType(173, 1),
                         "IPv4MaskLen",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new Ipv66rdIpv4MaskLen((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(173, 2),
                 new TlvDefinition(
                         new AttributeType(173, 2),
-                        "6rdPrefixLen",
-                        Ipv6PrefixData.Codec.INSTANCE));
+                        "6rdPrefix",
+                        Ipv6PrefixData.Codec.INSTANCE,
+                        data -> new Ipv66rdPrefix((Ipv6PrefixData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(173, 3),
                 new TlvDefinition(
                         new AttributeType(173, 3),
                         "6rdBRIPv4Address",
-                        Ipv4AddrData.Codec.INSTANCE));
+                        Ipv4AddrData.Codec.INSTANCE,
+                        data -> new Ipv66rdBrIpv4Address((Ipv4AddrData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 5, 1),
                 new TlvDefinition(
                         new AttributeType(241, 5, 1),
                         "IP-Port-Type",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new IpPortType((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 5, 2),
                 new TlvDefinition(
                         new AttributeType(241, 5, 2),
                         "IP-Port-Limit",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new IpPortLimit((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 5, 3),
                 new TlvDefinition(
                         new AttributeType(241, 5, 3),
                         "IP-Port-Ext-IPv4-Addr",
-                        Ipv4AddrData.Codec.INSTANCE));
+                        Ipv4AddrData.Codec.INSTANCE,
+                        data -> new IpPortExtIpv4Addr((Ipv4AddrData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 6, 1),
                 new TlvDefinition(
                         new AttributeType(241, 6, 1),
                         "IP-Port-Type",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new IpPortType((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 6, 3),
                 new TlvDefinition(
                         new AttributeType(241, 6, 3),
                         "IP-Port-Ext-IPv4-Addr",
-                        Ipv4AddrData.Codec.INSTANCE));
+                        Ipv4AddrData.Codec.INSTANCE,
+                        data -> new IpPortExtIpv4Addr((Ipv4AddrData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 6, 8),
                 new TlvDefinition(
                         new AttributeType(241, 6, 8),
                         "IP-Port-Alloc",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new IpPortAlloc((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 6, 9),
                 new TlvDefinition(
                         new AttributeType(241, 6, 9),
                         "IP-Port-Range-Start",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new IpPortRangeStart((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 6, 10),
                 new TlvDefinition(
                         new AttributeType(241, 6, 10),
                         "IP-Port-Range-End",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new IpPortRangeEnd((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 6, 11),
                 new TlvDefinition(
                         new AttributeType(241, 6, 11),
                         "IP-Port-Local-Id",
-                        StringData.Codec.INSTANCE));
+                        StringData.Codec.INSTANCE,
+                        data -> new IpPortLocalId((StringData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 7, 1),
                 new TlvDefinition(
                         new AttributeType(241, 7, 1),
                         "IP-Port-Type",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new IpPortType((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 7, 3),
                 new TlvDefinition(
                         new AttributeType(241, 7, 3),
                         "IP-Port-Ext-IPv4-Addr",
-                        Ipv4AddrData.Codec.INSTANCE));
+                        Ipv4AddrData.Codec.INSTANCE,
+                        data -> new IpPortExtIpv4Addr((Ipv4AddrData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 7, 4),
                 new TlvDefinition(
                         new AttributeType(241, 7, 4),
                         "IP-Port-Int-IPv4-Addr",
-                        Ipv4AddrData.Codec.INSTANCE));
+                        Ipv4AddrData.Codec.INSTANCE,
+                        data -> new IpPortIntIpv4Addr((Ipv4AddrData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 7, 5),
                 new TlvDefinition(
                         new AttributeType(241, 7, 5),
                         "IP-Port-Int-IPv6-Addr",
-                        Ipv6AddrData.Codec.INSTANCE));
+                        Ipv6AddrData.Codec.INSTANCE,
+                        data -> new IpPortIntIpv6Addr((Ipv6AddrData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 7, 6),
                 new TlvDefinition(
                         new AttributeType(241, 7, 6),
                         "IP-Port-Int-Port",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new IpPortIntPort((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 7, 7),
                 new TlvDefinition(
                         new AttributeType(241, 7, 7),
                         "IP-Port-Ext-Port",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new IpPortExtPort((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 7, 11),
                 new TlvDefinition(
                         new AttributeType(241, 7, 11),
                         "IP-Port-Local-Id",
-                        StringData.Codec.INSTANCE));
+                        StringData.Codec.INSTANCE,
+                        data -> new IpPortLocalId((StringData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 1),
                 new TlvDefinition(
                         new AttributeType(241, 9, 1),
                         "Softwire46-MAP-E",
-                        TlvData.Codec.INSTANCE));
+                        TlvData.Codec.INSTANCE,
+                        data -> new Softwire46MapE((TlvData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 1, 4),
                 new TlvDefinition(
                         new AttributeType(241, 9, 1, 4),
                         "Softwire46-Rule",
-                        TlvData.Codec.INSTANCE));
+                        TlvData.Codec.INSTANCE,
+                        data -> new Softwire46RuleBmr((TlvData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 1, 4, 10),
                 new TlvDefinition(
                         new AttributeType(241, 9, 1, 4, 10),
                         "Rule-IPv6-Prefix",
-                        Ipv6PrefixData.Codec.INSTANCE));
+                        Ipv6PrefixData.Codec.INSTANCE,
+                        data -> new RuleIpv6Prefix((Ipv6PrefixData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 1, 4, 11),
                 new TlvDefinition(
                         new AttributeType(241, 9, 1, 4, 11),
                         "Rule-IPv4-Prefix",
-                        Ipv4PrefixData.Codec.INSTANCE));
+                        Ipv4PrefixData.Codec.INSTANCE,
+                        data -> new RuleIpv4Prefix((Ipv4PrefixData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 1, 4, 12),
                 new TlvDefinition(
                         new AttributeType(241, 9, 1, 4, 12),
                         "EA-Length",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new EaLength((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 1, 5),
                 new TlvDefinition(
                         new AttributeType(241, 9, 1, 5),
                         "Softwire46-Rule",
-                        TlvData.Codec.INSTANCE));
+                        TlvData.Codec.INSTANCE,
+                        data -> new Softwire46RuleFmr((TlvData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 1, 5, 10),
                 new TlvDefinition(
                         new AttributeType(241, 9, 1, 5, 10),
                         "Rule-IPv6-Prefix",
-                        Ipv6PrefixData.Codec.INSTANCE));
+                        Ipv6PrefixData.Codec.INSTANCE,
+                        data -> new RuleIpv6Prefix((Ipv6PrefixData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 1, 5, 11),
                 new TlvDefinition(
                         new AttributeType(241, 9, 1, 5, 11),
                         "Rule-IPv4-Prefix",
-                        Ipv4PrefixData.Codec.INSTANCE));
+                        Ipv4PrefixData.Codec.INSTANCE,
+                        data -> new RuleIpv4Prefix((Ipv4PrefixData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 1, 5, 12),
                 new TlvDefinition(
                         new AttributeType(241, 9, 1, 5, 12),
                         "EA-Length",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new EaLength((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 1, 6),
                 new TlvDefinition(
                         new AttributeType(241, 9, 1, 6),
                         "Softwire46-BR",
-                        Ipv6AddrData.Codec.INSTANCE));
+                        Ipv6AddrData.Codec.INSTANCE,
+                        data -> new Softwire46Br((Ipv6AddrData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 1, 9),
                 new TlvDefinition(
                         new AttributeType(241, 9, 1, 9),
                         "Softwire46-PORTPARAMS",
-                        TlvData.Codec.INSTANCE));
+                        TlvData.Codec.INSTANCE,
+                        data -> new Softwire46PortParams((TlvData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 1, 9, 15),
                 new TlvDefinition(
                         new AttributeType(241, 9, 1, 9, 15),
                         "PSID-Offset",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new PsidOffset((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 1, 9, 16),
                 new TlvDefinition(
                         new AttributeType(241, 9, 1, 9, 16),
                         "PSID-Len",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new PsidLen((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 1, 9, 17),
                 new TlvDefinition(
                         new AttributeType(241, 9, 1, 9, 17),
                         "PSID",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new Psid((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 2),
                 new TlvDefinition(
                         new AttributeType(241, 9, 2),
                         "Softwire46-MAP-T",
-                        TlvData.Codec.INSTANCE));
+                        TlvData.Codec.INSTANCE,
+                        data -> new Softwire46MapT((TlvData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 2, 4),
                 new TlvDefinition(
                         new AttributeType(241, 9, 2, 4),
                         "Softwire46-Rule",
-                        TlvData.Codec.INSTANCE));
+                        TlvData.Codec.INSTANCE,
+                        data -> new Softwire46RuleBmr((TlvData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 2, 4, 10),
                 new TlvDefinition(
                         new AttributeType(241, 9, 2, 4, 10),
                         "Rule-IPv6-Prefix",
-                        Ipv6PrefixData.Codec.INSTANCE));
+                        Ipv6PrefixData.Codec.INSTANCE,
+                        data -> new RuleIpv6Prefix((Ipv6PrefixData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 2, 4, 11),
                 new TlvDefinition(
                         new AttributeType(241, 9, 2, 4, 11),
                         "Rule-IPv4-Prefix",
-                        Ipv4PrefixData.Codec.INSTANCE));
+                        Ipv4PrefixData.Codec.INSTANCE,
+                        data -> new RuleIpv4Prefix((Ipv4PrefixData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 2, 4, 12),
                 new TlvDefinition(
                         new AttributeType(241, 9, 2, 4, 12),
                         "EA-Length",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new EaLength((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 2, 5),
                 new TlvDefinition(
                         new AttributeType(241, 9, 2, 5),
                         "Softwire46-Rule",
-                        TlvData.Codec.INSTANCE));
+                        TlvData.Codec.INSTANCE,
+                        data -> new Softwire46RuleFmr((TlvData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 2, 5, 10),
                 new TlvDefinition(
                         new AttributeType(241, 9, 2, 5, 10),
                         "Rule-IPv6-Prefix",
-                        Ipv6PrefixData.Codec.INSTANCE));
+                        Ipv6PrefixData.Codec.INSTANCE,
+                        data -> new RuleIpv6Prefix((Ipv6PrefixData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 2, 5, 11),
                 new TlvDefinition(
                         new AttributeType(241, 9, 2, 5, 11),
                         "Rule-IPv4-Prefix",
-                        Ipv4PrefixData.Codec.INSTANCE));
+                        Ipv4PrefixData.Codec.INSTANCE,
+                        data -> new RuleIpv4Prefix((Ipv4PrefixData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 2, 5, 12),
                 new TlvDefinition(
                         new AttributeType(241, 9, 2, 5, 12),
                         "EA-Length",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new EaLength((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 2, 7),
                 new TlvDefinition(
                         new AttributeType(241, 9, 2, 7),
                         "Softwire46-DMR",
-                        Ipv6PrefixData.Codec.INSTANCE));
+                        Ipv6PrefixData.Codec.INSTANCE,
+                        data -> new Softwire46Dmr((Ipv6PrefixData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 2, 9),
                 new TlvDefinition(
                         new AttributeType(241, 9, 2, 9),
                         "Softwire46-PORTPARAMS",
-                        TlvData.Codec.INSTANCE));
+                        TlvData.Codec.INSTANCE,
+                        data -> new Softwire46PortParams((TlvData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 2, 9, 15),
                 new TlvDefinition(
                         new AttributeType(241, 9, 2, 9, 15),
                         "PSID-Offset",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new PsidOffset((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 2, 9, 16),
                 new TlvDefinition(
                         new AttributeType(241, 9, 2, 9, 16),
                         "PSID-Len",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new PsidLen((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 2, 9, 17),
                 new TlvDefinition(
                         new AttributeType(241, 9, 2, 9, 17),
                         "PSID",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new Psid((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 3),
                 new TlvDefinition(
                         new AttributeType(241, 9, 3),
                         "Softwire46-Lightweight-4over6",
-                        TlvData.Codec.INSTANCE));
+                        TlvData.Codec.INSTANCE,
+                        data -> new Softwire46Lightweight4over6((TlvData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 3, 6),
                 new TlvDefinition(
                         new AttributeType(241, 9, 3, 6),
                         "Softwire46-BR",
-                        Ipv6AddrData.Codec.INSTANCE));
+                        Ipv6AddrData.Codec.INSTANCE,
+                        data -> new Softwire46Br((Ipv6AddrData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 3, 8),
                 new TlvDefinition(
                         new AttributeType(241, 9, 3, 8),
                         "Softwire46-V4V6Bind",
-                        TlvData.Codec.INSTANCE));
+                        TlvData.Codec.INSTANCE,
+                        data -> new Softwire46V4v6Bind((TlvData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 3, 8, 13),
                 new TlvDefinition(
                         new AttributeType(241, 9, 3, 8, 13),
                         "IPv4-Address",
-                        Ipv4AddrData.Codec.INSTANCE));
+                        Ipv4AddrData.Codec.INSTANCE,
+                        data -> new Softwire46Ipv4Address((Ipv4AddrData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 3, 8, 14),
                 new TlvDefinition(
                         new AttributeType(241, 9, 3, 8, 14),
                         "Bind-IPv6-Prefix",
-                        Ipv6PrefixData.Codec.INSTANCE));
+                        Ipv6PrefixData.Codec.INSTANCE,
+                        data -> new BindIpv6Prefix((Ipv6PrefixData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 3, 9),
                 new TlvDefinition(
                         new AttributeType(241, 9, 3, 9),
                         "Softwire46-PORTPARAMS",
-                        TlvData.Codec.INSTANCE));
+                        TlvData.Codec.INSTANCE,
+                        data -> new Softwire46PortParams((TlvData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 3, 9, 15),
                 new TlvDefinition(
                         new AttributeType(241, 9, 3, 9, 15),
                         "PSID-Offset",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new PsidOffset((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 3, 9, 16),
                 new TlvDefinition(
-                        new AttributeType(241, 9, 2, 9, 16),
+                        new AttributeType(241, 9, 3, 9, 16),
                         "PSID-Len",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new PsidLen((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 9, 3, 9, 17),
                 new TlvDefinition(
-                        new AttributeType(241, 9, 2, 9, 17),
+                        new AttributeType(241, 9, 3, 9, 17),
                         "PSID",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new Psid((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 10, 18),
                 new TlvDefinition(
                         new AttributeType(241, 10, 18),
                         "Softwire46-Option-Code",
-                        IntegerData.Codec.INSTANCE));
+                        IntegerData.Codec.INSTANCE,
+                        data -> new Softwire46OptionCode((IntegerData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 11, 19),
                 new TlvDefinition(
                         new AttributeType(241, 11, 19),
                         "ASM-Prefix64",
-                        Ipv6PrefixData.Codec.INSTANCE));
+                        Ipv6PrefixData.Codec.INSTANCE,
+                        data -> new AsmPrefix64((Ipv6PrefixData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 11, 20),
                 new TlvDefinition(
                         new AttributeType(241, 11, 20),
                         "SSM-Prefix64",
-                        Ipv6PrefixData.Codec.INSTANCE));
+                        Ipv6PrefixData.Codec.INSTANCE,
+                        data -> new SsmPrefix64((Ipv6PrefixData) data)));
 
         tlvDefinitionsMap.put(new AttributeType(241, 11, 21),
                 new TlvDefinition(
                         new AttributeType(241, 11, 21),
                         "U-Prefix64",
-                        Ipv6PrefixData.Codec.INSTANCE));
+                        Ipv6PrefixData.Codec.INSTANCE,
+                        data -> new UPrefix64((Ipv6PrefixData) data)));
     }
 
     @Override

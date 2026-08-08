@@ -29,6 +29,8 @@ public class TlvDefinition {
 
     private final DataCodec<?> dataCodec;
 
+    private final TlvFactory tlvFactory;
+
     /**
      * Constructs an attribute definition from the given definition parameters.
      *
@@ -37,13 +39,54 @@ public class TlvDefinition {
      * @param dataCodec the attribute codec used to encode and decode the attribute
      */
     public TlvDefinition(AttributeType type, String name, DataCodec<?> dataCodec) {
+        this(type, name, dataCodec, null);
+    }
+
+    /**
+     * Constructs an attribute definition from the given definition parameters and a factory building the TLV.
+     *
+     * @param type the attribute type (i.e., the unique "dotted" attribute number)
+     * @param name the attribute name
+     * @param dataCodec the attribute codec used to encode and decode the attribute
+     * @param tlvFactory the factory used to create instances of this TLV, or null to decode into
+     * {@link org.aaa4j.radius.core.attribute.TlvData.Tlv}
+     */
+    public TlvDefinition(AttributeType type, String name, DataCodec<?> dataCodec, TlvFactory tlvFactory) {
         this.type = Objects.requireNonNull(type);
         this.name = Objects.requireNonNull(name);
         this.dataCodec = Objects.requireNonNull(dataCodec);
+        this.tlvFactory = tlvFactory;
+    }
+
+    /**
+     * Gets the TLV identifier.
+     *
+     * @return the TLV identifier
+     */
+    public AttributeType getIdentifier() {
+        return type;
+    }
+
+    /**
+     * Gets the TLV name.
+     *
+     * @return the TLV name
+     */
+    public String getName() {
+        return name;
     }
 
     public DataCodec<?> getDataCodec() {
         return dataCodec;
+    }
+
+    /**
+     * Gets the factory used to create instances of this TLV.
+     *
+     * @return the factory, or null if the TLV has no concrete type
+     */
+    public TlvFactory getTlvFactory() {
+        return tlvFactory;
     }
 
 }

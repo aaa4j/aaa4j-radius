@@ -17,11 +17,13 @@
 package org.aaa4j.radius.core.attribute;
 
 import org.aaa4j.radius.core.dictionary.TlvDefinition;
+import org.aaa4j.radius.core.dictionary.TlvFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * "tlv" attribute data type. A TlvData object contains one or more type-level-values ({@link Tlv}s).
@@ -62,9 +64,48 @@ public final class TlvData extends Data {
     }
 
     /**
-     * A Type-Length-Value triplet used in {@link TlvData}.
+     * Gets the first TLV of a specific class. Only the TLVs held directly are searched.
+     *
+     * @param tlvClass TLV class
+     * @param <T> TLV type for {@code tlvClass} parameter
+     *
+     * @return an optional TLV of the given class
      */
-    public static final class Tlv {
+    public <T extends Tlv> Optional<T> getTlv(Class<T> tlvClass) {
+        for (Tlv tlv : tlvs) {
+            if (tlvClass.isInstance(tlv)) {
+                return Optional.of(tlvClass.cast(tlv));
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    /**
+     * Gets all the TLVs of a specific class, in order. Only the TLVs held directly are searched.
+     *
+     * @param tlvClass TLV class
+     * @param <T> TLV type for {@code tlvClass} parameter
+     *
+     * @return list of TLVs of the given class
+     */
+    public <T extends Tlv> List<T> getTlvs(Class<T> tlvClass) {
+        List<T> found = new ArrayList<>();
+
+        for (Tlv tlv : tlvs) {
+            if (tlvClass.isInstance(tlv)) {
+                found.add(tlvClass.cast(tlv));
+            }
+        }
+
+        return found;
+    }
+
+    /**
+     * A Type-Length-Value triplet used in {@link TlvData}. A dictionary may define a subclass for a particular TLV,
+     * which fixes the type and is built when the TLV is decoded.
+     */
+    public static class Tlv {
 
         private final int type;
 
@@ -169,7 +210,7 @@ public final class TlvData extends Data {
                     tlv = new Tlv(tlvType, new RawData(tlvData));
                 }
                 else {
-                    tlv = new Tlv(tlvType, data);
+                    tlv = buildTlv(tlvDefinition, tlvType, data);
                 }
 
                 tlvs.add(tlv);
@@ -178,6 +219,20 @@ public final class TlvData extends Data {
             }
 
             return new TlvData(tlvs);
+        }
+
+        private static Tlv buildTlv(TlvDefinition tlvDefinition, int tlvType, Data data) {
+            TlvFactory tlvFactory = tlvDefinition.getTlvFactory();
+
+            if (tlvFactory != null) {
+                Tlv tlv = tlvFactory.build(data);
+
+                if (tlv != null) {
+                    return tlv;
+                }
+            }
+
+            return new Tlv(tlvType, data);
         }
 
         @Override
