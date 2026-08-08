@@ -24,7 +24,7 @@
     <scm>
         <connection>scm:git:git://github.com/aaa4j/aaa4j-radius.git</connection>
         <developerConnection>scm:git:ssh://github.com/aaa4j/aaa4j-radius.git</developerConnection>
-        <url>https://github.com/aaa4j/aaa4j-radius/tree/master</url>
+        <url>https://github.com/aaa4j/aaa4j-radius/tree/main</url>
         <tag>HEAD</tag>
     </scm>
     <distributionManagement>
